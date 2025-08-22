@@ -1,11 +1,11 @@
 export const chatroomList = [
-  {
-    id: '1',
-    name: '고독 작업실',
-    description: '집중해서 작업/공부할 수 있는 방입니다.',
-    rule: '작업이외 화공 X, 마이크 X',
-    emoji: '📚',
-  },
+  // {
+  //   id: '1',
+  //   name: '고독 작업실',
+  //   description: '집중해서 작업/공부할 수 있는 방입니다.',
+  //   rule: '작업이외 화공 X, 마이크 X',
+  //   emoji: '📚',
+  // },
   {
     id: '2',
     name: '작업실',
