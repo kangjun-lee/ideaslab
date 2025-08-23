@@ -30,7 +30,8 @@
 		"zod": "^3.24.1"
 	},
 	"devDependencies": {
-		"@ideaslab/eslint-config": "*",
+		"@ideaslab/eslint-config": "workspace:*",
+		"@ideaslab/tsconfig": "workspace:*",
 		"eslint": "8.57.1",
 		"tsup": "^8.3.6",
 		"typescript": "^5.7.3"

@@ -3,4 +3,13 @@ node_modules
 **/.next
 dist
 **/.dist
-assets
+.pnpm-store
+.pnp.*
+.cache
+build
+.turbo
+.env
+.vscode
+data
+.dev
+

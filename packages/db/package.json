@@ -32,7 +32,8 @@
 		"db:push": "prisma db push"
 	},
 	"devDependencies": {
-		"@ideaslab/eslint-config": "*",
+		"@ideaslab/eslint-config": "workspace:*",
+		"@ideaslab/tsconfig": "workspace:*",
 		"eslint": "8.57.1",
 		"prisma": "^6.3.0",
 		"tsup": "^8.3.6",

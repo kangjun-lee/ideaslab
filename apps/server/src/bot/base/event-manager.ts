@@ -29,6 +29,7 @@ export default class EventManager extends BaseManager {
     const eventFiles = readdirSync(eventPath)
     await Promise.all(
       eventFiles.map(async (eventFile) => {
+        if (eventFile.endsWith('.d.ts') || eventFile.endsWith('.map')) return
         try {
           const { default: event } = await import(`../events/${eventFile}`)
 

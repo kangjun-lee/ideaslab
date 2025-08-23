@@ -27,6 +27,7 @@ export default class InteractionManager extends BaseManager {
 
     await Promise.all(
       interactionFiles.map(async (interactionFile) => {
+        if (interactionFile.endsWith('.d.ts') || interactionFile.endsWith('.map')) return
         try {
           const { default: interaction } = await import(pathToFileURL(interactionFile).toString())
 

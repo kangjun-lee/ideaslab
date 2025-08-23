@@ -84,7 +84,7 @@ export const MainLayout = ({
 
   useEffect(() => {
     if (guard === 'guestOnly' && profile.data) router.push('/user-home')
-    if (guard === 'unverifyOnly' && profile.data?.isVerified) router.push('/user-home')
+    if (guard === 'unverifyOnly' && (profile.data as any)?.isVerified) router.push('/user-home')
   }, [guard, profile.data, router])
 
   const titleComponent = useMemo(() => {
@@ -147,7 +147,7 @@ export const MainLayout = ({
       )
     }
 
-    if (guard === 'adminOnly' && !profile.data?.isAdmin) {
+    if (guard === 'adminOnly' && !(profile.data as any)?.isAdmin) {
       return (
         <>
           {titleComponent}
@@ -158,7 +158,7 @@ export const MainLayout = ({
       )
     }
 
-    if (guard === 'authOnly' && !profile.data?.isVerified) {
+    if (guard === 'authOnly' && !(profile.data as any)?.isVerified) {
       return (
         <>
           {titleComponent}

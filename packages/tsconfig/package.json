@@ -1,6 +1,6 @@
 {
-  "name": "@ideaslab/tsconfig",
-  "files": [
-    "tsconfig.json"
-  ]
+	"name": "@ideaslab/tsconfig",
+	"files": [
+		"*.json"
+	]
 }

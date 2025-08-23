@@ -27,7 +27,10 @@ export const tokenDataAtom = atom((get) => {
 type UserData = AppRouter['auth']['profile']['_def']['_output_out'] | null
 export const userDataAtom = atom<UserData>(null)
 
-export const useLoadUserData = () => {
+export const useLoadUserData = (): {
+  profile: ReturnType<typeof trpc.auth.profile.useQuery>
+  isLoading: boolean
+} => {
   const setUserData = useSetAtom(userDataAtom)
 
   const profile = trpc.auth.profile.useQuery(undefined, {
