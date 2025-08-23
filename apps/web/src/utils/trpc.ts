@@ -13,7 +13,7 @@ const getBaseUrl = (isServer: boolean) => {
 
 type ConfigType = ReturnType<Parameters<typeof createTRPCNext>[0]['config']>
 
-export const trpc = createTRPCNext<AppRouter>({
+export const trpc: ReturnType<typeof createTRPCNext<AppRouter>> = createTRPCNext<AppRouter>({
   config({ ctx }) {
     const config: Pick<ConfigType, 'queryClientConfig'> = {
       queryClientConfig: {
