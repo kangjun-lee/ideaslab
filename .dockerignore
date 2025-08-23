@@ -7,4 +7,9 @@ dist
 .pnp.*
 .cache
 build
+.turbo
+.env
+.vscode
+data
+.dev
 

@@ -34,6 +34,7 @@ export default class CommandManager extends BaseManager {
 
     await Promise.all(
       commandFiles.map(async (commandFile) => {
+        if (commandFile.endsWith('.d.ts') || commandFile.endsWith('.map')) return
         try {
           const { default: command } = await import(pathToFileURL(commandFile).toString())
 

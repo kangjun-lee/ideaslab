@@ -1,40 +1,23 @@
 {
 	"$schema": "https://turbo.build/schema.json",
-	"globalDependencies": [
-		".env"
-	],
+	"globalDependencies": [".env"],
 	"tasks": {
-		"build": {
-			"dependsOn": [
-				"^build",
-				"^@ideaslab/db#db:generate"
-			],
-			"outputs": [
-				".next/**",
-				"dist/**"
-			],
-			"env": [
-				"PORT",
-				"DATABASE_URL",
-				"SHADOW_DATABASE_URL",
-				"JWT_SECRET"
-			]
+		"build": {},
+		"@ideaslab/db#build": {
+			"dependsOn": ["db:generate"],
+			"outputs": ["dist/**", "build/**"]
 		},
 		"@ideaslab/web#build": {
-			"dependsOn": [
-				"^build",
-				"^@ideaslab/server#build"
-			],
-			"outputs": [
-				"dist/**",
-				"build/**"
-			]
+			"dependsOn": ["^build"],
+			"outputs": ["dist/**", "build/**"]
+		},
+		"@ideaslab/server#build": {
+			"dependsOn": ["^build"],
+			"outputs": ["dist/**", "build/**"]
 		},
 		"lint": {},
 		"dev": {
-			"dependsOn": [
-				"^@ideaslab/db#db:generate"
-			],
+			"dependsOn": ["^@ideaslab/db#db:generate"],
 			"cache": false,
 			"persistent": true
 		},
@@ -51,15 +34,9 @@
 			"cache": false
 		},
 		"build:types": {},
-		"@ideaslab/server#build": {
-			"dependsOn": [
-				"^build"
-			]
-		},
 		"@ideaslab/server#build:types": {
-			"dependsOn": [
-				"^@ideaslab/db#db:generate"
-			]
+			"dependsOn": ["^@ideaslab/db#db:generate"]
 		}
 	}
 }
+
