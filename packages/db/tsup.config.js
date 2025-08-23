@@ -9,4 +9,6 @@ export default defineConfig({
   format: ['cjs', 'esm'],
   minify: isProduction,
   sourcemap: true,
+  external: ['@prisma/client'],
+  skipNodeModulesBundle: true,
 })
