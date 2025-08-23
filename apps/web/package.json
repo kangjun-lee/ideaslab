@@ -43,6 +43,8 @@
 	},
 	"devDependencies": {
 		"@ideaslab/validator": "workspace:*",
+		"@ideaslab/tsconfig": "workspace:*",
+		"@prisma/client": "^6.3.0",
 		"@next/bundle-analyzer": "^13.5.8",
 		"@tailwindcss/line-clamp": "^0.4.4",
 		"@tailwindcss/typography": "^0.5.16",
