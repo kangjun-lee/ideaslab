@@ -1,29 +1,17 @@
-FROM node:20 AS Builder
+FROM node:22.18.0-alpine AS Builder
 
 WORKDIR /app
 
-COPY package.json ./
-COPY turbo.json ./
-COPY yarn.lock ./
-COPY .yarnrc.yml ./
-COPY .yarn/ ./.yarn/
+COPY . .
 
-COPY apps/server/package.json ./apps/server/package.json
+RUN corepack enable
 
-COPY packages/ ./packages/
+RUN pnpm install --filter @ideaslab/server...
 
-RUN yarn install
+RUN pnpm build --filter=@ideaslab/server...
 
-COPY apps/server ./apps/server/
+RUN apk add --no-cache tzdata && ln -snf /usr/share/zoneinfo/Asia/Seoul /etc/localtime
 
-ARG DB_ENGINE=musl
-RUN yarn build --filter=@ideaslab/server...
+WORKDIR /app/apps/server
 
-FROM node:20-alpine3.17 AS Server
-
-WORKDIR /app
-
-COPY --from=Builder /app/apps/server/dist/ ./
-RUN echo '{ "name": "ideaslab-server", "version": "1.0.0", "license": "AGPL", "main": "./index.js" }' > package.json
-
-CMD ["node", "./index.js"]
+CMD ["pnpm", "start"]

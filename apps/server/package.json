@@ -9,7 +9,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "tsx watch src/index.ts",
-		"build": "tsc --project tsconfig.json && tsc-alias",
+		"build": "tsc --project tsconfig.json",
 		"start": "node ./dist",
 		"register": "node ./dist --register",
 		"lint": "TIMING=1 eslint \"src/**/*.ts\" --fix"
@@ -18,7 +18,7 @@
 		"@trpc/server": "^10.45.2",
 		"axios": "^1.7.9",
 		"discord.js": "^14.17.3",
-		"dokdo": "patch:dokdo@npm%3A1.0.1#~/.yarn/patches/dokdo-npm-1.0.1-3b43b27044.patch",
+		"dokdo": "^1.0.1",
 		"dotenv": "^16.4.7",
 		"form-data": "^4.0.1",
 		"ioredis": "^5.4.2",
@@ -31,9 +31,9 @@
 		"winston": "^3.17.0"
 	},
 	"devDependencies": {
-		"@ideaslab/db": "*",
-		"@ideaslab/eslint-config": "*",
-		"@ideaslab/validator": "*",
+		"@ideaslab/db": "workspace:*",
+		"@ideaslab/eslint-config": "workspace:*",
+		"@ideaslab/validator": "workspace:*",
 		"@types/jsonwebtoken": "^8.5.9",
 		"@types/node": "^22.13.0",
 		"@types/node-schedule": "^2.1.7",

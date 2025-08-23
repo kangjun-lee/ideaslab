@@ -2,7 +2,7 @@ import { TRPCError } from '@trpc/server'
 import axios from 'axios'
 import { ChannelType } from 'discord.js'
 
-import { dbClient, DefaultVisible } from '@ideaslab/db'
+import { dbClient } from '@ideaslab/db'
 import {
   authCheckHandleValidator,
   authLoginWithPinValidator,

@@ -1,11 +1,7 @@
 {
 	"name": "ideaslab",
 	"private": true,
-	"packageManager": "yarn@4.6.0",
-	"workspaces": [
-		"apps/*",
-		"packages/*"
-	],
+	"packageManager": "pnpm@9.15.0",
 	"scripts": {
 		"build": "turbo run build",
 		"build:types": "turbo run build:types",
@@ -29,4 +25,3 @@
 		"node": "22.18.0"
 	}
 }
-
