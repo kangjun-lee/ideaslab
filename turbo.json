@@ -2,10 +2,15 @@
 	"$schema": "https://turbo.build/schema.json",
 	"globalDependencies": [".env"],
 	"tasks": {
-		"build": {},
+		"build": {
+			"outputs": ["dist/**"]
+		},
 		"@ideaslab/db#build": {
 			"dependsOn": ["db:generate"],
 			"outputs": ["dist/**", "build/**"]
+		},
+		"@ideaslab/validator#build": {
+			"outputs": ["dist/**"]
 		},
 		"@ideaslab/web#build": {
 			"dependsOn": ["^build"],
@@ -39,4 +44,3 @@
 		}
 	}
 }
-
