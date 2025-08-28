@@ -1,5 +1,5 @@
 import { inferAsyncReturnType } from '@trpc/server'
-import { NodeHTTPCreateContextFnOptions } from '@trpc/server/dist/adapters/node-http'
+import { NodeHTTPCreateContextFnOptions } from '@trpc/server/adapters/node-http'
 import { IncomingMessage, ServerResponse } from 'http'
 import { getIronSession, IronSessionOptions } from 'iron-session'
 

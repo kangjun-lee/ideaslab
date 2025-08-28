@@ -1,3 +1,5 @@
+import { RESTJSONErrorCodes } from 'discord.js'
+
 import { Modal } from '~/bot/base/interaction'
 import { voiceChannelCreate } from '~/service/voice-channel'
 import { Embed } from '~/utils/embed'
@@ -24,7 +26,15 @@ export default new Modal('modal.voice-create', async (client, interaction) => {
     })
 
     setTimeout(async () => {
-      const fetchedChannel = await createdChannel.fetch()
+      const fetchedChannel = await createdChannel.fetch().catch((error) => {
+        if (error.code !== RESTJSONErrorCodes.UnknownChannel) {
+          return undefined
+        }
+        throw error
+      })
+
+      if (!fetchedChannel) return
+
       if (fetchedChannel.members.size === 0) fetchedChannel.delete()
     }, 30000)
   } catch (e) {

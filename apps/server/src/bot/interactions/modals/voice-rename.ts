@@ -27,7 +27,7 @@ export default new Modal('modal.voice-rename', async (client, interaction) => {
   }
 
   const { data } = await voiceChannelState(interaction.channel)
-
+  if (!data?.customRule || !data.ruleId) return
   try {
     const rule = findChatroomRule(data.ruleId)
     // await interaction.channel.setName(`[${rule?.emoji} ${rule?.name}] ${newName}`)

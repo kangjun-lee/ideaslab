@@ -42,10 +42,10 @@
 		"zod": "^3.24.1"
 	},
 	"devDependencies": {
-		"@ideaslab/validator": "workspace:*",
 		"@ideaslab/tsconfig": "workspace:*",
-		"@prisma/client": "^6.3.0",
+		"@ideaslab/validator": "workspace:*",
 		"@next/bundle-analyzer": "^13.5.8",
+		"@prisma/client": "^6.3.0",
 		"@tailwindcss/line-clamp": "^0.4.4",
 		"@tailwindcss/typography": "^0.5.16",
 		"@types/node": "22.13.0",
@@ -58,6 +58,6 @@
 		"postcss": "^8.5.1",
 		"prisma": "^6.3.0",
 		"tailwindcss": "^3.4.17",
-		"typescript": "5.7.3"
+		"typescript": "5.9.2"
 	}
 }
