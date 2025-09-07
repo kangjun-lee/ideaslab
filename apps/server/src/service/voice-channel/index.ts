@@ -88,6 +88,9 @@ export const voiceChannelSetRule = async (
   ruleId?: string,
 ) => {
   const data = await getVoiceData(channel.id)
+
+  if (!data.customRule || !data.ruleId) return
+
   const newRule = { ...data }
   newRule.ruleId = ruleId ?? data.ruleId
   newRule.customRule = customRule

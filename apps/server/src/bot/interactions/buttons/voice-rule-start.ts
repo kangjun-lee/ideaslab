@@ -12,6 +12,7 @@ export default new Button(['voice-rule-start-edit'], async (client, interaction)
   if (!(await voiceChannelOwnerCheck(interaction))) return
 
   const { data } = await voiceChannelState(interaction.channel)
+  if (!data?.customRule || !data.ruleId) return
 
   const { components, embeds } = voiceRuleSettingMessageContent({
     client,

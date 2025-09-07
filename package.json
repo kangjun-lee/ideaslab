@@ -17,11 +17,12 @@
 		"@commitlint/cli": "^19.6.1",
 		"@commitlint/config-conventional": "^19.6.0",
 		"@types/node": "^20.17.17",
+		"cross-env": "^7.0.3",
 		"husky": "^8.0.3",
 		"prettier": "^2.8.8",
 		"turbo": "^2.4.0"
 	},
 	"engines": {
-		"node": "22.18.0"
+		"node": ">=22"
 	}
 }

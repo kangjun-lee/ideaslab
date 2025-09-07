@@ -14,6 +14,7 @@ export default new Button(['voice-rule-edit'], async (client, interaction) => {
 
   const { data } = await voiceChannelState(interaction.channel)
 
+  if (!data?.customRule || !data.ruleId) return
   const ruleDetail = findChatroomRule(data.ruleId)
 
   const modal = new ModalBuilder()

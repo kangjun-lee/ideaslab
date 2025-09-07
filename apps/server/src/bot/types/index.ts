@@ -61,6 +61,14 @@ export interface BotConfig {
 
 export type LogLevel = 'fatal' | 'error' | 'warn' | 'info' | 'verbose' | 'debug' | 'chat'
 
+export const enum EmbedColor {
+  Success = '#57F287',
+  Error = '#ED4245',
+  Warn = '#FEE75C',
+  Info = '#5865F2',
+  Default = '#5865F2',
+}
+
 export type EmbedType = 'default' | 'error' | 'success' | 'warn' | 'info' | HexColorString
 
 export const enum InteractionType {

@@ -74,26 +74,26 @@ export class Logger {
     })
   }
 
-  log(message: string, ...args: any[]) {
+  log(message: any, ...args: any[]) {
     this.logger.info(message, ...args, { label: this.scope })
   }
 
-  info(message: string, ...args: any[]) {
+  info(message: any, ...args: any[]) {
     this.logger.info(message, ...args, { label: this.scope })
   }
-  warn(message: string, ...args: any[]) {
+  warn(message: any, ...args: any[]) {
     this.logger.warn(message, ...args, { label: this.scope })
   }
 
-  error(message: string, ...args: any[]) {
+  error(message: any, ...args: any[]) {
     this.logger.error(message, ...args, { label: this.scope })
   }
 
-  debug(message: string, ...args: any[]) {
+  debug(message: any, ...args: any[]) {
     this.logger.debug(message, ...args, { label: this.scope })
   }
 
-  fatal(message: string, ...args: any[]): never {
+  fatal(message: any, ...args: any[]): never {
     this.logger.error(message, ...args, { label: this.scope })
     return process.exit(1)
   }

@@ -1,6 +1,6 @@
 import { type EmbedData, Client, EmbedBuilder } from 'discord.js'
 
-import { EmbedType } from '~/bot/types'
+import { EmbedColor, EmbedType } from '~/bot/types'
 
 export class Embed extends EmbedBuilder {
   constructor(client: Client, type: EmbedType) {
@@ -16,20 +16,34 @@ export class Embed extends EmbedBuilder {
 
     super(EmbedJSON)
 
-    if (type === 'success') this.setColor('#57F287')
-    else if (type === 'error') this.setColor('#ED4245')
-    else if (type === 'warn') this.setColor('#FEE75C')
-    else if (type === 'info') this.setColor('#5865F2')
-    else if (type === 'default') this.setColor('#5865F2')
-    else this.setColor(type)
+    if (type === 'success') {
+      this.setColor(EmbedColor.Success)
+    } else if (type === 'error') {
+      this.setColor(EmbedColor.Error)
+    } else if (type === 'warn') {
+      this.setColor(EmbedColor.Warn)
+    } else if (type === 'info') {
+      this.setColor(EmbedColor.Info)
+    } else if (type === 'default') {
+      this.setColor(EmbedColor.Default)
+    } else {
+      this.setColor(type)
+    }
   }
 
   setType(type: EmbedType) {
-    if (type === 'success') this.setColor('#57F287')
-    else if (type === 'error') this.setColor('#ED4245')
-    else if (type === 'warn') this.setColor('#FEE75C')
-    else if (type === 'info') this.setColor('#5865F2')
-    else if (type === 'default') this.setColor('#5865F2')
-    else this.setColor(type)
+    if (type === 'success') {
+      this.setColor(EmbedColor.Success)
+    } else if (type === 'error') {
+      this.setColor(EmbedColor.Error)
+    } else if (type === 'warn') {
+      this.setColor(EmbedColor.Warn)
+    } else if (type === 'info') {
+      this.setColor(EmbedColor.Info)
+    } else if (type === 'default') {
+      this.setColor(EmbedColor.Default)
+    } else {
+      this.setColor(type)
+    }
   }
 }

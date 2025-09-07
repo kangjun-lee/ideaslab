@@ -31,6 +31,8 @@ export default new SlashCommand(
 
     const { owner: ownerId, data } = await voiceChannelState(interaction.channel)
 
+    if (!data?.customRule || !data.ruleId) return
+
     const { row } = voiceComponents()
 
     const owner = interaction.channel.members.get(ownerId ?? '')

@@ -19,6 +19,7 @@ export default new Modal('modal.voice-rule-edit', async (client, interaction) =>
 
   try {
     const prevRule = await voiceChannelSetRule(interaction.channel, newRule, newRuleId)
+    if (!prevRule?.customRule || !prevRule.ruleId) return
     const prevRuleDetail = findChatroomRule(prevRule.ruleId)
     const newRuleDetail = findChatroomRule(newRuleId)
 

@@ -1,3 +1,6 @@
+/**
+ * @type {import('eslint').Linter.Config}
+ */
 module.exports = {
   extends: ['plugin:require-extensions/recommended'],
   ignorePatterns: ['dist', '.dev', 'node_modules', '*.config.js'],
@@ -12,6 +15,4 @@ module.exports = {
     'simple-import-sort',
     'require-extensions',
   ],
-
-  rules: {},
 }
