@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(pnpm prisma generate:*)",
-      "Bash(pnpm build:*)"
+      "Bash(pnpm build:*)",
+      "Bash(tree:*)"
     ],
     "deny": [],
     "ask": []

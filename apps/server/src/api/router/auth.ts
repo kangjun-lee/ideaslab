@@ -1,6 +1,6 @@
 import { TRPCError } from '@trpc/server'
 import axios from 'axios'
-import { ChannelType } from 'discord.js'
+import { ChannelType, WebhookClient } from 'discord.js'
 
 import { dbClient, DefaultVisible } from '@ideaslab/db'
 import {
@@ -201,6 +201,26 @@ export const authRouter = router({
           url: `${config.webURL}/@${input.handle}`,
         })
       await welcomeChannel.send({ embeds: [embed] })
+    }
+
+    // 팔로업 웰컴 메시지 (Webhook) 전송
+    const followUpWebhookUrl = await getSetting('followUpWelcomeWebhook')
+    if (followUpWebhookUrl) {
+      const followUpMessage =
+        (await getSetting('followUpWelcomeMessage')) ?? '<name>님이 아이디어스 랩에 가입했습니다!'
+
+      try {
+        const webhook = new WebhookClient({ url: followUpWebhookUrl })
+        const formattedMessage = followUpMessage
+          .replace(/<mention>/g, `<@${member.id}>`)
+          .replace(/<name>/g, member.displayName)
+          .replace(/<handle>/g, input.handle)
+          .replace(/<introduce>/g, input.introduce)
+
+        await webhook.send({ content: formattedMessage })
+      } catch (error) {
+        console.error('Follow-up welcome webhook failed:', error)
+      }
     }
 
     ctx.session.verified = true

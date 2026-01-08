@@ -28,6 +28,8 @@ const SettingList = {
   welcomeMessage: SettingValueType.LongText,
   ticketChannel: SettingValueType.Channel,
   blacklistChannel: SettingValueType.Channel,
+  followUpWelcomeWebhook: SettingValueType.String,
+  followUpWelcomeMessage: SettingValueType.LongText,
 } as const
 
 type SettingKeys = keyof typeof SettingList
@@ -106,6 +108,15 @@ export const settingDetails: {
   },
   blacklistChannel: {
     description: '블랙리스트가 전송될 채널을 설정해요.',
+    cache: false,
+  },
+  followUpWelcomeWebhook: {
+    description: '팔로업 웰컴 메시지를 전송할 Webhook URL을 설정해요.',
+    cache: true,
+  },
+  followUpWelcomeMessage: {
+    description:
+      '팔로업 웰컴 메시지 내용을 설정해요. <name>, <mention>, <handle>, <introduce> 를 사용할 수 있어요.',
     cache: false,
   },
 }
