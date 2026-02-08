@@ -15,20 +15,20 @@ export const ProfileView = ({
     <div className="bg-white dark:bg-gray-700/50 border-base-color rounded-lg relative flex flex-col px-4 py-4 border drop-shadow-sm h-60">
       <div className="flex flex-col no-click h-full" onClick={() => {}}>
         <div className="flex flex-col h-full flex-grow">
-          <Link href={`/@${data.handleDisplay}`} passHref>
-            <a className="flex gap-x-2 items-center">
-              <Image
-                src={data.avatar}
-                width={40}
-                height={40}
-                className="rounded-full"
-                alt={`${data.name}의 프로필 사진`}
-              />
-              <div className="flex flex-col">
-                <div className="text-title-color">{data.name}</div>
-                <div className="text-description-color text-sm">{`@${data.handleDisplay}`}</div>
-              </div>
-            </a>
+          <Link href={`/@${data.handleDisplay}`} className="flex gap-x-2 items-center">
+
+            <Image
+              src={data.avatar}
+              width={40}
+              height={40}
+              className="rounded-full"
+              alt={`${data.name}의 프로필 사진`}
+            />
+            <div className="flex flex-col">
+              <div className="text-title-color">{data.name}</div>
+              <div className="text-description-color text-sm">{`@${data.handleDisplay}`}</div>
+            </div>
+
           </Link>
           <div className="flex gap-2 mt-2 flex-wrap">
             {data.roles?.slice(0, 2).map((item, index) => (
@@ -68,5 +68,5 @@ export const ProfileView = ({
         </div>
       </div>
     </div>
-  )
+  );
 }

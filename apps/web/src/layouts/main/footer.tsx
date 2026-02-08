@@ -8,15 +8,15 @@ export const Footer = () => {
           &copy; 2020-2023 <span>아이디어스 랩</span>
         </p>
         <div className="flex justify-center items-center space-x-1">
-          <Link href="/privacy" passHref>
-            <a className="inline-flex justify-center p-2 text-gray-500 rounded-lg cursor-pointer dark:text-gray-400 dark:hover:text-white hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-600">
+          <Link href="/privacy" className="inline-flex justify-center p-2 text-gray-500 rounded-lg cursor-pointer dark:text-gray-400 dark:hover:text-white hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-600">
+            
               이용약관
-            </a>
+            
           </Link>
-          <Link href="/info" passHref>
-            <a className="inline-flex justify-center p-2 text-gray-500 rounded-lg cursor-pointer dark:text-gray-400 dark:hover:text-white hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-600">
+          <Link href="/info" className="inline-flex justify-center p-2 text-gray-500 rounded-lg cursor-pointer dark:text-gray-400 dark:hover:text-white hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-600">
+            
               웹사이트 정보
-            </a>
+            
           </Link>
           <a
             href="https://github.com/gangjun06/ideaslab"
@@ -27,5 +27,5 @@ export const Footer = () => {
         </div>
       </div>
     </footer>
-  )
+  );
 }

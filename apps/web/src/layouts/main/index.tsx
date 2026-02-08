@@ -137,14 +137,14 @@ export const MainLayout = ({
             <div className="font-bold text-lg mt-2">
               현재 페이지는 로그인된 사용자만 이용할 수 있어요
             </div>
-            <Link href="/login" passHref>
+            <Link href="/login">
               <ButtonLink variant="light" className="mt-4">
                 로그인하기
               </ButtonLink>
             </Link>
           </CenterCard>
         </>
-      )
+      );
     }
 
     if (guard === 'adminOnly' && !(profile.data as any)?.isAdmin) {
@@ -166,14 +166,14 @@ export const MainLayout = ({
             <div className="font-bold text-lg mt-2">
               아이디어스랩을 이용하시려면 회원가입을 먼저 완료해주세요
             </div>
-            <Link href="/signup" passHref>
+            <Link href="/signup">
               <ButtonLink variant="light" className="mt-4">
                 회원가입하기
               </ButtonLink>
             </Link>
           </CenterCard>
         </>
-      )
+      );
     }
 
     return (
