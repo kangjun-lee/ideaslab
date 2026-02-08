@@ -1,5 +1,7 @@
 import jwt from 'jsonwebtoken'
 
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
+
 import { currentGuild, currentGuildChannel } from '~/bot/base/client'
 import config from '~/config'
 import { redis } from '~/lib/redis'
@@ -152,10 +154,18 @@ export const alertToNotVerifiedUser = async () => {
   const channel = await currentGuildChannel(notVerifiedChannel)
   if (!channel || !channel.isTextBased()) return
 
+  const registerButton = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder()
+      .setCustomId('register-start')
+      .setLabel('가입 완료하기')
+      .setStyle(ButtonStyle.Primary),
+  )
+
   for (const item of list) {
     await item.roles.add(notVerifiedRole)
     await channel.send({
       content: `<@${item.user.id}> 님, 아직 아이디어스랩 인증을 마치지 않으셨군요.\n아이디어스랩을 이용하려면 가입을 마무리 해주세요.`,
+      components: [registerButton],
     })
   }
 }
