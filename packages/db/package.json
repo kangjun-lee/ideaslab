@@ -36,7 +36,7 @@
 		"@ideaslab/tsconfig": "workspace:*",
 		"eslint": "8.57.1",
 		"prisma": "^6.3.0",
-		"tsup": "^8.5.0",
+		"tsup": "^8.5.1",
 		"typescript": "^5.9.2"
 	},
 	"dependencies": {

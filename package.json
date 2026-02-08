@@ -20,7 +20,7 @@
 		"cross-env": "^7.0.3",
 		"husky": "^8.0.3",
 		"prettier": "^2.8.8",
-		"turbo": "^2.4.0"
+		"turbo": "^2.8.3"
 	},
 	"engines": {
 		"node": ">=22"

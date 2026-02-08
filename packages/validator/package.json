@@ -33,7 +33,7 @@
 		"@ideaslab/eslint-config": "workspace:*",
 		"@ideaslab/tsconfig": "workspace:*",
 		"eslint": "8.57.1",
-		"tsup": "^8.5.0",
+		"tsup": "^8.5.1",
 		"typescript": "^5.9.2"
 	},
 	"tsup": {

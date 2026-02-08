@@ -1,28 +1,51 @@
 {
-	"$schema": "https://turbo.build/schema.json",
-	"globalDependencies": [".env"],
+	"$schema": "https://turborepo.dev/schema.json",
+	"globalDependencies": [
+		".env"
+	],
 	"tasks": {
 		"build": {
-			"outputs": ["dist/**"]
+			"outputs": [
+				"dist/**"
+			]
 		},
 		"@ideaslab/db#build": {
-			"dependsOn": ["db:generate"],
-			"outputs": ["dist/**", "build/**"]
+			"dependsOn": [
+				"db:generate"
+			],
+			"outputs": [
+				"dist/**",
+				"build/**"
+			]
 		},
 		"@ideaslab/validator#build": {
-			"outputs": ["dist/**"]
+			"outputs": [
+				"dist/**"
+			]
 		},
 		"@ideaslab/web#build": {
-			"dependsOn": ["^build"],
-			"outputs": ["dist/**", "build/**"]
+			"dependsOn": [
+				"^build"
+			],
+			"outputs": [
+				"dist/**",
+				"build/**"
+			]
 		},
 		"@ideaslab/server#build": {
-			"dependsOn": ["^build"],
-			"outputs": ["dist/**", "build/**"]
+			"dependsOn": [
+				"^build"
+			],
+			"outputs": [
+				"dist/**",
+				"build/**"
+			]
 		},
 		"lint": {},
 		"dev": {
-			"dependsOn": ["^@ideaslab/db#db:generate"],
+			"dependsOn": [
+				"^@ideaslab/db#db:generate"
+			],
 			"cache": false,
 			"persistent": true
 		},
@@ -40,7 +63,9 @@
 		},
 		"build:types": {},
 		"@ideaslab/server#build:types": {
-			"dependsOn": ["^@ideaslab/db#db:generate"]
+			"dependsOn": [
+				"^@ideaslab/db#db:generate"
+			]
 		}
 	}
 }
