@@ -30,6 +30,7 @@ const SettingList = {
   blacklistChannel: SettingValueType.Channel,
   followUpWelcomeWebhook: SettingValueType.String,
   followUpWelcomeMessage: SettingValueType.LongText,
+  registerMessage: SettingValueType.LongText,
 } as const
 
 type SettingKeys = keyof typeof SettingList
@@ -63,6 +64,10 @@ export const settingDetails: {
   },
   welcomeChannel: {
     description: '새로운 유저가 입장했을때, 반겨줄 채널을 설정해요.',
+    cache: true,
+  },
+  registerMessage: {
+    description: '새로운 유저가 회원가입 메세지를 설정해요.',
     cache: true,
   },
   welcomeMessage: {
