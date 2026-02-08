@@ -10,3 +10,4 @@ node_modules
 data/
 .turbo
 .claude/*.local.json
+.env
