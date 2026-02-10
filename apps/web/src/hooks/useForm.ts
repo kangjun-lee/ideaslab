@@ -1,16 +1,17 @@
 import { useCallback } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { DeepRequired, FieldErrorsImpl, useForm as useLibForm } from 'react-hook-form'
+import { DeepRequired, FieldErrorsImpl, Resolver, useForm as useLibForm } from 'react-hook-form'
 import {
   FieldPath,
   FieldValues,
   RegisterOptions,
   SubmitErrorHandler,
   SubmitHandler,
+  UseFormProps,
   UseFormRegisterReturn,
 } from 'react-hook-form'
 
-import { z, ZodEffects, ZodNumber, ZodObject, ZodOptional, ZodString } from '@ideaslab/validator'
+import { z, ZodNumber, ZodObject, ZodOptional, ZodString } from '@ideaslab/validator'
 
 type UseFormRegisterOption<
   TFieldValues extends FieldValues,
@@ -30,30 +31,33 @@ export declare type UseFormRegister<TFieldValues extends FieldValues> = <
   required?: boolean
 }
 
-export const useForm = <TSchema extends z.ZodType<any, any, any>>(
+export const useForm = <TSchema extends z.ZodType<FieldValues, FieldValues>>(
   schema: TSchema,
-  props?: Parameters<typeof useLibForm<z.TypeOf<TSchema>>>[0] & {
+  props?: UseFormProps<z.output<TSchema>> & {
     isLoading?: boolean
-    onSubmit?: SubmitHandler<z.TypeOf<TSchema>>
-    onInvalid?: SubmitErrorHandler<z.TypeOf<TSchema>>
+    onSubmit?: SubmitHandler<z.output<TSchema>>
+    onInvalid?: SubmitErrorHandler<z.output<TSchema>>
   },
 ) => {
-  const form = useLibForm<z.infer<TSchema>>({
+  const form = useLibForm<z.output<TSchema>>({
     ...props,
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as Resolver<z.output<TSchema>>,
     mode: props?.mode ?? 'onChange',
   })
 
   const { errors } = form.formState
   const registerFormValue = useCallback(
-    (name: string, options: UseFormRegisterOption<z.infer<TSchema>, any>) => {
+    (name: string, options: Pick<RegisterOptions, 'required'>) => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       //@ts-ignore
-      const error: FieldErrorsImpl<DeepRequired<z.TypeOf<TSchema>>>[string] = name
+      const error: FieldErrorsImpl<DeepRequired<z.output<TSchema>>>[string] = name
         .split('.')
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         //@ts-ignore
-        .reduce((acc, cur) => (acc ? acc[isNaN(cur as any) ? cur : parseInt(cur)] : null), errors)
+        .reduce(
+          (acc, cur) => (acc ? acc[isNaN(cur as number) ? cur : parseInt(cur)] : null),
+          errors,
+        )
       return {
         required: !!options?.required,
         error: (error?.message as string) ?? '',
@@ -62,31 +66,31 @@ export const useForm = <TSchema extends z.ZodType<any, any, any>>(
     [errors],
   )
 
-  const registerForm: UseFormRegister<z.infer<TSchema>> = (name, options = {}) => {
-    let target = schema?._def
+  const registerForm: UseFormRegister<z.output<TSchema>> = (name, options = {}) => {
+    let target: z.ZodType | null = null
 
     const inputProps: React.PropsWithoutRef<JSX.IntrinsicElements['input']> = {}
 
-    if (schema instanceof ZodEffects && schema._def.schema instanceof ZodObject)
-      target = schema._def.schema.shape[name]
-    else if (schema instanceof ZodObject) target = schema.shape[name]
-    else target = null
+    if (schema instanceof ZodObject) target = schema.shape[name] ?? null
 
     if (target) {
       if (target instanceof ZodOptional) {
-        target = target._def.innerType
+        const unwrapped = target.unwrap()
+        target = unwrapped instanceof ZodString || unwrapped instanceof ZodNumber ? unwrapped : null
       } else {
         options.required = true
       }
-      if (target instanceof ZodNumber || target instanceof ZodString) {
-        target._def.checks.forEach((data) => {
-          if (data.kind === 'email') {
-            inputProps.type = 'email'
-          } else if (data.kind === 'max') {
-            inputProps.max = data.value
-            inputProps.maxLength = data.value
-          }
-        })
+      if (target instanceof ZodString) {
+        if (target.format === 'email') {
+          inputProps.type = 'email'
+        }
+        if (target.maxLength != null) {
+          inputProps.maxLength = target.maxLength
+        }
+      } else if (target instanceof ZodNumber) {
+        if (target.maxValue != null) {
+          inputProps.max = target.maxValue
+        }
       }
     }
 
@@ -96,7 +100,7 @@ export const useForm = <TSchema extends z.ZodType<any, any, any>>(
     return {
       ...inputProps,
       ...form.register(name, options),
-      ...registerFormValue(name, options as any),
+      ...registerFormValue(name, options),
     }
   }
 
