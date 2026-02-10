@@ -52,9 +52,9 @@ export const useForm = <TSchema extends z.ZodType<FieldValues, FieldValues>>(
       //@ts-ignore
       const error: FieldErrorsImpl<DeepRequired<z.output<TSchema>>>[string] = name
         .split('.')
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //@ts-ignore
         .reduce(
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          //@ts-ignore
           (acc, cur) => (acc ? acc[isNaN(cur as number) ? cur : parseInt(cur)] : null),
           errors,
         )
