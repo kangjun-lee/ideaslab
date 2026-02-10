@@ -1,4 +1,4 @@
-import { ContainerBuilder, MessageFlags, TextDisplayBuilder } from 'discord.js'
+import { ContainerBuilder, TextDisplayBuilder } from 'discord.js'
 
 import { Button } from '~/bot/base/interaction'
 import { executeRegistration, getRegisterState } from '~/service/register'

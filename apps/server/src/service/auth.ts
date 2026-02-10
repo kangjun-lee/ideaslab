@@ -1,6 +1,5 @@
-import jwt from 'jsonwebtoken'
-
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
+import jwt from 'jsonwebtoken'
 
 import { currentGuild, currentGuildChannel } from '~/bot/base/client'
 import config from '~/config'
@@ -156,7 +155,7 @@ export const alertToNotVerifiedUser = async () => {
 
   const registerButton = new ActionRowBuilder<ButtonBuilder>().addComponents(
     new ButtonBuilder()
-      .setCustomId('register-start')
+      .setCustomId('register-complete')
       .setLabel('가입 완료하기')
       .setStyle(ButtonStyle.Primary),
   )

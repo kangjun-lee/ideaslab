@@ -1,18 +1,9 @@
-import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ContainerBuilder,
-  MessageFlags,
-  SeparatorBuilder,
-  SeparatorSpacingSize,
-  SlashCommandBuilder,
-  TextDisplayBuilder,
-} from 'discord.js'
+import { SlashCommandBuilder } from 'discord.js'
 
 import { dbClient } from '@ideaslab/db'
 
 import { SlashCommand } from '~/bot/base/command'
+import { buildRegisterWelcome } from '~/service/register'
 import { Embed } from '~/utils/embed'
 
 export default new SlashCommand(
@@ -23,11 +14,6 @@ export default new SlashCommand(
     const existingUser = await dbClient.user.findUnique({
       where: { discordId: interaction.user.id },
     })
-    const registerMessage = await dbClient.setting.findFirst({
-      where: {
-        key: 'registerMessage',
-      },
-    })
 
     if (existingUser) {
       const embed = new Embed(client, 'error')
@@ -37,30 +23,6 @@ export default new SlashCommand(
       return
     }
 
-    const welcome = new ContainerBuilder().addTextDisplayComponents(
-      new TextDisplayBuilder().setContent(
-        [
-          '## 👋 아이디어스랩에 오신 것을 환영합니다!',
-          '아이디어스랩 회원가입을 시작하려면 아래 **시작하기** 버튼을 눌러주세요.',
-          '',
-          registerMessage ? JSON.parse(registerMessage.value) : undefined,
-          '-# 가입 절차는 약 1분 정도 소요됩니다.',
-        ].join('\n'),
-      ),
-    )
-
-    const separator = new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true)
-
-    const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder()
-        .setCustomId('register-start')
-        .setLabel('시작하기')
-        .setStyle(ButtonStyle.Primary),
-    )
-
-    await interaction.reply({
-      components: [welcome, separator, actionRow],
-      flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
-    })
+    await interaction.reply(await buildRegisterWelcome())
   },
 )

@@ -1,9 +1,9 @@
-import { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from 'discord.js'
+import { LabelBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from 'discord.js'
 
 import { Button } from '~/bot/base/interaction'
 import { getRegisterState } from '~/service/register'
 
-export default new Button('register-link', async (client, interaction) => {
+export default new Button('register-link', async (_client, interaction) => {
   const state = await getRegisterState(interaction.user.id)
   if (!state) {
     await interaction.reply({
@@ -15,25 +15,27 @@ export default new Button('register-link', async (client, interaction) => {
 
   const modal = new ModalBuilder().setCustomId('modal.register-link').setTitle('링크 추가')
 
-  const nameInput = new TextInputBuilder()
-    .setCustomId('linkName')
-    .setLabel('링크 이름')
-    .setPlaceholder('예: 포트폴리오')
-    .setRequired(true)
-    .setMaxLength(50)
-    .setStyle(TextInputStyle.Short)
-
-  const urlInput = new TextInputBuilder()
-    .setCustomId('linkUrl')
-    .setLabel('URL')
-    .setPlaceholder('https://example.com')
-    .setRequired(true)
-    .setMaxLength(200)
-    .setStyle(TextInputStyle.Short)
-
-  modal.addComponents(
-    new ActionRowBuilder<TextInputBuilder>().addComponents(nameInput),
-    new ActionRowBuilder<TextInputBuilder>().addComponents(urlInput),
+  modal.setLabelComponents(
+    new LabelBuilder()
+      .setLabel('링크 이름')
+      .setTextInputComponent(
+        new TextInputBuilder()
+          .setCustomId('linkName')
+          .setPlaceholder('예: 포트폴리오')
+          .setRequired(true)
+          .setMaxLength(50)
+          .setStyle(TextInputStyle.Short),
+      ),
+    new LabelBuilder()
+      .setLabel('URL')
+      .setTextInputComponent(
+        new TextInputBuilder()
+          .setCustomId('linkUrl')
+          .setPlaceholder('https://example.com')
+          .setRequired(true)
+          .setMaxLength(200)
+          .setStyle(TextInputStyle.Short),
+      ),
   )
 
   await interaction.showModal(modal)

@@ -1,13 +1,12 @@
 import {
-  ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
   ChannelType,
   ContainerBuilder,
   InteractionEditReplyOptions,
+  InteractionReplyOptions,
+  LabelBuilder,
   MessageFlags,
-  MessagePayload,
-  MessagePayloadOption,
   ModalBuilder,
   SectionBuilder,
   SeparatorBuilder,
@@ -59,6 +58,38 @@ export const deleteRegisterState = async (userId: string): Promise<void> => {
   await redis.del(redisKey(userId))
 }
 
+export const buildRegisterWelcome = async (): Promise<InteractionReplyOptions> => {
+  const registerMessage = await dbClient.setting.findFirst({
+    where: { key: 'registerMessage' },
+  })
+
+  const welcome = new ContainerBuilder().addTextDisplayComponents(
+    new TextDisplayBuilder().setContent(
+      [
+        '## 👋 아이디어스랩에 오신 것을 환영합니다!',
+        '아이디어스랩 회원가입을 시작하려면 아래 **시작하기** 버튼을 눌러주세요.',
+        '',
+        registerMessage ? JSON.parse(registerMessage.value) : undefined,
+        '-# 가입 절차는 약 1분 정도 소요됩니다.',
+      ].join('\n'),
+    ),
+  )
+
+  const separator = new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true)
+
+  const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder()
+      .setCustomId('register-start')
+      .setLabel('시작하기')
+      .setStyle(ButtonStyle.Primary),
+  )
+
+  return {
+    components: [welcome, separator, actionRow],
+    flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
+  }
+}
+
 export const buildRegisterInfoModal = (state?: RegisterState | null) => {
   const modal = new ModalBuilder()
     .setCustomId('modal.register-info')
@@ -66,7 +97,6 @@ export const buildRegisterInfoModal = (state?: RegisterState | null) => {
 
   const nicknameInput = new TextInputBuilder()
     .setCustomId('nickname')
-    .setLabel('닉네임 (2-20자)')
     .setPlaceholder('사용할 닉네임을 입력해주세요')
     .setMinLength(2)
     .setMaxLength(20)
@@ -75,7 +105,6 @@ export const buildRegisterInfoModal = (state?: RegisterState | null) => {
 
   const introduceInput = new TextInputBuilder()
     .setCustomId('introduce')
-    .setLabel('자기소개 (1-300자)')
     .setPlaceholder('간단한 자기소개를 작성해주세요')
     .setMinLength(1)
     .setMaxLength(300)
@@ -84,7 +113,6 @@ export const buildRegisterInfoModal = (state?: RegisterState | null) => {
 
   const registerFromInput = new TextInputBuilder()
     .setCustomId('registerFrom')
-    .setLabel('가입경로 (선택사항)')
     .setPlaceholder('어떻게 아이디어스랩을 알게 되셨나요?')
     .setRequired(false)
     .setStyle(TextInputStyle.Short)
@@ -95,10 +123,10 @@ export const buildRegisterInfoModal = (state?: RegisterState | null) => {
     if (state.registerFrom) registerFromInput.setValue(state.registerFrom)
   }
 
-  modal.addComponents(
-    new ActionRowBuilder<TextInputBuilder>().addComponents(nicknameInput),
-    new ActionRowBuilder<TextInputBuilder>().addComponents(introduceInput),
-    new ActionRowBuilder<TextInputBuilder>().addComponents(registerFromInput),
+  modal.setLabelComponents(
+    new LabelBuilder().setLabel('닉네임 (2-20자)').setTextInputComponent(nicknameInput),
+    new LabelBuilder().setLabel('자기소개 (1-300자)').setTextInputComponent(introduceInput),
+    new LabelBuilder().setLabel('가입경로 (선택사항)').setTextInputComponent(registerFromInput),
   )
 
   return modal
@@ -109,16 +137,6 @@ export const buildFormMessage = async (
   avatarUrl: string,
 ): Promise<InteractionEditReplyOptions> => {
   const roles = await dbClient.role.findMany({ orderBy: { defaultOrder: 'asc' } })
-
-  const visLabel = (v: 'Public' | 'MemberOnly') => (v === 'Public' ? '🌐 공개' : '🔒 멤버 전용')
-
-  const selectedRoleNames =
-    state.roles.length > 0
-      ? roles
-          .filter((r) => state.roles.includes(r.id))
-          .map((r) => r.name)
-          .join(', ')
-      : '선택 안 됨'
 
   const linksText =
     state.links.length > 0 ? state.links.map((l) => `[${l.name}](${l.url})`).join('\n') : '없음'
