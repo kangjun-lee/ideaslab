@@ -174,12 +174,14 @@ export const getAllSettings = async () => {
     value: string | number | boolean | null
     description: string
     type: string
-  }[] = values.map(({ key, value }) => ({
-    key: key as SettingKeys,
-    value: JSON.parse(value),
-    type: SettingList[key as SettingKeys].toString(),
-    description: settingDetails[key as SettingKeys].description,
-  }))
+  }[] = values
+    .filter(({ key }) => key in SettingList)
+    .map(({ key, value }) => ({
+      key: key as SettingKeys,
+      value: JSON.parse(value),
+      type: SettingList[key as SettingKeys].toString(),
+      description: settingDetails[key as SettingKeys].description,
+    }))
 
   result.push(
     ...Object.entries(SettingList)
@@ -191,6 +193,5 @@ export const getAllSettings = async () => {
         value: null,
       })),
   )
-
   return result
 }
