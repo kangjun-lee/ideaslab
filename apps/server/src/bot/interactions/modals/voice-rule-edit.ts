@@ -1,12 +1,20 @@
-import { ChannelType } from 'discord.js'
+import {
+  ChannelType,
+  ContainerBuilder,
+  MessageFlags,
+  SeparatorBuilder,
+  SeparatorSpacingSize,
+  TextDisplayBuilder,
+} from 'discord.js'
 
 import { Modal } from '~/bot/base/interaction'
+import { EmbedColor } from '~/bot/types'
 import {
   findChatroomRule,
   voiceChannelSetRule,
-  voiceRuleSettingMessageContent,
+  voiceRuleSettingMessage,
 } from '~/service/voice-channel'
-import { Embed } from '~/utils/embed'
+import { hexToRgb, simpleContainer } from '~/utils'
 
 export default new Modal('modal.voice-rule-edit', async (client, interaction) => {
   if (!interaction.channel || interaction.channel.type !== ChannelType.GuildVoice) return
@@ -20,35 +28,46 @@ export default new Modal('modal.voice-rule-edit', async (client, interaction) =>
   try {
     const prevRule = await voiceChannelSetRule(interaction.channel, newRule, newRuleId)
     if (!prevRule?.customRule || !prevRule.ruleId) return
-    const prevRuleDetail = findChatroomRule(prevRule.ruleId)
-    const newRuleDetail = findChatroomRule(newRuleId)
+    const prevRuleDetail = await findChatroomRule(prevRule.ruleId)
+    const newRuleDetail = await findChatroomRule(newRuleId)
 
-    const { components, embeds } = voiceRuleSettingMessageContent({
-      client,
+    const message = await voiceRuleSettingMessage({
       customRule: newRule,
       forCreate: false,
       selected: newRuleId,
     })
-    await interaction.editReply({ components, embeds })
+    await interaction.editReply({
+      components: message.components,
+      flags: MessageFlags.IsComponentsV2,
+    })
+
+    const container = new ContainerBuilder()
+      .setAccentColor(hexToRgb(EmbedColor.Success))
+      .addTextDisplayComponents(
+        new TextDisplayBuilder().setContent('### 채널 규칙이 변경되었어요.'),
+      )
+      .addSeparatorComponents(
+        new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true),
+      )
+      .addTextDisplayComponents(
+        new TextDisplayBuilder().setContent(
+          `**<이전 규칙>**\n**${prevRuleDetail?.emoji} ${prevRuleDetail?.name}**\n\`\`\`${prevRule.customRule}\`\`\``,
+        ),
+      )
+      .addTextDisplayComponents(
+        new TextDisplayBuilder().setContent(
+          `**<새 규칙>**\n**${newRuleDetail?.emoji} ${newRuleDetail?.name}**\n\`\`\`${newRule}\`\`\``,
+        ),
+      )
 
     await interaction.channel?.send({
-      embeds: [
-        new Embed(client, 'success').setTitle(`채널 규칙이 변경되었어요.`).addFields(
-          {
-            name: '**<이전 규칙>**',
-            value: `**${prevRuleDetail?.emoji} ${prevRuleDetail?.name}**\n\`\`\`${prevRule.customRule}\`\`\``,
-          },
-          {
-            name: '**<새 규칙>**',
-            value: `**${newRuleDetail?.emoji} ${newRuleDetail?.name}**\n\`\`\`${newRule}\`\`\``,
-          },
-        ),
-      ],
+      components: [container],
+      flags: MessageFlags.IsComponentsV2,
     })
   } catch {
     await interaction.reply({
-      embeds: [new Embed(client, 'error').setTitle('채널 규칙 설정에 실패했어요.')],
-      ephemeral: true,
+      components: [simpleContainer('error', '채널 규칙 설정에 실패했어요.')],
+      flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
     })
     return
   }

@@ -1,9 +1,9 @@
-import { ChannelType } from 'discord.js'
+import { ChannelType, MessageFlags } from 'discord.js'
 
 import { currentGuildMember } from '~/bot/base/client'
 import { Button } from '~/bot/base/interaction'
 import { voiceChannelClaim } from '~/service/voice-channel'
-import { Embed } from '~/utils/embed'
+import { simpleContainer } from '~/utils'
 
 export default new Button(['voice-claim'], async (client, interaction) => {
   if (
@@ -15,8 +15,8 @@ export default new Button(['voice-claim'], async (client, interaction) => {
 
   if (!interaction.channel.members.get(interaction.user.id)) {
     await interaction.reply({
-      embeds: [new Embed(client, 'error').setTitle('채널에 먼저 접속하여 주세요.')],
-      ephemeral: true,
+      components: [simpleContainer('error', '채널에 먼저 접속하여 주세요.')],
+      flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
     })
     return false
   }
@@ -24,12 +24,10 @@ export default new Button(['voice-claim'], async (client, interaction) => {
   const success = await voiceChannelClaim(interaction.channel, interaction.user.id)
   if (!success) {
     await interaction.reply({
-      embeds: [
-        new Embed(client, 'error').setTitle(
-          '채널 관리자가 음성채팅방 내에 있어서 권한을 받지 못하였어요.',
-        ),
+      components: [
+        simpleContainer('error', '채널 관리자가 음성채팅방 내에 있어서 권한을 받지 못하였어요.'),
       ],
-      ephemeral: true,
+      flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
     })
     return
   }
@@ -38,10 +36,9 @@ export default new Button(['voice-claim'], async (client, interaction) => {
   const member = await currentGuildMember(interaction.user.id)
 
   await interaction.channel?.send({
-    embeds: [
-      new Embed(client, 'success').setTitle(
-        `채널 관리자가 \`${member.displayName}\`님 으로 변경되었어요.`,
-      ),
+    components: [
+      simpleContainer('success', `채널 관리자가 \`${member.displayName}\`님 으로 변경되었어요.`),
     ],
+    flags: MessageFlags.IsComponentsV2,
   })
 })

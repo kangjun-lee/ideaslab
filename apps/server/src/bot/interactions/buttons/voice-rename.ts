@@ -1,6 +1,6 @@
 import {
-  ActionRowBuilder,
   ChannelType,
+  LabelBuilder,
   ModalBuilder,
   TextInputBuilder,
   TextInputStyle,
@@ -13,7 +13,7 @@ import { voiceChannelOwnerCheck } from '~/service/voice-channel'
 import { redisVoiceRenameRateKey } from '~/service/voice-channel/redis'
 import { formatSeconds } from '~/service/voice-log'
 
-export default new Button(['voice-rename'], async (client, interaction) => {
+export default new Button(['voice-rename'], async (_client, interaction) => {
   if (!interaction.channel || interaction.channel.type !== ChannelType.GuildVoice) return
   if (!(await voiceChannelOwnerCheck(interaction))) return
 
@@ -32,24 +32,23 @@ export default new Button(['voice-rename'], async (client, interaction) => {
 
   const member = await currentGuildMember(interaction.user.id)
 
-  const favoriteColorInput = new TextInputBuilder()
-    .setCustomId('nameInput')
-    .setLabel('변경할 이름을 입력해 주세요.')
-    .setValue(
-      interaction.channel.name
-        .replace(/^\[비공개\] /, '')
-        .split('] ')
-        .slice(1)
-        .join('] '),
-    )
-    .setPlaceholder(`${member.displayName}님의 채널`)
-    .setMinLength(1)
-    .setMaxLength(32)
-    .setStyle(TextInputStyle.Short)
-
-  const firstActionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(favoriteColorInput)
-
-  modal.addComponents(firstActionRow)
+  modal.setLabelComponents(
+    new LabelBuilder().setLabel('변경할 이름을 입력해 주세요.').setTextInputComponent(
+      new TextInputBuilder()
+        .setCustomId('nameInput')
+        .setValue(
+          interaction.channel.name
+            .replace(/^\[비공개\] /, '')
+            .split('] ')
+            .slice(1)
+            .join('] '),
+        )
+        .setPlaceholder(`${member.displayName}님의 채널`)
+        .setMinLength(1)
+        .setMaxLength(32)
+        .setStyle(TextInputStyle.Short),
+    ),
+  )
 
   await interaction.showModal(modal)
 })

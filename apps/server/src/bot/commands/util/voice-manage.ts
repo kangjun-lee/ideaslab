@@ -1,8 +1,19 @@
-import { ChannelType, SlashCommandBuilder } from 'discord.js'
+import {
+  ChannelType,
+  ContainerBuilder,
+  MessageFlags,
+  SectionBuilder,
+  SeparatorBuilder,
+  SeparatorSpacingSize,
+  SlashCommandBuilder,
+  TextDisplayBuilder,
+  ThumbnailBuilder,
+} from 'discord.js'
 
 import { SlashCommand } from '~/bot/base/command'
+import { EmbedColor } from '~/bot/types'
 import { voiceChannelState, voiceComponents } from '~/service/voice-channel'
-import { Embed } from '~/utils/embed'
+import { hexToRgb, simpleContainer } from '~/utils'
 
 export default new SlashCommand(
   new SlashCommandBuilder()
@@ -15,16 +26,16 @@ export default new SlashCommand(
       interaction.channel.type !== ChannelType.GuildVoice
     ) {
       await interaction.reply({
-        embeds: [new Embed(client, 'error').setTitle('음성 채널에서 명령어를 사용해주세요.')],
-        ephemeral: true,
+        components: [simpleContainer('error', '음성 채널에서 명령어를 사용해주세요.')],
+        flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
       })
       return
     }
 
     if (!interaction.channel.members.get(interaction.user.id)) {
       await interaction.reply({
-        embeds: [new Embed(client, 'error').setTitle('채널에 먼저 접속하여 주세요.')],
-        ephemeral: true,
+        components: [simpleContainer('error', '채널에 먼저 접속하여 주세요.')],
+        flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
       })
       return false
     }
@@ -37,18 +48,37 @@ export default new SlashCommand(
 
     const owner = interaction.channel.members.get(ownerId ?? '')
 
-    const embed = new Embed(client, 'info')
-      .setTitle(interaction.channel.name)
-      .setDescription('아래의 버튼을 눌러 원하는 설정을 하실 수 있어요.')
-      .addFields({
-        name: '채널 규칙',
-        value: data.customRule,
-      })
-      .setAuthor({
-        name: `관리자: ${owner?.displayName ?? '불러오기 실패'}`,
-        iconURL: owner?.displayAvatarURL(),
-      })
+    const container = new ContainerBuilder()
+      .setAccentColor(hexToRgb(EmbedColor.Info))
+      .addSectionComponents(
+        new SectionBuilder()
+          .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(`# ${interaction.channel.name}`),
+          )
+          .setThumbnailAccessory(
+            new ThumbnailBuilder().setURL(
+              owner?.displayAvatarURL() ?? interaction.user.displayAvatarURL(),
+            ),
+          ),
+      )
+      .addTextDisplayComponents(
+        new TextDisplayBuilder().setContent('아래의 버튼을 눌러 원하는 설정을 하실 수 있어요.'),
+      )
+      .addSeparatorComponents(
+        new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true),
+      )
+      .addTextDisplayComponents(
+        new TextDisplayBuilder().setContent(`-# 관리자: ${owner?.displayName ?? '불러오기 실패'}`),
+      )
+      .addTextDisplayComponents(
+        new TextDisplayBuilder().setContent(`**채널 규칙**\n${data.customRule}`),
+      )
 
-    interaction.reply({ embeds: [embed], ephemeral: true, components: [row] })
+    container.addActionRowComponents(row)
+
+    await interaction.reply({
+      components: [container],
+      flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
+    })
   },
 )

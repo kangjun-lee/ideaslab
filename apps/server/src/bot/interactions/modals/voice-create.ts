@@ -1,8 +1,8 @@
-import { RESTJSONErrorCodes } from 'discord.js'
+import { MessageFlags, RESTJSONErrorCodes } from 'discord.js'
 
 import { Modal } from '~/bot/base/interaction'
 import { voiceChannelCreate } from '~/service/voice-channel'
-import { Embed } from '~/utils/embed'
+import { simpleContainer } from '~/utils'
 
 export default new Modal('modal.voice-create', async (client, interaction) => {
   await interaction.deferReply({
@@ -18,11 +18,14 @@ export default new Modal('modal.voice-create', async (client, interaction) => {
     const createdChannel = await voiceChannelCreate(interaction.member, roomName, ruleId, roomRule)
 
     await interaction.editReply({
-      embeds: [
-        new Embed(client, 'success')
-          .setTitle(`${createdChannel}채널이 생성되었어요.`)
-          .setDescription('30초 이내에 채널에 입장하지 않으면 채널이 자동으로 삭제됩니다.'),
+      components: [
+        simpleContainer(
+          'success',
+          `${createdChannel}채널이 생성되었어요.`,
+          '30초 이내에 채널에 입장하지 않으면 채널이 자동으로 삭제됩니다.',
+        ),
       ],
+      flags: MessageFlags.IsComponentsV2,
     })
 
     setTimeout(async () => {
@@ -40,7 +43,8 @@ export default new Modal('modal.voice-create', async (client, interaction) => {
   } catch (e) {
     console.error(e)
     await interaction.editReply({
-      embeds: [new Embed(client, 'error').setTitle(`채널 생성에 실패했어요.`)],
+      components: [simpleContainer('error', '채널 생성에 실패했어요.')],
+      flags: MessageFlags.IsComponentsV2,
     })
   }
 })

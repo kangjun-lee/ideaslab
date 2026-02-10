@@ -2,44 +2,89 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  Client,
+  ContainerBuilder,
+  SeparatorBuilder,
+  SeparatorSpacingSize,
   StringSelectMenuBuilder,
+  TextDisplayBuilder,
 } from 'discord.js'
 
-import { Embed } from '~/utils/embed'
+import { getChatroomList } from './constants.js'
 
-import { chatroomList } from './constants.js'
-
-export const voiceRuleSettingMessageContent = ({
-  client,
+export const voiceRuleSettingMessage = async ({
   forCreate,
   selected,
   customRule,
 }: {
-  client: Client
   forCreate: boolean
   selected: string
   customRule: string
 }) => {
-  let components
+  const chatroomList = await getChatroomList()
 
   if (forCreate) {
-    components = [
-      new ActionRowBuilder<ButtonBuilder>().addComponents(
-        chatroomList.map((item) =>
-          new ButtonBuilder()
-            .setStyle(ButtonStyle.Secondary)
-            .setCustomId(`create-voice-${item.id}`)
-            .setLabel(`${item.name}`)
-            .setEmoji(item.emoji),
+    const container = new ContainerBuilder().addTextDisplayComponents(
+      new TextDisplayBuilder().setContent('## 🎙️ 음성채팅방 생성'),
+    )
+
+    for (const item of chatroomList) {
+      container.addTextDisplayComponents(
+        new TextDisplayBuilder().setContent(
+          `### ${item.emoji} ${item.name}\n${item.description}\n-# 기본규칙: ${item.rule}`,
         ),
+      )
+    }
+
+    container
+      .addSeparatorComponents(
+        new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true),
+      )
+      .addActionRowComponents((row) =>
+        row.addComponents(
+          chatroomList.map((item) =>
+            new ButtonBuilder()
+              .setStyle(ButtonStyle.Secondary)
+              .setCustomId(`create-voice-${item.id}`)
+              .setLabel(item.name)
+              .setEmoji(item.emoji),
+          ),
+        ),
+      )
+
+    return { components: [container] }
+  }
+
+  // edit 모드
+  const selectedRule = chatroomList.find((item) => item.id === selected)
+
+  const container = new ContainerBuilder()
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent('## 🔧 음성채팅방 규칙 설정'))
+    .addTextDisplayComponents(
+      new TextDisplayBuilder().setContent(
+        `현재: ${selectedRule?.emoji} ${selectedRule?.name}\n${customRule}`,
       ),
-    ]
-  } else {
-    components = [
-      new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+    )
+    .addSeparatorComponents(
+      new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true),
+    )
+
+  for (const item of chatroomList) {
+    const prefix = selected === item.id ? '(선택됨) ' : ''
+    container.addTextDisplayComponents(
+      new TextDisplayBuilder().setContent(
+        `${prefix}${item.emoji} **${item.name}** — ${item.description}\n-# 기본규칙: ${item.rule}`,
+      ),
+    )
+  }
+
+  container
+    .addSeparatorComponents(
+      new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true),
+    )
+    .addActionRowComponents((row) =>
+      row.addComponents(
         new StringSelectMenuBuilder()
-          .setCustomId(forCreate ? 'create-voice' : 'menu.voice-rule-edit')
+          .setCustomId('menu.voice-rule-edit')
           .setPlaceholder('설정할 규칙을 선택하세요.')
           .addOptions(
             chatroomList.map((item) => ({
@@ -51,48 +96,17 @@ export const voiceRuleSettingMessageContent = ({
             })),
           ),
       ),
-      new ActionRowBuilder<ButtonBuilder>().addComponents(
+    )
+    .addActionRowComponents((row) =>
+      row.addComponents(
         new ButtonBuilder()
           .setStyle(ButtonStyle.Primary)
           .setCustomId('voice-rule-edit')
           .setLabel('규칙 변경하기'),
       ),
-    ]
-  }
-
-  let embeds
-
-  if (forCreate) {
-    embeds = chatroomList.map((item) =>
-      new Embed(client, 'info')
-        .setTitle(`${item.emoji} ${item.name}`)
-        .setDescription(item.description)
-        .addFields({
-          name: '**<기본 규칙>**',
-          value: `\`\`\`${item.rule}\`\`\``,
-        }),
     )
-  } else {
-    const selectedRule = chatroomList.find((item) => item.id === selected)
-    embeds = [
-      new Embed(client, 'info')
-        .setTitle('음성채팅방 규칙 설정')
-        .setDescription(`음성채팅방에서 무슨 활동을 할 수 있는지 설정할 수 있습니다.`)
-        .setFields({
-          name: '**<현재 규칙>**',
-          value: `**[${selectedRule?.emoji} ${selectedRule?.name}]**\n${customRule}`,
-        }),
 
-      new Embed(client, 'info').setTitle('음성채팅방 규칙 카테고리').addFields(
-        chatroomList.map((item) => ({
-          name: `${selected === item.id ? '(선택됨) ' : ''}${item.emoji} ${item.name}`,
-          value: `${item.description}\n\`\`\`기본규칙:\n${item.rule}\`\`\``,
-        })),
-      ),
-    ]
-  }
-
-  return { embeds, components }
+  return { components: [container] }
 }
 
 export const voiceComponents = () => {
