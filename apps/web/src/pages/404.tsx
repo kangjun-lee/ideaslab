@@ -26,7 +26,7 @@ const NotFoundPage = () => {
         </div>
       </div>
     </MainLayout>
-  );
+  )
 }
 
 export default NotFoundPage

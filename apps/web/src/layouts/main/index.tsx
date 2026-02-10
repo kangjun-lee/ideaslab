@@ -144,7 +144,7 @@ export const MainLayout = ({
             </Link>
           </CenterCard>
         </>
-      );
+      )
     }
 
     if (guard === 'adminOnly' && !(profile.data as any)?.isAdmin) {
@@ -173,7 +173,7 @@ export const MainLayout = ({
             </Link>
           </CenterCard>
         </>
-      );
+      )
     }
 
     return (

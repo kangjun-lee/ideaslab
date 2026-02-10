@@ -16,7 +16,6 @@ export const ProfileView = ({
       <div className="flex flex-col no-click h-full" onClick={() => {}}>
         <div className="flex flex-col h-full flex-grow">
           <Link href={`/@${data.handleDisplay}`} className="flex gap-x-2 items-center">
-
             <Image
               src={data.avatar}
               width={40}
@@ -28,7 +27,6 @@ export const ProfileView = ({
               <div className="text-title-color">{data.name}</div>
               <div className="text-description-color text-sm">{`@${data.handleDisplay}`}</div>
             </div>
-
           </Link>
           <div className="flex gap-2 mt-2 flex-wrap">
             {data.roles?.slice(0, 2).map((item, index) => (
@@ -68,5 +66,5 @@ export const ProfileView = ({
         </div>
       </div>
     </div>
-  );
+  )
 }

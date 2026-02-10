@@ -33,6 +33,7 @@ docker build . -f ./Dockerfile.server -t <tag>  # Production server image
 ## Architecture
 
 **Monorepo** (pnpm workspaces + Turborepo):
+
 - `apps/server` — Discord.js bot + tRPC HTTP server (port 4000). Entry: `src/index.ts`, run with `tsx`.
 - `apps/web` — Next.js (Pages Router) frontend. Proxies `/api/*` to server in dev via next.config rewrites.
 - `packages/db` — Prisma schema + client. PostgreSQL with TimescaleDB for time-series tables (`VoiceLog`, `MessageLog`).
@@ -43,6 +44,7 @@ docker build . -f ./Dockerfile.server -t <tag>  # Production server image
 **Communication**: Web ↔ Server via tRPC. Type-safe end-to-end — server defines routers in `apps/server/src/api/router/`, web consumes via `@trpc/react-query`.
 
 **Server structure** (`apps/server/src/`):
+
 - `api/` — tRPC router definitions and middleware (auth, context)
 - `bot/base/` — Discord client, command/event/interaction managers
 - `bot/commands/` — Slash commands
@@ -52,6 +54,7 @@ docker build . -f ./Dockerfile.server -t <tag>  # Production server image
 - `config.ts` — Environment config via Zod validation
 
 **Web structure** (`apps/web/src/`):
+
 - `pages/` — Next.js pages (gallery, settings, login, signup, profiles)
 - `components/` — React components
 - `hooks/` — Custom hooks (useAuth, useForm, useTheme, etc.)

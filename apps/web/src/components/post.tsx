@@ -105,8 +105,10 @@ export const PostView2 = ({
         if (typeof onClick === 'function') onClick()
       }}
     >
-      <Link href={`/@${post.author.handle}`} className="flex gap-x-2 items-center mb-2 no-click w-fit">
-
+      <Link
+        href={`/@${post.author.handle}`}
+        className="flex gap-x-2 items-center mb-2 no-click w-fit"
+      >
         <Image
           src={post.author.avatar}
           width={40}
@@ -116,11 +118,8 @@ export const PostView2 = ({
         />
         <div className="flex flex-col justify-center no-click">
           <div className={classNames('text-title-color')}>{post.author.name}</div>
-          <div className="text-description-color text-sm">
-            {relativeTimeFormat(post.createdAt)}
-          </div>
+          <div className="text-description-color text-sm">{relativeTimeFormat(post.createdAt)}</div>
         </div>
-
       </Link>
       <div className="text-title-color">{post.title}</div>
       <div
@@ -146,7 +145,7 @@ export const PostView2 = ({
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 export const PostView = ({
@@ -191,8 +190,10 @@ export const PostView = ({
           />
         </div>
       )}
-      <Link href={`/@${post.author.handle}`} className="flex gap-x-2 items-center mb-2 no-click w-fit">
-
+      <Link
+        href={`/@${post.author.handle}`}
+        className="flex gap-x-2 items-center mb-2 no-click w-fit"
+      >
         <Image
           src={post.author.avatar}
           width={40}
@@ -202,11 +203,8 @@ export const PostView = ({
         />
         <div className="flex flex-col justify-center no-click">
           <div className={classNames('text-title-color')}>{post.author.name}</div>
-          <div className="text-description-color text-sm">
-            {relativeTimeFormat(post.createdAt)}
-          </div>
+          <div className="text-description-color text-sm">{relativeTimeFormat(post.createdAt)}</div>
         </div>
-
       </Link>
       <div className="text-title-color">{post.title}</div>
       <div className="text-description-color text-sm mb-2 break-words text-ellipsis">
@@ -216,7 +214,7 @@ export const PostView = ({
         <div className={classNames('tag')}>{post.category.name}</div>
       </div>
     </div>
-  );
+  )
 }
 
 const PostLoadingInner = () => (
@@ -305,14 +303,7 @@ export const PostDetail = ({
         )}
       >
         <Link href={`/@${post.author.handle}`} className="flex gap-x-2 items-center">
-
-          <Image
-            src={post.author.avatar}
-            width={48}
-            height={48}
-            className="rounded-full"
-            alt=""
-          />
+          <Image src={post.author.avatar} width={48} height={48} className="rounded-full" alt="" />
           <div className="flex flex-col justify-center">
             <div className="text-title-color">{post.author.name}</div>
             <TimeDynamic
@@ -321,7 +312,6 @@ export const PostDetail = ({
               formatType="full"
             />
           </div>
-
         </Link>
         <div className="mt-5 mb-5 flex gap-2 items-center flex-wrap">
           <div className="tag">
@@ -401,5 +391,5 @@ export const PostDetail = ({
         </div>
       </div>
     </>
-  );
+  )
 }

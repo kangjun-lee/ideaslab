@@ -121,18 +121,20 @@ export const SettingLayout = ({ children, ...mainLayoutProps }: Props) => {
               <div key={title}>
                 <div className="text-lg font-bold text-subtitle-color">{title}</div>
                 {fields.map(({ icon: Icon, name, url }) => (
-                  <Link href={url} key={url} className={classNames(
-                    pathname === url &&
-                      'bg-primary-300/50 dark:bg-primary-700/50 border-transparent',
-                    'hover:bg-primary-300/50 text-primary-600 hover:dark:bg-primary-700/50 dark:text-primary-300 border-transparent',
-                    'transition text-black rounded flex-none text-center border flex gap-x-3 items-center justify-start px-2 py-2 w-full',
-                  )}>
-
+                  <Link
+                    href={url}
+                    key={url}
+                    className={classNames(
+                      pathname === url &&
+                        'bg-primary-300/50 dark:bg-primary-700/50 border-transparent',
+                      'hover:bg-primary-300/50 text-primary-600 hover:dark:bg-primary-700/50 dark:text-primary-300 border-transparent',
+                      'transition text-black rounded flex-none text-center border flex gap-x-3 items-center justify-start px-2 py-2 w-full',
+                    )}
+                  >
                     <div className="text-xl">
                       <Icon width={20} height={20} />
                     </div>
                     <div>{name}</div>
-
                   </Link>
                 ))}
               </div>
@@ -141,5 +143,5 @@ export const SettingLayout = ({ children, ...mainLayoutProps }: Props) => {
         <div className="pt-4 md:pt-0 md:w-full flex flex-col gap-y-4">{children}</div>
       </div>
     </MainLayout>
-  );
+  )
 }

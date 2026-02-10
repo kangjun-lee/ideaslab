@@ -88,5 +88,5 @@ export const MemberOnlyContent = ({ name }: { name: string }) => {
         </div>
       </div>
     </>
-  );
+  )
 }

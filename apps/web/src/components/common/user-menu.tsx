@@ -51,5 +51,5 @@ export const UserMenu = () => {
         </Menu.Items>
       </Transition>
     </Menu>
-  );
+  )
 }

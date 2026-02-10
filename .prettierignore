@@ -1,0 +1,4 @@
+data/
+dist/
+.next/
+node_modules/
