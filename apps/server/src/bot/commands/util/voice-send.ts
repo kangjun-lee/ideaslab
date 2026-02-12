@@ -1,7 +1,7 @@
-import { PermissionFlagsBits, SlashCommandBuilder } from 'discord.js'
+import { MessageFlags, PermissionFlagsBits, SlashCommandBuilder } from 'discord.js'
 
 import { SlashCommand } from '~/bot/base/command'
-import { voiceRuleSettingMessageContent } from '~/service/voice-channel/builder'
+import { voiceRuleSettingMessage } from '~/service/voice-channel/builder'
 
 export default new SlashCommand(
   new SlashCommandBuilder()
@@ -12,8 +12,7 @@ export default new SlashCommand(
     interaction.reply({ content: '인증 메시지를 전송했어요.', ephemeral: true })
 
     try {
-      const { embeds, components } = voiceRuleSettingMessageContent({
-        client,
+      const message = await voiceRuleSettingMessage({
         selected: '0',
         forCreate: true,
         customRule: '',
@@ -21,7 +20,10 @@ export default new SlashCommand(
 
       if (!interaction.channel?.isSendable()) return
 
-      await interaction.channel?.send({ embeds, components })
+      await interaction.channel?.send({
+        components: message.components,
+        flags: MessageFlags.IsComponentsV2,
+      })
     } catch (error) {
       console.error(error)
     }

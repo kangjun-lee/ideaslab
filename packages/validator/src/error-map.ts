@@ -1,7 +1,7 @@
 //@ts-nocheck
-import { ZodIssueCode } from 'zod'
+import { ZodIssueCode, z } from 'zod'
 
-export const customErrorMap = (issue, ctx) => {
+export const customErrorMap: z.core.$ZodErrorMap = (issue) => {
   switch (issue.code) {
     case ZodIssueCode.invalid_type:
       if (issue.expected === 'string') {
@@ -30,5 +30,4 @@ export const customErrorMap = (issue, ctx) => {
   if (issue.code === ZodIssueCode.custom) {
     return { message: `less-than-${(issue.params || {}).minimum}` }
   }
-  return { message: ctx.defaultError }
 }

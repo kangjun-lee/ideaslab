@@ -76,7 +76,7 @@ export const MemberOnlyContent = ({ name }: { name: string }) => {
           아이디어스 랩 디스코드 서버에 가입하여 다양한 컨텐츠들을 즐기세요!
         </div>
         <div className="flex mt-2">
-          <Link href="/" passHref>
+          <Link href="/">
             <ButtonLink variant="light">확인하러 가기</ButtonLink>
           </Link>
         </div>

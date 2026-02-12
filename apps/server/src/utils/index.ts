@@ -33,3 +33,5 @@ export function hexToRgb(hex: `#${string}`): RGBTuple {
   if (!result) throw TypeError('This is not hex code')
   return [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)]
 }
+
+export * from './message.js'

@@ -1,4 +1,4 @@
-import { ChannelType } from 'discord.js'
+import { ChannelType, MessageFlags } from 'discord.js'
 
 import { Modal } from '~/bot/base/interaction'
 import { redis } from '~/lib/redis'
@@ -8,7 +8,7 @@ import {
   voiceChannelState,
 } from '~/service/voice-channel'
 import { redisVoiceRenameRateKey } from '~/service/voice-channel'
-import { Embed } from '~/utils/embed'
+import { simpleContainer } from '~/utils'
 
 export default new Modal('modal.voice-rename', async (client, interaction) => {
   if (!interaction.channel || interaction.channel.type !== ChannelType.GuildVoice) return
@@ -20,8 +20,8 @@ export default new Modal('modal.voice-rename', async (client, interaction) => {
 
   if (newName.length === 1) {
     await interaction.reply({
-      embeds: [new Embed(client, 'error').setTitle('채널 이름은 한 글자로 설정할 수 없어요.')],
-      ephemeral: true,
+      components: [simpleContainer('error', '채널 이름은 한 글자로 설정할 수 없어요.')],
+      flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
     })
     return
   }
@@ -29,13 +29,12 @@ export default new Modal('modal.voice-rename', async (client, interaction) => {
   const { data } = await voiceChannelState(interaction.channel)
   if (!data?.customRule || !data.ruleId) return
   try {
-    const rule = findChatroomRule(data.ruleId)
-    // await interaction.channel.setName(`[${rule?.emoji} ${rule?.name}] ${newName}`)
+    const rule = await findChatroomRule(data.ruleId)
     await interaction.channel.setName(`[${rule?.emoji}] ${newName}`)
   } catch {
     await interaction.reply({
-      embeds: [new Embed(client, 'error').setTitle('채널 이름 설정에 실패했어요.')],
-      ephemeral: true,
+      components: [simpleContainer('error', '채널 이름 설정에 실패했어요.')],
+      flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
     })
     return
   }
@@ -50,8 +49,7 @@ export default new Modal('modal.voice-rename', async (client, interaction) => {
   )
 
   await interaction.channel?.send({
-    embeds: [
-      new Embed(client, 'success').setTitle(`채널 이름이 \`${newName}\` 으로 변경되었어요.`),
-    ],
+    components: [simpleContainer('success', `채널 이름이 \`${newName}\` 으로 변경되었어요.`)],
+    flags: MessageFlags.IsComponentsV2,
   })
 })

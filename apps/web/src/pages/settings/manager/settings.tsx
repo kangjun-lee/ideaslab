@@ -106,7 +106,6 @@ const FieldArray = ({
       ),
     [settings],
   )
-
   const Item = ({
     field,
     index,

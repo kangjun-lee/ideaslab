@@ -14,7 +14,7 @@ export const authLoginWithTokenValidator = z.object({
 
 export const linkValidator = z.object({
   name: z.string().min(1).max(20),
-  url: z.string().url(),
+  url: z.url(),
 })
 
 export const authCheckHandleValidator = z.object({
@@ -41,8 +41,8 @@ export const authSignUpValidator = z.object({
   captcha: z.string(),
   links: z.array(linkValidator).min(0).max(6),
   roles: z.array(z.number()).min(0).max(20),
-  defaultVisible: Visible.default('Public'),
-  profileVisible: Visible.default('Public'),
+  defaultVisible: Visible.prefault('Public'),
+  profileVisible: Visible.prefault('Public'),
 })
 
 export const authUpdateProfileValidator = z.object({
@@ -59,8 +59,8 @@ export const authUpdateProfileValidator = z.object({
   introduce: z.string().min(1).max(300),
   links: z.array(linkValidator).min(0).max(6),
   roles: z.array(z.number()).min(0).max(20),
-  defaultVisible: Visible.default('Public'),
-  profileVisible: Visible.default('Public'),
+  defaultVisible: Visible.prefault('Public'),
+  profileVisible: Visible.prefault('Public'),
 })
 
 export const adminGallerySettingValidator = z.object({
@@ -98,7 +98,7 @@ export const adminSaveSettingsValidator = z.object({
 
 export const galleryPostsValidator = z.object({
   cursor: z.number().optional(),
-  limit: z.number().min(10).max(50).default(50),
+  limit: z.number().min(10).max(50).prefault(50),
   categoryIds: z.array(z.number()).max(100).optional(),
   authorId: z.string().optional(),
   authorHandle: z.string().optional(),
@@ -108,8 +108,8 @@ export const InfoProfilesOrderBy = z.enum(['recentActive', 'recentJoin'])
 
 export const infoProfilesValidator = z.object({
   cursor: z.string().optional(),
-  limit: z.number().min(10).max(50).default(50),
-  orderBy: InfoProfilesOrderBy.default('recentActive'),
+  limit: z.number().min(10).max(50).prefault(50),
+  orderBy: InfoProfilesOrderBy.prefault('recentActive'),
   roles: z.array(z.number()).optional(),
 })
 
@@ -138,4 +138,6 @@ export const statisticsMessageLogValidator = z.object({
   year: z.number().min(2022).max(2050),
 })
 
-z.setErrorMap(customErrorMap)
+z.config({
+  customError: customErrorMap,
+})

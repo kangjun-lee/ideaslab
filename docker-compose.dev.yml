@@ -19,7 +19,7 @@ services:
 
   database:
     container_name: ideaslab-dev-database
-    image: postgres:15-alpine
+    image: timescale/timescaledb:latest-pg15
     restart: always
     ports:
       - '5432:5432'

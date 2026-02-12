@@ -1,22 +1,29 @@
 import {
-  ActionRowBuilder,
   BaseInteraction,
   ButtonBuilder,
   ButtonStyle,
   ChannelType,
+  ContainerBuilder,
   GuildMember,
+  MessageFlags,
   PermissionFlagsBits,
+  SectionBuilder,
+  SeparatorBuilder,
+  SeparatorSpacingSize,
+  TextDisplayBuilder,
+  ThumbnailBuilder,
   VoiceBasedChannel,
   VoiceChannel,
 } from 'discord.js'
 
-import { client, currentGuild, currentGuildChannel } from '~/bot/base/client'
+import { currentGuild, currentGuildChannel } from '~/bot/base/client'
+import { EmbedColor } from '~/bot/types'
 import { redis } from '~/lib/redis'
-import { Embed } from '~/utils/embed'
+import { hexToRgb } from '~/utils'
 
 import { getSetting } from '../setting.js'
 import { voiceComponents } from './builder.js'
-import { chatroomList } from './constants.js'
+import { getChatroomList } from './constants.js'
 import {
   delVoiceData,
   getDelVoiceOwner,
@@ -30,7 +37,8 @@ import {
 
 export const voiceService = {}
 
-export const findChatroomRule = (id: string) => {
+export const findChatroomRule = async (id: string) => {
+  const chatroomList = await getChatroomList()
   return chatroomList.find((chatroom) => chatroom.id === id)
 }
 
@@ -43,35 +51,44 @@ export const voiceChannelCreate = async (
   const guild = await currentGuild()
   const parentId = await getSetting('voiceRoomCategory')
 
-  const rule = findChatroomRule(ruleId) ?? chatroomList.at(-1)!
+  const chatroomList = await getChatroomList()
+  const rule = (await findChatroomRule(ruleId)) ?? chatroomList.at(-1)!
 
   const channel = await guild.channels.create({
-    // name: `[${rule.emoji} ${rule.name}] ${name}`,
     name: `[${rule.emoji}] ${name}`,
     parent: parentId,
     type: ChannelType.GuildVoice,
   })
 
-  const embed = new Embed(client, 'info')
-    .setTitle(name)
-    .setDescription(
-      '음성채팅방에 오신것을 환영해요 :wave:\n아래의 버튼을 눌러 원하는 설정을 하실 수 있어요.',
+  const container = new ContainerBuilder()
+    .setAccentColor(hexToRgb(EmbedColor.Info))
+    .addSectionComponents(
+      new SectionBuilder()
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(`# ${name}`))
+        .setThumbnailAccessory(new ThumbnailBuilder().setURL(member.displayAvatarURL())),
     )
-    .setFields(
-      {
-        name: '기타 도움말',
-        value: '`/음성채널-설정` 을 사용하여 설정할 수 있어요!',
-      },
-      {
-        name: '채널 규칙',
-        value: customRule,
-      },
+    .addTextDisplayComponents(
+      new TextDisplayBuilder().setContent(
+        '음성채팅방에 오신것을 환영해요 :wave:\n아래의 버튼을 눌러 원하는 설정을 하실 수 있어요.',
+      ),
     )
-    .setAuthor({ name: `채널 생성자: ${member.displayName}`, iconURL: member.displayAvatarURL() })
+    .addSeparatorComponents(
+      new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true),
+    )
+    .addTextDisplayComponents(
+      new TextDisplayBuilder().setContent(
+        `-# 채널 생성자: ${member.displayName}\n-# 기타 도움말: \`/음성채널-설정\``,
+      ),
+    )
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(`**채널 규칙**\n${customRule}`))
 
   const { row } = voiceComponents()
+  container.addActionRowComponents(row)
 
-  await channel.send({ content: `<@${member.id}>`, embeds: [embed], components: [row] })
+  await channel.send({
+    flags: MessageFlags.IsComponentsV2,
+    components: [container],
+  })
 
   await setVoiceOwner(channel.id, member.id)
   await setVoiceData(channel.id, {
@@ -96,7 +113,7 @@ export const voiceChannelSetRule = async (
   newRule.customRule = customRule
 
   await setVoiceData(channel.id, newRule)
-  const rule = findChatroomRule(newRule.ruleId)
+  const rule = await findChatroomRule(newRule.ruleId)
   if (data.ruleId !== newRule.ruleId) {
     // await channel.setName(
     //   `[${rule?.emoji} ${rule?.name}] ${channel.name.split('] ').slice(1).join('] ')}`,
@@ -126,9 +143,14 @@ export const voiceChannelOwnerCheck = async (interaction: BaseInteraction) => {
   )
     return false
   if (!interaction.channel.members.get(interaction.user.id)) {
+    const container = new ContainerBuilder()
+      .setAccentColor(hexToRgb(EmbedColor.Error))
+      .addTextDisplayComponents(
+        new TextDisplayBuilder().setContent('### 채널에 먼저 접속하여 주세요.'),
+      )
     await interaction.reply({
-      embeds: [new Embed(client, 'error').setTitle('채널에 먼저 접속하여 주세요.')],
-      ephemeral: true,
+      components: [container],
+      flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
     })
     return false
   }
@@ -137,35 +159,40 @@ export const voiceChannelOwnerCheck = async (interaction: BaseInteraction) => {
 
   const owner = (await getVoiceOwner(interaction.channelId)) ?? ''
   if (interaction.user.id !== owner) {
-    const embed = new Embed(client, 'error')
-      .setTitle('채널 관리자가 아니군요.')
-      .setDescription('음성채널 설정은 채널 관리자만 할 수 있어요.')
-
-    const components = []
+    const container = new ContainerBuilder()
+      .setAccentColor(hexToRgb(EmbedColor.Error))
+      .addTextDisplayComponents(
+        new TextDisplayBuilder().setContent(
+          '### 채널 관리자가 아니군요.\n음성채널 설정은 채널 관리자만 할 수 있어요.',
+        ),
+      )
 
     if (interaction.channel && interaction.channel.type === ChannelType.GuildVoice) {
       const ownerData = interaction.channel.members.get(owner)
       if (!ownerData) {
-        embed.addFields({
-          name: '안내',
-          value:
-            '채널 관리자가 채널에 없는것 같군요.\n아래 버튼을 눌러 채널 관리자 권한을 얻을 수 있어요.',
-        })
-        components.push(
-          new ActionRowBuilder<ButtonBuilder>().addComponents(
-            new ButtonBuilder()
-              .setStyle(ButtonStyle.Primary)
-              .setLabel('권한 받기')
-              .setCustomId('voice-claim'),
-          ),
-        )
+        container
+          .addSeparatorComponents(
+            new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true),
+          )
+          .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(
+              '채널 관리자가 채널에 없는것 같군요.\n아래 버튼을 눌러 채널 관리자 권한을 얻을 수 있어요.',
+            ),
+          )
+          .addActionRowComponents((row) =>
+            row.addComponents(
+              new ButtonBuilder()
+                .setStyle(ButtonStyle.Primary)
+                .setLabel('권한 받기')
+                .setCustomId('voice-claim'),
+            ),
+          )
       }
     }
 
     await interaction.reply({
-      embeds: [embed],
-      components,
-      ephemeral: true,
+      components: [container],
+      flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
     })
     return false
   }

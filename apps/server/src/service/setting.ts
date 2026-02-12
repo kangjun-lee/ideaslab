@@ -30,6 +30,7 @@ const SettingList = {
   blacklistChannel: SettingValueType.Channel,
   followUpWelcomeWebhook: SettingValueType.String,
   followUpWelcomeMessage: SettingValueType.LongText,
+  registerMessage: SettingValueType.LongText,
 } as const
 
 type SettingKeys = keyof typeof SettingList
@@ -63,6 +64,10 @@ export const settingDetails: {
   },
   welcomeChannel: {
     description: '새로운 유저가 입장했을때, 반겨줄 채널을 설정해요.',
+    cache: true,
+  },
+  registerMessage: {
+    description: '새로운 유저가 회원가입 메세지를 설정해요.',
     cache: true,
   },
   welcomeMessage: {
@@ -169,12 +174,14 @@ export const getAllSettings = async () => {
     value: string | number | boolean | null
     description: string
     type: string
-  }[] = values.map(({ key, value }) => ({
-    key: key as SettingKeys,
-    value: JSON.parse(value),
-    type: SettingList[key as SettingKeys].toString(),
-    description: settingDetails[key as SettingKeys].description,
-  }))
+  }[] = values
+    .filter(({ key }) => key in SettingList)
+    .map(({ key, value }) => ({
+      key: key as SettingKeys,
+      value: JSON.parse(value),
+      type: SettingList[key as SettingKeys].toString(),
+      description: settingDetails[key as SettingKeys].description,
+    }))
 
   result.push(
     ...Object.entries(SettingList)
@@ -186,6 +193,5 @@ export const getAllSettings = async () => {
         value: null,
       })),
   )
-
   return result
 }

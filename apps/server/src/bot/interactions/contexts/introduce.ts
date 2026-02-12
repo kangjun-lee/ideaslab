@@ -1,4 +1,16 @@
-import { ApplicationCommandType, ContextMenuCommandBuilder } from 'discord.js'
+import {
+  ApplicationCommandType,
+  ButtonBuilder,
+  ButtonStyle,
+  ContainerBuilder,
+  ContextMenuCommandBuilder,
+  MessageFlags,
+  SectionBuilder,
+  SeparatorBuilder,
+  SeparatorSpacingSize,
+  TextDisplayBuilder,
+  ThumbnailBuilder,
+} from 'discord.js'
 
 import { dbClient } from '@ideaslab/db'
 
@@ -29,28 +41,44 @@ export default new ContextMenu(
       return
     }
 
-    const embed = new Embed(client, 'info')
-      .setDescription('검색한 유저에 대한 정보입니다')
-      .addFields({
-        name: '자기소개',
-        value: `${user.introduce}`,
-      })
-      .setAuthor({
-        name: targetMember.displayName,
-        iconURL: targetMember.displayAvatarURL(),
-        url: `${config.webURL}/@${user.handle}`,
-      })
+    const linksText =
+      user.links.length > 0
+        ? (user.links as { name: string; url: string }[])
+            .map(({ name, url }) => `[${name}](${url})`)
+            .join(' · ')
+        : null
 
-    if (user.links.length > 0) {
-      embed.addFields({
-        name: '링크',
-        value: user.links.map(({ name, url }: any) => `[${name}](${url})`).join(' '),
-      })
-    }
+    const infoLines = [`## 자기소개\n${user.introduce}`, linksText ? `## 링크\n${linksText}` : null]
+      .filter(Boolean)
+      .join('\n')
+
+    const container = new ContainerBuilder()
+      .addSectionComponents(
+        new SectionBuilder()
+          .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(`# ${targetMember.displayName}`),
+          )
+          .setThumbnailAccessory(new ThumbnailBuilder().setURL(targetMember.displayAvatarURL())),
+      )
+      .addSeparatorComponents(
+        new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true),
+      )
+      .addTextDisplayComponents(new TextDisplayBuilder().setContent(infoLines))
+      .addSeparatorComponents(
+        new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true),
+      )
+      .addActionRowComponents((row) =>
+        row.addComponents(
+          new ButtonBuilder()
+            .setLabel('프로필 보기')
+            .setStyle(ButtonStyle.Link)
+            .setURL(`${config.webURL}/@${user.handle}`),
+        ),
+      )
 
     await interaction.reply({
-      embeds: [embed],
-      ephemeral: true,
+      components: [container],
+      flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
     })
   },
 )

@@ -1,13 +1,24 @@
-import { ContainerBuilder, GuildMember, TextBasedChannel, VoiceChannel } from 'discord.js'
+import {
+  ContainerBuilder,
+  GuildMember,
+  SeparatorBuilder,
+  SeparatorSpacingSize,
+  TextBasedChannel,
+  TextDisplayBuilder,
+  VoiceChannel,
+} from 'discord.js'
 
 import { Event } from '~/bot/base/event'
 import { archiveVoiceChannel, findChatroomRule, voiceChannelState } from '~/service/voice-channel'
 import { eventMemberJoin, eventMemberLeave } from '~/service/voice-log'
 import { hexToRgb } from '~/utils'
 import { DebugReporter } from '~/utils/debug'
-import { Embed } from '~/utils/embed'
 
 import { EmbedColor } from '../types/index.js'
+
+const getAvatarURL = (member?: GuildMember | null) =>
+  member?.user.avatarURL() ??
+  `https://cdn.discordapp.com/embed/avatars/${Number(member?.user.discriminator) % 5}.png`
 
 const sendAlert = async (
   channel: TextBasedChannel,
@@ -17,56 +28,38 @@ const sendAlert = async (
   if (!channel.isVoiceBased()) return
 
   const { data } = await voiceChannelState(channel)
+
+  const title =
+    type === 'join'
+      ? `### ${member?.toString()}이(가) 음성채팅방에 들어왔어요.`
+      : `### ${member?.toString()}이(가) 음성채팅방에서 나갔어요.`
+
+  const container = new ContainerBuilder()
+    .addSectionComponents((section) =>
+      section
+        .setThumbnailAccessory((acc) =>
+          acc.setURL(getAvatarURL(member)).setDescription(`${member?.user.username}님의 프로필`),
+        )
+        .addTextDisplayComponents((text) => text.setContent(title)),
+    )
+    .setAccentColor(hexToRgb(type === 'join' ? EmbedColor.Info : EmbedColor.Error))
+
   if (type === 'join' && data?.customRule && data.ruleId) {
-    const ruleDetail = findChatroomRule(data.ruleId)
-    await channel.send({
-      content: `<@${member?.user.id}>`,
-      embeds: [
-        new Embed(channel.client, type === 'join' ? 'info' : 'error')
-          .setTitle(
-            type === 'join' ? '맴버가 음성채팅방에 들어왔어요.' : '맴버가 음성채팅방에서 나갔어요.',
-          )
-          .setAuthor({
-            name: member?.displayName ?? '알 수 없음',
-            iconURL: member?.user.displayAvatarURL(),
-          })
-          .setDescription(`**아래의 규칙을 지켜주세요**`)
-          .setFields({
-            name: `**${ruleDetail?.emoji} ${ruleDetail?.name}**`,
-            value: `\`\`\`${data.customRule}\`\`\``,
-          }),
-      ],
-    })
-    return
+    const ruleDetail = await findChatroomRule(data.ruleId)
+    container
+      .addSeparatorComponents(
+        new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true),
+      )
+      .addTextDisplayComponents(
+        new TextDisplayBuilder().setContent(
+          `**아래의 규칙을 지켜주세요**\n${ruleDetail?.emoji} **${ruleDetail?.name}**\n\`\`\`${data.customRule}\`\`\``,
+        ),
+      )
   }
+
   await channel.send({
     flags: 'IsComponentsV2',
-    allowedMentions: { users: [] },
-    components: [
-      new ContainerBuilder()
-        .addSectionComponents((section) =>
-          section
-            .setThumbnailAccessory((acc) =>
-              acc
-                .setURL(
-                  member?.user.avatarURL()
-                    ? (member.user.avatarURL() as string)
-                    : `https://cdn.discordapp.com/embed/avatars/${
-                        Number(member?.user.discriminator) % 5
-                      }.png`,
-                )
-                .setDescription(`${member?.user.username}님의 프로필`),
-            )
-            .addTextDisplayComponents((text) =>
-              text.setContent(
-                type === 'join'
-                  ? `### ${member?.toString()}이(가) 음성채팅방에 들어왔어요.`
-                  : `### ${member?.toString()}이(가) 음성채팅방에서 나갔어요.`,
-              ),
-            ),
-        )
-        .setAccentColor(hexToRgb(type === 'join' ? EmbedColor.Info : EmbedColor.Error)),
-    ],
+    components: [container],
   })
 }
 

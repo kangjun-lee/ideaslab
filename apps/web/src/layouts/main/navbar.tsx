@@ -27,7 +27,7 @@ const NavItem = ({
 }) => {
   if (isMobile) {
     return (
-      <Link passHref href={href}>
+      <Link href={href}>
         <ButtonLink variant={isActive ? 'light' : 'subtle'} style={{ textAlign: 'left' }}>
           {name}
         </ButtonLink>
@@ -35,7 +35,7 @@ const NavItem = ({
     )
   }
   return (
-    <Link passHref href={href}>
+    <Link href={href}>
       <ButtonLink variant={isActive ? 'light' : 'subtle'}>{name}</ButtonLink>
     </Link>
   )
@@ -75,11 +75,9 @@ export const Navbar = () => {
     >
       <div className="flex items-center" style={{ height: 'var(--nav-height)' }}>
         <div className="px-4 container max-w-4xl mx-auto flex justify-between items-center">
-          <Link href="/" passHref>
-            <a className="flex items-center gap-x-3">
-              <Image width={32} height={32} alt="" src="/favicon-196.png" />
-              <span className="font-bold text-lg sm:text-xl">아이디어스랩</span>
-            </a>
+          <Link href="/" className="flex items-center gap-x-3">
+            <Image width={32} height={32} alt="" src="/favicon-196.png" />
+            <span className="font-bold text-lg sm:text-xl">아이디어스랩</span>
           </Link>
           <div className={'hidden md:flex gap-x-4 items-center'} id="main-menu">
             <NavItems isMobile={false} />
@@ -88,7 +86,7 @@ export const Navbar = () => {
             {profile && typeof profile === 'object' ? (
               <UserMenu />
             ) : (
-              <Link href="/login" passHref>
+              <Link href="/login">
                 <ButtonLink variant="subtle">로그인</ButtonLink>
               </Link>
             )}

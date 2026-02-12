@@ -43,10 +43,11 @@ const HeaderSection = () => {
             가입하기
           </a>
 
-          <Link href="/settings/profile" passHref>
-            <a className="px-8 py-3 text-lg font-semibold border rounded border-gray-800 dark:border-gray-100">
-              둘러보기
-            </a>
+          <Link
+            href="/settings/profile"
+            className="px-8 py-3 text-lg font-semibold border rounded border-gray-800 dark:border-gray-100"
+          >
+            둘러보기
           </Link>
         </div>
       </div>

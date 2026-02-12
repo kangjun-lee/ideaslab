@@ -1,28 +1,29 @@
 import { ComponentProps, JSXElementConstructor, ReactElement, ReactNode } from 'react'
 import {
   Controller,
+  FieldValues,
   FormProvider,
   SubmitErrorHandler,
   SubmitHandler,
   useFormContext,
+  UseFormReturn as LibUseFormReturn,
 } from 'react-hook-form'
 
-import { z } from '@ideaslab/validator'
-
-import { useForm } from '~/hooks/useForm'
-
-export const Form = <TSchema extends z.ZodType<any, any, any>>({
+export const Form = <TFieldValues extends FieldValues = FieldValues>({
   form,
   children,
   className,
   onSubmit = () => {},
   onInvalid = () => {},
 }: {
-  form: ReturnType<typeof useForm<TSchema>>
+  form: LibUseFormReturn<TFieldValues> & {
+    onSubmit?: SubmitHandler<TFieldValues>
+    onInvalid?: SubmitErrorHandler<TFieldValues>
+  }
   children: ReactNode
   className?: string
-  onSubmit?: SubmitHandler<z.TypeOf<TSchema>>
-  onInvalid?: SubmitErrorHandler<z.TypeOf<TSchema>>
+  onSubmit?: SubmitHandler<TFieldValues>
+  onInvalid?: SubmitErrorHandler<TFieldValues>
 }) => {
   return (
     <FormProvider {...form}>

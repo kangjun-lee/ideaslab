@@ -66,11 +66,9 @@ const Block = ({
 
   return (
     <div className={classNames(mt ? 'mt-8' : '', 'relative')}>
-      <Link href={href} passHref>
-        <a className="text-subtitle-color text-xl flex items-center">
-          {title}
-          <ChevronRightIcon width={24} height={24} />
-        </a>
+      <Link href={href} className="text-subtitle-color text-xl flex items-center">
+        {title}
+        <ChevronRightIcon width={24} height={24} />
       </Link>
       <div className="text-description-color mb-2 text-sm">{description}</div>
       <Swiper
