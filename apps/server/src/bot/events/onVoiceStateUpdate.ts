@@ -60,6 +60,7 @@ const sendAlert = async (
   await channel.send({
     flags: 'IsComponentsV2',
     components: [container],
+    allowedMentions: { users: [] },
   })
 }
 

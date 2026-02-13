@@ -3,7 +3,8 @@
     "allow": [
       "Bash(pnpm prisma generate:*)",
       "Bash(pnpm build:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []

@@ -62,23 +62,27 @@ export enum ChannelType {
    *
    * See https://support.discord.com/hc/articles/360032008192
    */
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   GuildNews = 5,
   /**
    * A temporary sub-channel within a Guild Announcement channel
    *
    * @deprecated This is the old name for {@apilink ChannelType#AnnouncementThread}
    */
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   GuildNewsThread = 10,
   /**
    * A temporary sub-channel within a Guild Text channel
    *
    * @deprecated This is the old name for {@apilink ChannelType#PublicThread}
    */
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   GuildPublicThread = 11,
   /**
    * A temporary sub-channel within a Guild Text channel that is only viewable by those invited and those with the Manage Threads permission
    *
    * @deprecated This is the old name for {@apilink ChannelType#PrivateThread}
    */
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   GuildPrivateThread = 12,
 }

@@ -16,7 +16,6 @@ declare module 'node:events' {
 }
 
 declare global {
-  // eslint-disable-next-line no-var
   var redis: Redis | undefined
 }
 

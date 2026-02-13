@@ -17,7 +17,7 @@ export const tokenDataAtom = atom((get) => {
 
   try {
     const parsed = JSON.parse(Buffer.from(splited[1], 'base64').toString('base64'))
-    // eslint-disable-next-line @typescript-eslint/ban-types
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     return parsed as {}
   } catch (e) {
     return null

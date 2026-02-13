@@ -2,9 +2,9 @@ import { MessageFlags } from 'discord.js'
 
 import { Modal } from '~/bot/base/interaction'
 import {
-  type RegisterState,
   buildFormMessage,
   getRegisterState,
+  type RegisterState,
   setRegisterState,
 } from '~/service/register'
 

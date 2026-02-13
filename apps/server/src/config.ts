@@ -1,6 +1,5 @@
 import { LogLevel } from '~/bot/types'
 
-// eslint-disable-next-line import/no-anonymous-default-export
 export default {
   logLevel: (process.env.LOG_LEVEL ?? 'debug') as LogLevel,
   botToken: process.env.BOT_TOKEN as string,

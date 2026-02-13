@@ -3,6 +3,9 @@
 	"globalDependencies": [
 		".env"
 	],
+	"globalEnv": [
+		"BACKEND_URL"
+	],
 	"tasks": {
 		"build": {
 			"outputs": [

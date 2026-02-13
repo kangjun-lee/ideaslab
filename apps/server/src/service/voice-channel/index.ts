@@ -77,7 +77,7 @@ export const voiceChannelCreate = async (
     )
     .addTextDisplayComponents(
       new TextDisplayBuilder().setContent(
-        `-# 채널 생성자: ${member.displayName}\n-# 기타 도움말: \`/음성채널-설정\``,
+        `-# 채널 생성자: ${member.toString()}\n-# 기타 도움말: \`/음성채널-설정\``,
       ),
     )
     .addTextDisplayComponents(new TextDisplayBuilder().setContent(`**채널 규칙**\n${customRule}`))

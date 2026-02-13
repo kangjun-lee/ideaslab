@@ -12,7 +12,7 @@
 		"build": "tsc --project tsconfig.json && tsc-alias",
 		"start": "node ./dist",
 		"register": "node ./dist --register",
-		"lint": "cross-env TIMING=1 eslint \"src/**/*.ts\" --fix"
+		"lint": "eslint \"src/**/*.ts\" --fix"
 	},
 	"dependencies": {
 		"@prisma/client": "^6.3.0",
@@ -44,7 +44,7 @@
 		"@types/uuid": "^9.0.8",
 		"chokidar": "^3.6.0",
 		"concurrently": "^7.6.0",
-		"eslint": "^8.57.1",
+		"eslint": "^9.0.0",
 		"fast-glob": "^3.3.3",
 		"nodemon": "^2.0.22",
 		"ts-node": "^10.9.2",

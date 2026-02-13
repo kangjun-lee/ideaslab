@@ -1,4 +1,4 @@
-import { type EmbedData, Client, EmbedBuilder } from 'discord.js'
+import { Client, EmbedBuilder, type EmbedData } from 'discord.js'
 
 import { EmbedColor, EmbedType } from '~/bot/types'
 

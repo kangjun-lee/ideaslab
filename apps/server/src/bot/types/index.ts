@@ -66,6 +66,7 @@ export const enum EmbedColor {
   Error = '#ED4245',
   Warn = '#FEE75C',
   Info = '#5865F2',
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   Default = '#5865F2',
 }
 

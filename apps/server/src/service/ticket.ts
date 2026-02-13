@@ -214,7 +214,7 @@ export const ticketService = {
     if (channel?.type !== ChannelType.PublicThread) return
 
     await channel.send({
-      content: `> ${isAnon ? '익명' : `${member.displayName} (<@${member.id}>)` || '??'}: ${
+      content: `> ${isAnon ? '익명' : `${member.displayName ?? '??'} (<@${member.id}>)`}: ${
         message.content
       }
     ${message.attachments.map((attachment) => attachment.url).join('\n') ?? ''}

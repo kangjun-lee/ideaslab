@@ -22,7 +22,7 @@
 	"license": "MIT",
 	"scripts": {
 		"build": "tsup ./src/index.ts",
-		"lint": "cross-env TIMING=1 eslint \"src/**/*.ts\"",
+		"lint": "eslint \"src/**/*.ts\"",
 		"dev": "tsup ./src/index.ts --watch",
 		"format": "prisma format",
 		"studio": "prisma studio",
@@ -34,7 +34,7 @@
 	"devDependencies": {
 		"@ideaslab/eslint-config": "workspace:*",
 		"@ideaslab/tsconfig": "workspace:*",
-		"eslint": "8.57.1",
+		"eslint": "^9.0.0",
 		"prisma": "^6.3.0",
 		"tsup": "^8.5.1",
 		"typescript": "^5.9.2"
