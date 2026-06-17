@@ -1,7 +1,7 @@
 import { dbClient } from '@ideaslab/db'
 
 import config from '~/config'
-import { redis } from '~/lib/redis'
+import { cacheGet, cacheSet } from '~/lib/redis'
 
 const redisGalleryCategoryKey = (channelId: string) => `${config.redisPrefix}gallery:${channelId}`
 
@@ -16,7 +16,7 @@ const redisExpire = 60 * 60 * 24 // 24 hours
  * if (!categoryId) return
  */
 export const getGalleryCategory = async (channelId: string) => {
-  const cached = await redis.get(redisGalleryCategoryKey(channelId))
+  const cached = await cacheGet(redisGalleryCategoryKey(channelId))
   if (cached) return parseInt(cached)
 
   const category = await dbClient.category.findUnique({
@@ -30,7 +30,8 @@ export const getGalleryCategory = async (channelId: string) => {
 
   if (!category) return null
 
-  await redis.set(redisGalleryCategoryKey(channelId), category.id, 'EX', redisExpire)
+  // 캐시 갱신 실패가 조회 결과 반환을 막지 않도록 best-effort로 처리한다.
+  await cacheSet(redisGalleryCategoryKey(channelId), category.id, 'EX', redisExpire)
 
   return category.id
 }

@@ -1,7 +1,7 @@
 import { dbClient } from '@ideaslab/db'
 
 import config from '~/config'
-import { redis } from '~/lib/redis'
+import { cacheGet, cacheSet } from '~/lib/redis'
 
 enum SettingValueType {
   String = 'string',
@@ -132,9 +132,8 @@ export const setSetting = async <T extends SettingKeys>(
 ) => {
   const stringified = JSON.stringify(value)
 
-  if (settingDetails[key].cache)
-    await redis.set(redisSettingKey(key), stringified, 'EX', settingKeyExpire)
-
+  // DB가 원본(source of truth)이므로 먼저 기록한다.
+  // 캐시 쓰기를 먼저 하면 MISCONF 등으로 캐시가 막혔을 때 DB 기록까지 차단되어 설정이 유실된다.
   await dbClient.setting.upsert({
     where: { key },
     create: {
@@ -145,20 +144,28 @@ export const setSetting = async <T extends SettingKeys>(
       value: stringified,
     },
   })
+
+  // 캐시는 보조 저장소이므로 실패해도 무시한다.
+  // 트레이드오프: 캐시 쓰기가 실패하면 기존 캐시 값이 TTL 만료(1일)까지 남아 일시적 불일치가 생길 수 있다.
+  // MISCONF 상황에서는 DEL(쓰기 명령)도 함께 차단되므로 무효화로 해결되지 않아, best-effort 갱신만 시도한다.
+  if (settingDetails[key].cache)
+    await cacheSet(redisSettingKey(key), stringified, 'EX', settingKeyExpire)
 }
 
 export const getSetting = async <T extends SettingKeys>(
   key: SettingKeys,
 ): Promise<SettingValueTypeConvert<(typeof SettingList)[T]> | null> => {
-  let value: any = null
-  if (settingDetails[key].cache) value = await redis.get(redisSettingKey(key))
+  let value: string | null = null
+  // 캐시 읽기 실패 시 null로 처리되어 아래 DB 조회로 fallback된다.
+  if (settingDetails[key].cache) value = await cacheGet(redisSettingKey(key))
 
   if (value === null) {
     const data = await dbClient.setting.findUnique({ where: { key } })
     if (!data) return null
 
+    // 캐시 갱신 실패가 DB 조회 결과 반환을 막지 않도록 best-effort로 처리한다.
     if (settingDetails[key].cache)
-      await redis.set(redisSettingKey(key), data.value, 'EX', settingKeyExpire)
+      await cacheSet(redisSettingKey(key), data.value, 'EX', settingKeyExpire)
 
     return JSON.parse(data.value)
   }

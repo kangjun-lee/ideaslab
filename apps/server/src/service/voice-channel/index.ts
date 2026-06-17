@@ -18,7 +18,7 @@ import {
 
 import { currentGuild, currentGuildChannel } from '~/bot/base/client'
 import { EmbedColor } from '~/bot/types'
-import { redis } from '~/lib/redis'
+import { cacheSet } from '~/lib/redis'
 import { hexToRgb } from '~/utils'
 
 import { getSetting } from '../setting.js'
@@ -119,7 +119,8 @@ export const voiceChannelSetRule = async (
     //   `[${rule?.emoji} ${rule?.name}] ${channel.name.split('] ').slice(1).join('] ')}`,
     // )
     await channel.setName(`[${rule?.emoji ?? '.'}] ${channel.name.split('] ').slice(1).join('] ')}`)
-    await redis.set(redisVoiceRenameRateKey(channel.id), '1', 'EX', redisVoiceRenameRateExpire)
+    // 이름 변경 rate-limit 마커는 보조 용도이므로 실패해도 무시한다.
+    await cacheSet(redisVoiceRenameRateKey(channel.id), '1', 'EX', redisVoiceRenameRateExpire)
   }
 
   return data
