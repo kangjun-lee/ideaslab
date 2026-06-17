@@ -10,7 +10,10 @@ services:
     restart: always
     ports:
       - '6379:6379'
-    command: redis-server --save 20 1 --loglevel warning
+    # RDB 스냅샷(--save) 대신 AOF를 사용한다.
+    # RDB는 stop-writes-on-bgsave-error 기본값(yes)으로 인해 스냅샷 실패 시 모든 쓰기가 차단되어
+    # MISCONF 오류를 유발한다(issue #16). AOF는 더 fault-tolerant하며 --save ""로 RDB를 비활성화해 차단을 제거한다.
+    command: redis-server --appendonly yes --appendfsync everysec --save "" --loglevel warning
     volumes:
       - ./data/redis-data:/data
 

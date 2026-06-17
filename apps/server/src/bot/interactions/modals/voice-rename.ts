@@ -1,7 +1,7 @@
 import { ChannelType, MessageFlags } from 'discord.js'
 
 import { Modal } from '~/bot/base/interaction'
-import { redis } from '~/lib/redis'
+import { cacheSet } from '~/lib/redis'
 import {
   findChatroomRule,
   redisVoiceRenameRateExpire,
@@ -41,7 +41,8 @@ export default new Modal('modal.voice-rename', async (client, interaction) => {
 
   await interaction.deferUpdate({})
 
-  await redis.set(
+  // rate-limit 마커는 보조 용도이므로 쓰기 실패(MISCONF 등) 시에도 이름 변경 흐름을 막지 않는다.
+  await cacheSet(
     redisVoiceRenameRateKey(interaction.channel.id),
     '1',
     'EX',
