@@ -1,6 +1,11 @@
 import { LabelBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from 'discord.js'
 
 import { Button } from '~/bot/base/interaction'
+import {
+  CHATROOM_DESCRIPTION_MAX_LENGTH,
+  CHATROOM_RULE_MAX_LENGTH,
+  CHATROOM_TITLE_MAX_LENTH,
+} from '~/service/voice-channel'
 
 export default new Button('chatroom-add', async (_client, interaction) => {
   const modal = new ModalBuilder().setCustomId('modal.chatroom-add').setTitle('채팅방 타입 추가')
@@ -13,7 +18,7 @@ export default new Button('chatroom-add', async (_client, interaction) => {
           .setCustomId('name')
           .setStyle(TextInputStyle.Short)
           .setRequired(true)
-          .setMaxLength(20),
+          .setMaxLength(CHATROOM_TITLE_MAX_LENTH),
       ),
     new LabelBuilder()
       .setLabel('이모지')
@@ -31,7 +36,7 @@ export default new Button('chatroom-add', async (_client, interaction) => {
           .setCustomId('description')
           .setStyle(TextInputStyle.Short)
           .setRequired(true)
-          .setMaxLength(100),
+          .setMaxLength(CHATROOM_DESCRIPTION_MAX_LENGTH),
       ),
     new LabelBuilder()
       .setLabel('규칙')
@@ -40,7 +45,7 @@ export default new Button('chatroom-add', async (_client, interaction) => {
           .setCustomId('rule')
           .setStyle(TextInputStyle.Paragraph)
           .setRequired(true)
-          .setMaxLength(200),
+          .setMaxLength(CHATROOM_RULE_MAX_LENGTH),
       ),
   )
 

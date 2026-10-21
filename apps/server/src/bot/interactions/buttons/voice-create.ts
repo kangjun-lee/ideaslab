@@ -1,7 +1,11 @@
 import { LabelBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from 'discord.js'
 
 import { Button } from '~/bot/base/interaction'
-import { getChatroomList } from '~/service/voice-channel/constants'
+import {
+  CHATROOM_RULE_MAX_LENGTH,
+  CHATROOM_TITLE_MAX_LENTH,
+  getChatroomList,
+} from '~/service/voice-channel/constants'
 
 export default new Button('create-voice', async (_client, interaction) => {
   const ruleId = interaction.customId.split('-')[2]
@@ -22,7 +26,7 @@ export default new Button('create-voice', async (_client, interaction) => {
           .setPlaceholder('월요일 게임방')
           .setMinLength(1)
           .setRequired(true)
-          .setMaxLength(32)
+          .setMaxLength(CHATROOM_TITLE_MAX_LENTH)
           .setStyle(TextInputStyle.Short),
       ),
     new LabelBuilder()
@@ -33,7 +37,7 @@ export default new Button('create-voice', async (_client, interaction) => {
           .setPlaceholder('규칙을 입력해주세요.')
           .setMinLength(1)
           .setRequired(true)
-          .setMaxLength(100)
+          .setMaxLength(CHATROOM_RULE_MAX_LENGTH)
           .setStyle(TextInputStyle.Paragraph)
           .setValue(`${rule?.description}\n${rule?.rule}`),
       ),

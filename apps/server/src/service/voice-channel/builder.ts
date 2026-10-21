@@ -24,32 +24,34 @@ export const voiceRuleSettingMessage = async ({
 
   if (forCreate) {
     const container = new ContainerBuilder().addTextDisplayComponents(
-      new TextDisplayBuilder().setContent('## 🎙️ 음성채팅방 생성'),
+      new TextDisplayBuilder().setContent('# 🎙️ 음성채팅방 생성'),
     )
 
     for (const item of chatroomList) {
-      container.addTextDisplayComponents(
-        new TextDisplayBuilder().setContent(
-          `### ${item.emoji} ${item.name}\n${item.description}\n-# 기본규칙: ${item.rule}`,
-        ),
-      )
+      container
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(`## ${item.emoji} ${item.name}\n${item.description}`),
+        )
+        .addSeparatorComponents((builder) =>
+          builder.setSpacing(SeparatorSpacingSize.Small).setDivider(true),
+        )
+        .addTextDisplayComponents((builder) => builder.setContent(`## 기본 규칙 \n${item.rule}`))
+        .addSeparatorComponents(
+          new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large).setDivider(true),
+        )
     }
 
-    container
-      .addSeparatorComponents(
-        new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true),
-      )
-      .addActionRowComponents((row) =>
-        row.addComponents(
-          chatroomList.map((item) =>
-            new ButtonBuilder()
-              .setStyle(ButtonStyle.Secondary)
-              .setCustomId(`create-voice-${item.id}`)
-              .setLabel(item.name)
-              .setEmoji(item.emoji),
-          ),
+    container.addActionRowComponents((row) =>
+      row.addComponents(
+        chatroomList.map((item) =>
+          new ButtonBuilder()
+            .setStyle(ButtonStyle.Secondary)
+            .setCustomId(`create-voice-${item.id}`)
+            .setLabel(item.name)
+            .setEmoji(item.emoji),
         ),
-      )
+      ),
+    )
 
     return { components: [container] }
   }
@@ -58,7 +60,7 @@ export const voiceRuleSettingMessage = async ({
   const selectedRule = chatroomList.find((item) => item.id === selected)
 
   const container = new ContainerBuilder()
-    .addTextDisplayComponents(new TextDisplayBuilder().setContent('## 🔧 음성채팅방 규칙 설정'))
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent('# 🔧 음성채팅방 규칙 설정'))
     .addTextDisplayComponents(
       new TextDisplayBuilder().setContent(
         `현재: ${selectedRule?.emoji} ${selectedRule?.name}\n${customRule}`,
@@ -70,17 +72,23 @@ export const voiceRuleSettingMessage = async ({
 
   for (const item of chatroomList) {
     const prefix = selected === item.id ? '(선택됨) ' : ''
-    container.addTextDisplayComponents(
-      new TextDisplayBuilder().setContent(
-        `${prefix}${item.emoji} **${item.name}** — ${item.description}\n-# 기본규칙: ${item.rule}`,
-      ),
-    )
+
+    container
+      .addTextDisplayComponents(
+        new TextDisplayBuilder().setContent(
+          `### ${prefix}${item.emoji} ${item.name}\n${item.description}`,
+        ),
+      )
+      .addSeparatorComponents((builder) =>
+        builder.setSpacing(SeparatorSpacingSize.Small).setDivider(true),
+      )
+      .addTextDisplayComponents((builder) => builder.setContent(`## 기본 규칙 \n${item.rule}`))
+      .addSeparatorComponents(
+        new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large).setDivider(true),
+      )
   }
 
   container
-    .addSeparatorComponents(
-      new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true),
-    )
     .addActionRowComponents((row) =>
       row.addComponents(
         new StringSelectMenuBuilder()

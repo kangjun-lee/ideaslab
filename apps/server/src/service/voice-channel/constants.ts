@@ -41,7 +41,11 @@ export const defaultChatroomList: Chatroom[] = [
   },
 ]
 
-const CHATROOM_LIST_KEY = 'chatroomList'
+export const CHATROOM_LIST_KEY = 'chatroomList'
+
+export const CHATROOM_TITLE_MAX_LENTH = 50
+export const CHATROOM_DESCRIPTION_MAX_LENGTH = 100
+export const CHATROOM_RULE_MAX_LENGTH = 1000
 
 export const getChatroomList = async (): Promise<Chatroom[]> => {
   const setting = await dbClient.setting.findUnique({ where: { key: CHATROOM_LIST_KEY } })

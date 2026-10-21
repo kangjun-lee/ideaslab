@@ -1,7 +1,12 @@
 import { LabelBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from 'discord.js'
 
 import { Button } from '~/bot/base/interaction'
-import { getChatroomList } from '~/service/voice-channel/constants'
+import {
+  CHATROOM_DESCRIPTION_MAX_LENGTH,
+  CHATROOM_RULE_MAX_LENGTH,
+  CHATROOM_TITLE_MAX_LENTH,
+  getChatroomList,
+} from '~/service/voice-channel/constants'
 
 export default new Button('chatroom-edit', async (_client, interaction) => {
   const id = interaction.customId.split(':')[1]
@@ -21,7 +26,7 @@ export default new Button('chatroom-edit', async (_client, interaction) => {
           .setCustomId('name')
           .setStyle(TextInputStyle.Short)
           .setRequired(true)
-          .setMaxLength(20)
+          .setMaxLength(CHATROOM_TITLE_MAX_LENTH)
           .setValue(item.name),
       ),
     new LabelBuilder()
@@ -41,7 +46,7 @@ export default new Button('chatroom-edit', async (_client, interaction) => {
           .setCustomId('description')
           .setStyle(TextInputStyle.Short)
           .setRequired(true)
-          .setMaxLength(100)
+          .setMaxLength(CHATROOM_DESCRIPTION_MAX_LENGTH)
           .setValue(item.description),
       ),
     new LabelBuilder()
@@ -51,7 +56,7 @@ export default new Button('chatroom-edit', async (_client, interaction) => {
           .setCustomId('rule')
           .setStyle(TextInputStyle.Paragraph)
           .setRequired(true)
-          .setMaxLength(200)
+          .setMaxLength(CHATROOM_RULE_MAX_LENGTH)
           .setValue(item.rule),
       ),
   )
