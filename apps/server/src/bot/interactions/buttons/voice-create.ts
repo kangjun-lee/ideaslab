@@ -8,7 +8,7 @@ import {
 } from '~/service/voice-channel/constants'
 
 export default new Button('create-voice', async (_client, interaction) => {
-  const ruleId = interaction.customId.split('-')[2]
+  const ruleId = interaction.customId.split(':')[1]
 
   const chatroomList = await getChatroomList()
   const rule = chatroomList.find((chatroom) => chatroom.id === ruleId)

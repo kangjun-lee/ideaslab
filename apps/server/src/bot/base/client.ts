@@ -2,6 +2,8 @@ import { Client, ClientEvents, ClientOptions, Collection, Partials } from 'disco
 import Dokdo from 'dokdo'
 import { config as dotenvConfig } from 'dotenv'
 
+import { dbClient } from '@ideaslab/db'
+
 import config from '~/config'
 import { Logger } from '~/utils/logger'
 
@@ -31,6 +33,7 @@ export default class BotClient extends Client {
   public event: EventManager = new EventManager(this)
   public error: ErrorManager = new ErrorManager(this)
   public interaction: InteractionManager = new InteractionManager(this)
+  public database = dbClient
   public dokdo = new Dokdo.Client(this, { prefix: '!' })
 
   public constructor(options: ClientOptions = { intents: 130815 }) {

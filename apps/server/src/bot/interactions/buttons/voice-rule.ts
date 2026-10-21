@@ -7,7 +7,11 @@ import {
 } from 'discord.js'
 
 import { Button } from '~/bot/base/interaction'
-import { findChatroomRule, voiceChannelState } from '~/service/voice-channel'
+import {
+  CHATROOM_RULE_MAX_LENGTH,
+  findChatroomRule,
+  voiceChannelState,
+} from '~/service/voice-channel'
 
 export default new Button(['voice-rule-edit'], async (_client, interaction) => {
   if (!interaction.channel || interaction.channel.type !== ChannelType.GuildVoice) return
@@ -30,7 +34,7 @@ export default new Button(['voice-rule-edit'], async (_client, interaction) => {
           .setPlaceholder('바꿀 규칙을 입력해주세요.')
           .setMinLength(1)
           .setRequired(true)
-          .setMaxLength(100)
+          .setMaxLength(CHATROOM_RULE_MAX_LENGTH)
           .setStyle(TextInputStyle.Paragraph)
           .setValue(`${data.customRule}`),
       ),

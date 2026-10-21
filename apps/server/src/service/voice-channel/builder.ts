@@ -49,7 +49,7 @@ export const voiceRuleSettingMessage = async ({
         chatroomList.map((item) =>
           new ButtonBuilder()
             .setStyle(ButtonStyle.Secondary)
-            .setCustomId(`create-voice-${item.id}`)
+            .setCustomId(`create-voice:${item.id}`)
             .setLabel(item.name)
             .setEmoji(item.emoji),
         ),

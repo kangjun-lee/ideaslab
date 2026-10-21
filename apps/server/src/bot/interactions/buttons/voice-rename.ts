@@ -9,7 +9,7 @@ import {
 import { currentGuildMember } from '~/bot/base/client'
 import { Button } from '~/bot/base/interaction'
 import { redis } from '~/lib/redis'
-import { voiceChannelOwnerCheck } from '~/service/voice-channel'
+import { CHATROOM_TITLE_MAX_LENTH, voiceChannelOwnerCheck } from '~/service/voice-channel'
 import { redisVoiceRenameRateKey } from '~/service/voice-channel/redis'
 import { formatSeconds } from '~/service/voice-log'
 
@@ -45,7 +45,7 @@ export default new Button(['voice-rename'], async (_client, interaction) => {
         )
         .setPlaceholder(`${member.displayName}님의 채널`)
         .setMinLength(1)
-        .setMaxLength(32)
+        .setMaxLength(CHATROOM_TITLE_MAX_LENTH)
         .setStyle(TextInputStyle.Short),
     ),
   )

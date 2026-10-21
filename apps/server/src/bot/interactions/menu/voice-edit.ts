@@ -3,7 +3,7 @@ import { LabelBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from 'di
 import { SelectMenu } from '~/bot/base/interaction'
 import { redis } from '~/lib/redis'
 import { redisVoiceRenameRateKey } from '~/service/voice-channel'
-import { getChatroomList } from '~/service/voice-channel/constants'
+import { CHATROOM_RULE_MAX_LENGTH, getChatroomList } from '~/service/voice-channel/constants'
 import { formatSeconds } from '~/service/voice-log'
 
 export default new SelectMenu('string', 'menu.voice-rule-edit', async (_client, interaction) => {
@@ -38,7 +38,7 @@ export default new SelectMenu('string', 'menu.voice-rule-edit', async (_client, 
           .setPlaceholder('바꿀 규칙을 입력해주세요.')
           .setMinLength(1)
           .setRequired(true)
-          .setMaxLength(100)
+          .setMaxLength(CHATROOM_RULE_MAX_LENGTH)
           .setStyle(TextInputStyle.Paragraph)
           .setValue(`${rule?.description}\n${rule?.rule}`),
       ),
