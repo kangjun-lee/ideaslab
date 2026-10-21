@@ -8,6 +8,11 @@ import { exit } from 'process'
 
 import { createContext } from '~/api/base/context'
 import { client, initClient } from '~/bot/base/client'
+import {
+  handleLinkedRolesCallback,
+  handleLinkedRolesVerify,
+  registerRoleConnectionMetadata,
+} from '~/service/linked-roles'
 import { Logger } from '~/utils/logger'
 
 import { appRouter } from './api/router/_app.js'
@@ -25,7 +30,18 @@ process.on('unhandledRejection', (e: Error) => logger.error(e.stack as string))
 
 await initClient()
 
-if (process.argv.includes('--register')) {
+if (process.argv.includes('--register-metadata')) {
+  logger.info('Registering role connection metadata...')
+  registerRoleConnectionMetadata()
+    .then(() => {
+      logger.info('Successfully registered role connection metadata.')
+      exit(0)
+    })
+    .catch((err) => {
+      logger.error('Failed to register role connection metadata:', err)
+      exit(1)
+    })
+} else if (process.argv.includes('--register')) {
   await setTimeout(2000)
   logger.info('Registering slash commands...')
   client.command.slashCommandSetup(config.guildId ?? '').then(() => {
@@ -82,6 +98,42 @@ if (process.argv.includes('--register')) {
         res.setHeader('Vary', 'Access-Control-Request-Headers, Access-Control-Request-Method')
         res.writeHead(200)
         return res.end()
+      }
+
+      // Intercept Discord Linked Roles OAuth2 routes
+      let normalizedPath = '/'
+      try {
+        const url = new URL(req.url ?? '/', 'http://localhost')
+        const pathname = url.pathname.toLowerCase()
+        normalizedPath = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname
+      } catch {
+        normalizedPath = req.url?.split('?')[0]?.toLowerCase() ?? '/'
+      }
+
+      if (
+        normalizedPath === '/api/linked-roles/verify' ||
+        normalizedPath === '/linked-roles/verify'
+      ) {
+        return void handleLinkedRolesVerify(req, res).catch((err) => {
+          logger.error('Unhandled error in handleLinkedRolesVerify:', err)
+          if (!res.headersSent) {
+            res.writeHead(500, { 'Content-Type': 'text/plain' })
+            res.end('Internal Server Error')
+          }
+        })
+      }
+
+      if (
+        normalizedPath === '/api/linked-roles/callback' ||
+        normalizedPath === '/linked-roles/callback'
+      ) {
+        return void handleLinkedRolesCallback(req, res).catch((err) => {
+          logger.error('Unhandled error in handleLinkedRolesCallback:', err)
+          if (!res.headersSent) {
+            res.writeHead(500, { 'Content-Type': 'text/plain' })
+            res.end('Internal Server Error')
+          }
+        })
       }
 
       // then we can pass the req/res to the tRPC handler

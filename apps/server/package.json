@@ -12,6 +12,8 @@
 		"build": "tsc --project tsconfig.json && tsc-alias",
 		"start": "node ./dist",
 		"register": "node ./dist --register",
+		"register:metadata": "tsx src/scripts/register-metadata.ts",
+		"test": "tsx --test \"src/**/*.test.ts\"",
 		"lint": "eslint \"src/**/*.ts\" --fix"
 	},
 	"dependencies": {

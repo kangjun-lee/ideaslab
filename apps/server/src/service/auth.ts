@@ -98,7 +98,7 @@ export const verifyAuthToken = (token: string) => {
     }
 
     return { id: userId, isAdmin }
-  } catch (error) {
+  } catch {
     return null
   }
 }

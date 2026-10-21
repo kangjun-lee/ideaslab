@@ -97,3 +97,122 @@ export const cacheGet = async (key: string): Promise<string | null> => {
     return null
   }
 }
+
+export interface DiscordOAuthTokens {
+  access_token: string
+  refresh_token: string
+  expires_at: number
+  expires_in?: number
+  token_type?: string
+  scope?: string
+}
+
+export const redisLinkedRolesStateKey = (state: string) =>
+  `${config.redisPrefix}linked-roles:state:${state}`
+
+export const redisLinkedRolesTokenKey = (userId: string) =>
+  `${config.redisPrefix}linked-roles:token:${userId}`
+
+/**
+ * Stores CSRF state for linked-roles OAuth flow with a TTL (default 10 minutes).
+ */
+export const storeLinkedRolesState = async (state: string, ttlSeconds = 600): Promise<boolean> => {
+  if (!state || typeof state !== 'string') return false
+  try {
+    await redis.set(redisLinkedRolesStateKey(state), '1', 'EX', ttlSeconds)
+    return true
+  } catch (err) {
+    logger.warn(
+      `Failed to store linked-roles state: ${err instanceof Error ? err.message : String(err)}`,
+    )
+    return false
+  }
+}
+
+/**
+ * Atomically consumes and validates CSRF state to prevent replay attacks.
+ */
+export const consumeLinkedRolesState = async (state: string): Promise<boolean> => {
+  if (!state || typeof state !== 'string') return false
+  try {
+    const key = redisLinkedRolesStateKey(state)
+    if (typeof (redis as any).getdel === 'function') {
+      try {
+        const val = await (redis as any).getdel(key)
+        return val !== null
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err)
+        if (!msg.toLowerCase().includes('unknown command')) {
+          throw err
+        }
+      }
+    }
+    const results = await redis.multi().get(key).del(key).exec()
+    if (!results || !results[0]) return false
+    const [getError, getVal] = results[0]
+    return !getError && getVal !== null
+  } catch (err) {
+    logger.warn(
+      `Failed to consume linked-roles state: ${err instanceof Error ? err.message : String(err)}`,
+    )
+    return false
+  }
+}
+
+/**
+ * Stores Discord OAuth2 tokens for a user in Redis.
+ */
+export const storeLinkedRolesTokens = async (
+  userId: string,
+  tokens: DiscordOAuthTokens,
+): Promise<boolean> => {
+  if (!userId || !tokens) return false
+  try {
+    await redis.set(redisLinkedRolesTokenKey(userId), JSON.stringify(tokens))
+    return true
+  } catch (err) {
+    logger.warn(
+      `Failed to store linked-roles tokens for user ${userId}: ${
+        err instanceof Error ? err.message : String(err)
+      }`,
+    )
+    return false
+  }
+}
+
+/**
+ * Retrieves Discord OAuth2 tokens for a user from Redis.
+ */
+export const getLinkedRolesTokens = async (userId: string): Promise<DiscordOAuthTokens | null> => {
+  if (!userId) return null
+  try {
+    const raw = await redis.get(redisLinkedRolesTokenKey(userId))
+    if (!raw) return null
+    return JSON.parse(raw) as DiscordOAuthTokens
+  } catch (err) {
+    logger.warn(
+      `Failed to get linked-roles tokens for user ${userId}: ${
+        err instanceof Error ? err.message : String(err)
+      }`,
+    )
+    return null
+  }
+}
+
+/**
+ * Deletes Discord OAuth2 tokens for a user from Redis (e.g. on revocation or logout).
+ */
+export const deleteLinkedRolesTokens = async (userId: string): Promise<boolean> => {
+  if (!userId) return false
+  try {
+    await redis.del(redisLinkedRolesTokenKey(userId))
+    return true
+  } catch (err) {
+    logger.warn(
+      `Failed to delete linked-roles tokens for user ${userId}: ${
+        err instanceof Error ? err.message : String(err)
+      }`,
+    )
+    return false
+  }
+}

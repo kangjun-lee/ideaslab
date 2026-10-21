@@ -11,3 +11,4 @@ data/
 .turbo
 .claude/*.local.json
 .env
+.agents
