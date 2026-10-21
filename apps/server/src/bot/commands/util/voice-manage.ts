@@ -12,7 +12,11 @@ import {
 
 import { SlashCommand } from '~/bot/base/command'
 import { EmbedColor } from '~/bot/types'
-import { voiceChannelState, voiceComponents } from '~/service/voice-channel'
+import {
+  buildVoiceMigratePromptMessage,
+  voiceChannelState,
+  voiceComponents,
+} from '~/service/voice-channel'
 import { hexToRgb, simpleContainer } from '~/utils'
 
 export default new SlashCommand(
@@ -42,7 +46,14 @@ export default new SlashCommand(
 
     const { owner: ownerId, data } = await voiceChannelState(interaction.channel)
 
-    if (!data?.customRule || !data.ruleId) return
+    if (!data?.customRule || !data.ruleId) {
+      const { components } = buildVoiceMigratePromptMessage()
+      await interaction.reply({
+        components,
+        flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
+      })
+      return
+    }
 
     const { row } = voiceComponents()
 

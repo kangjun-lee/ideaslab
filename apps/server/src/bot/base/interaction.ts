@@ -10,6 +10,7 @@ import {
   MessageContextMenuCommandInteraction,
   ModalSubmitInteraction,
   RoleSelectMenuInteraction,
+  StringSelectMenuInteraction,
   UserContextMenuCommandInteraction,
   UserSelectMenuInteraction,
 } from 'discord.js'
@@ -27,11 +28,11 @@ export class Button {
 
 type SelectMenuType = 'role' | 'user' | 'string' | 'channel' | 'mention'
 type SelectMenuDiscordType<T extends SelectMenuType, U extends CacheType> = T extends 'role'
-  ? UserSelectMenuInteraction<U>
-  : T extends 'role'
   ? RoleSelectMenuInteraction<U>
-  : T extends 'string'
+  : T extends 'user'
   ? UserSelectMenuInteraction<U>
+  : T extends 'string'
+  ? StringSelectMenuInteraction<U>
   : T extends 'channel'
   ? ChannelSelectMenuInteraction<U>
   : MentionableSelectMenuInteraction<U>

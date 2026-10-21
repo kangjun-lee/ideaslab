@@ -207,6 +207,86 @@ export const voiceChannelClaim = async (channel: VoiceChannel, memberId: string)
   return true
 }
 
+export const voiceChannelMigrate = async (
+  channel: VoiceChannel,
+  member: GuildMember,
+  ruleId: string,
+) => {
+  const rule = await findChatroomRule(ruleId)
+  if (!rule) throw new Error('채팅방 규칙을 찾을 수 없습니다.')
+
+  const customRule = `${rule.description}\n${rule.rule}`
+
+  // 1. 카테고리 설정
+  try {
+    const parentId = await getSetting('voiceRoomCategory')
+    if (parentId && channel.parentId !== parentId) {
+      await channel.setParent(parentId)
+    }
+  } catch (err) {
+    console.error('Failed to move channel to voiceRoomCategory:', err)
+  }
+
+  // 2. 채널 이름 설정 ([emoji] 이름)
+  let cleanName = channel.name
+  if (cleanName.includes('] ')) {
+    cleanName = cleanName.split('] ').slice(1).join('] ')
+  } else {
+    cleanName = cleanName.replace(/^\[.*?\]\s*/, '')
+  }
+  cleanName = cleanName.trim()
+  if (!cleanName) {
+    cleanName = rule.name
+  }
+  const newName = `[${rule.emoji}] ${cleanName}`
+  try {
+    await channel.setName(newName)
+    await cacheSet(redisVoiceRenameRateKey(channel.id), '1', 'EX', redisVoiceRenameRateExpire)
+  } catch (err) {
+    console.error('Failed to rename channel during migration:', err)
+  }
+
+  // 3. 음성 채널에 관리 컴포넌트 메시지 전송
+  const container = new ContainerBuilder()
+    .setAccentColor(hexToRgb(EmbedColor.Info))
+    .addSectionComponents(
+      new SectionBuilder()
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(`# ${cleanName}`))
+        .setThumbnailAccessory(new ThumbnailBuilder().setURL(member.displayAvatarURL())),
+    )
+    .addTextDisplayComponents(
+      new TextDisplayBuilder().setContent(
+        '음성채팅방으로 이전되었어요 :wave:\n아래의 버튼을 눌러 원하는 설정을 하실 수 있어요.',
+      ),
+    )
+    .addSeparatorComponents(
+      new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true),
+    )
+    .addTextDisplayComponents(
+      new TextDisplayBuilder().setContent(
+        `-# 채널 관리자: ${member.toString()}\n-# 기타 도움말: \`/음성채널-설정\``,
+      ),
+    )
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(`**채널 규칙**\n${customRule}`))
+
+  const { row } = voiceComponents()
+  container.addActionRowComponents(row)
+
+  await channel.send({
+    flags: MessageFlags.IsComponentsV2,
+    components: [container],
+  })
+
+  // 4. Redis 데이터 및 소유자 등록
+  await setVoiceOwner(channel.id, member.id)
+  await setVoiceData(channel.id, {
+    customRule,
+    ruleId,
+  })
+
+  return { rule, cleanName }
+}
+
 export const archiveVoiceChannel = async (channel: VoiceChannel) => {
   try {
     const categoryId = await getSetting('archiveCategory')

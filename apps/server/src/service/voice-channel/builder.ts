@@ -9,6 +9,9 @@ import {
   TextDisplayBuilder,
 } from 'discord.js'
 
+import { EmbedColor } from '~/bot/types'
+import { hexToRgb } from '~/utils'
+
 import { getChatroomList } from './constants.js'
 
 export const voiceRuleSettingMessage = async ({
@@ -140,4 +143,90 @@ export const voiceComponents = () => {
   )
 
   return { row }
+}
+
+export const buildVoiceMigratePromptMessage = () => {
+  const container = new ContainerBuilder()
+    .setAccentColor(hexToRgb(EmbedColor.Warn))
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent('# ⚠️ 채널 규칙 없음'))
+    .addTextDisplayComponents(
+      new TextDisplayBuilder().setContent(
+        '현재 채널에는 등록된 음성채팅방 규칙이 없어요.\n채팅방으로 이전하시겠습니까?',
+      ),
+    )
+    .addSeparatorComponents(
+      new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true),
+    )
+    .addActionRowComponents((row) =>
+      row.addComponents(
+        new ButtonBuilder()
+          .setStyle(ButtonStyle.Primary)
+          .setCustomId('voice-migrate-start')
+          .setLabel('이전하기')
+          .setEmoji('🔄'),
+        new ButtonBuilder()
+          .setStyle(ButtonStyle.Secondary)
+          .setCustomId('voice-migrate-cancel')
+          .setLabel('취소'),
+      ),
+    )
+
+  return { components: [container] }
+}
+
+export const buildVoiceMigrateMessage = async () => {
+  const chatroomList = await getChatroomList()
+
+  const container = new ContainerBuilder()
+    .setAccentColor(hexToRgb(EmbedColor.Info))
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent('# 🏠 이전할 채팅방 선택'))
+    .addTextDisplayComponents(
+      new TextDisplayBuilder().setContent(
+        '어떤 채팅방으로 이전할까요?\n아래 목록에서 원하는 채팅방을 선택해주세요.',
+      ),
+    )
+    .addSeparatorComponents(
+      new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true),
+    )
+
+  for (const item of chatroomList) {
+    container
+      .addTextDisplayComponents(
+        new TextDisplayBuilder().setContent(`### ${item.emoji} ${item.name}\n${item.description}`),
+      )
+      .addSeparatorComponents((builder) =>
+        builder.setSpacing(SeparatorSpacingSize.Small).setDivider(true),
+      )
+      .addTextDisplayComponents((builder) => builder.setContent(`## 기본 규칙\n${item.rule}`))
+      .addSeparatorComponents(
+        new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large).setDivider(true),
+      )
+  }
+
+  container
+    .addActionRowComponents((row) =>
+      row.addComponents(
+        new StringSelectMenuBuilder()
+          .setCustomId('menu.voice-migrate')
+          .setPlaceholder('이전할 채팅방을 선택하세요.')
+          .addOptions(
+            chatroomList.map((item) => ({
+              label: `채팅방 이전: ${item.name}`,
+              value: item.id,
+              description: item.description,
+              emoji: item.emoji,
+            })),
+          ),
+      ),
+    )
+    .addActionRowComponents((row) =>
+      row.addComponents(
+        new ButtonBuilder()
+          .setStyle(ButtonStyle.Secondary)
+          .setCustomId('voice-migrate-cancel')
+          .setLabel('취소'),
+      ),
+    )
+
+  return { components: [container] }
 }
