@@ -23,19 +23,20 @@ export default new Event('messageUpdate', async (client, message, newEventMessag
 
   if (!newMessage.content?.length) return
 
-  try {
+  // Comment 존재 여부를 먼저 확인하여 P2025 에러 로그 폭증 방지 (#17)
+  const existingComment = await dbClient.comment.findUnique({
+    where: { discordId: newMessage.id },
+    select: { discordId: true },
+  })
+
+  if (existingComment) {
     // Update Comment
     await dbClient.comment.update({
-      where: {
-        discordId: newMessage.id,
-      },
-      data: {
-        content: newMessage.content,
-      },
+      where: { discordId: newMessage.id },
+      data: { content: newMessage.content },
     })
-  } catch (e) {
-    console.error(e)
-    // Update Gallery Post
+  } else {
+    // Comment가 없으면 Gallery Post 업데이트 시도
     await ignoreError(
       dbClient.post.update({
         where: {
