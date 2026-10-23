@@ -25,18 +25,14 @@ export const eventMemberLeave = async (userId: string, channelName: string) => {
   // => 2022-12-24 23:50 ~ 2022-12-24 23:59:59
   // => 2022-12-25 00:00:00 ~ 2022-12-25 01:10:00
   if (time.getDate() !== new Date().getDate()) {
-    const todayDate = new Date()
-    todayDate.setHours(0, 0, 0, 0)
-    const todayDuration = Math.floor((todayDate.getTime() - dateInt) / 1000)
+    const midnightToday = new Date()
+    midnightToday.setHours(0, 0, 0, 0)
+    const yesterdayDuration = Math.floor((midnightToday.getTime() - dateInt) / 1000)
+    const todayDuration = duration - yesterdayDuration
     await dbClient.voiceLog.createMany({
       data: [
-        { time, userDiscordId: userId, value: duration - todayDuration, channelName },
-        {
-          time: todayDate,
-          userDiscordId: userId,
-          value: todayDuration,
-          channelName,
-        },
+        { time, userDiscordId: userId, value: yesterdayDuration, channelName },
+        { time: midnightToday, userDiscordId: userId, value: todayDuration, channelName },
       ],
     })
     return
@@ -51,7 +47,7 @@ export const getVoiceLogDetail = async (userId: string, date: string) => {
   const dayStart = new Date(date)
   dayStart.setHours(0, 0, 0, 0)
   const dayEnd = new Date(date)
-  dayEnd.setHours(23, 59, 59, 9999)
+  dayEnd.setHours(23, 59, 59, 999)
 
   const detailList = await dbClient.voiceLog.findMany({
     where: {
@@ -90,7 +86,7 @@ export const getCurrentVoiceLog = async (userId: string) => {
     where: {
       time: {
         gte: todayDate,
-        lte: tomorrowDate,
+        lt: tomorrowDate,
       },
       userDiscordId: userId,
     },
@@ -122,15 +118,15 @@ export const allVoiceLogByDate = async (
   }: { startYear: number; startMonth: number; endYear: number; endMonth: number },
 ) => {
   const monthFirst = new Date()
+  monthFirst.setDate(1)
   monthFirst.setFullYear(startYear)
   monthFirst.setMonth(startMonth - 1)
-  monthFirst.setDate(1)
   monthFirst.setHours(0, 0, 0, 0)
   const monthSecond = new Date()
+  monthSecond.setDate(1)
   monthSecond.setFullYear(endYear)
   monthSecond.setMonth(endMonth)
-  monthFirst.setDate(1)
-  monthFirst.setHours(0, 0, 0, 0)
+  monthSecond.setHours(0, 0, 0, 0)
 
   const result = (await dbClient.$queryRaw(
     Prisma.sql`

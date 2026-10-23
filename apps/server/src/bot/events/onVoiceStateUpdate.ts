@@ -69,6 +69,7 @@ export default new Event('voiceStateUpdate', async (_client, before, after) => {
   const container = new ContainerBuilder()
   // Member Join
   if (before.channelId === null && after.channelId && after.member && after.channel) {
+    if (after.member.user.bot) return
     container.addTextDisplayComponents((c) =>
       c.setContent(['## Member join', DebugReporter.fetchInfo(import.meta)].join('\n')),
     )
@@ -102,6 +103,14 @@ export default new Event('voiceStateUpdate', async (_client, before, after) => {
 
   // Member Move
   if (before.channelId != null && before.channelId !== after.channelId && after.channelId) {
+    if (before.member?.user.bot) return
+
+    // 이전 채널 세션 정산 + 새 채널 세션 시작
+    if (before.member) {
+      await eventMemberLeave(before.member.id, before.channel?.name ?? '')
+      eventMemberJoin(before.member.id)
+    }
+
     container.addTextDisplayComponents((c) =>
       c.setContent(['## Member move', DebugReporter.fetchInfo(import.meta)].join('\n')),
     )
@@ -139,6 +148,7 @@ export default new Event('voiceStateUpdate', async (_client, before, after) => {
 
   // Member Leave
   if (before.member && before.channelId && after.channelId === null) {
+    if (before.member.user.bot) return
     container.addTextDisplayComponents((c) =>
       c.setContent(['## Member leave', DebugReporter.fetchInfo(import.meta)].join('\n')),
     )

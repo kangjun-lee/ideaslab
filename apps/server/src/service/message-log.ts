@@ -35,21 +35,18 @@ export const saveMessageCounts = async () => {
 
   try {
     const createManyData: Prisma.MessageLogCreateManyInput[] = []
-    const scanned = await redis.hscan(redisMessageLogKey(targetDate), 0)
-    const [_coursor, elements] = scanned
+    const allData = await redis.hgetall(redisMessageLogKey(targetDate))
     const users = await dbClient.user.findMany({ select: { discordId: true } })
-    const userIds = users.map(({ discordId }) => discordId)
+    const userIds = new Set(users.map(({ discordId }) => discordId))
 
-    for (let i = 0; i < elements.length; i += 2) {
-      if (!userIds.includes(elements[i])) continue
-
+    for (const [userId, count] of Object.entries(allData)) {
+      if (!userIds.has(userId)) continue
       createManyData.push({
-        userDiscordId: elements[i],
-        count: parseInt(elements[i + 1]),
+        userDiscordId: userId,
+        count: parseInt(count),
         time: targetDate,
       })
     }
-
     await dbClient.messageLog.createMany({ data: createManyData })
     await redis.del(redisMessageLogKey(targetDate))
   } catch (e) {
@@ -75,7 +72,7 @@ export const messageLogSummary = async (userId: string) => {
     where: {
       time: {
         gte: todayDate,
-        lte: tomorrowDate,
+        lt: tomorrowDate,
       },
       userDiscordId: userId,
     },
@@ -99,15 +96,15 @@ export const messageLogSummary = async (userId: string) => {
 
 export const allMessageLogByYear = async (userId: string, year: number) => {
   const monthFirst = new Date()
+  monthFirst.setDate(1)
   monthFirst.setFullYear(year)
   monthFirst.setMonth(0)
-  monthFirst.setDate(1)
   monthFirst.setHours(0, 0, 0, 0)
   const monthSecond = new Date()
+  monthSecond.setDate(1)
   monthSecond.setFullYear(year)
   monthSecond.setMonth(12)
-  monthFirst.setDate(1)
-  monthFirst.setHours(0, 0, 0, 0)
+  monthSecond.setHours(0, 0, 0, 0)
 
   const result = (await dbClient.$queryRaw(
     Prisma.sql`
