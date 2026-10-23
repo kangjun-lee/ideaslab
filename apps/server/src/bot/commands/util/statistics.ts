@@ -14,10 +14,7 @@ export default new SlashCommand(
       option
         .setName('종류')
         .setDescription('확인할 통계 종류를 선택해요 (기본: 메시지)')
-        .addChoices(
-          { name: '메시지 잔디', value: 'message' },
-          { name: '음성 통화 잔디', value: 'voice' },
-        ),
+        .addChoices({ name: '메시지', value: 'message' }, { name: '통화방', value: 'voice' }),
     )
     .addIntegerOption((option) =>
       option
@@ -28,7 +25,7 @@ export default new SlashCommand(
     ),
   async (client, interaction) => {
     await interaction.deferReply({
-      ephemeral: true,
+      ephemeral: false,
     })
 
     const targetUser = interaction.options.getUser('유저') ?? interaction.user

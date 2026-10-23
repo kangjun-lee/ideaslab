@@ -531,7 +531,7 @@ export const buildStatisticsPayload = async (options: BuildStatisticsOptions) =>
       : '기록 없음'
 
   let overviewText =
-    `### 📊 ${userName} 님의 ${year}년 ${typeName} 잔디\n` +
+    `### 📊 ${userName} 님의 ${year}년 ${typeName} 통계\n` +
     `총 ${typeName}: **\`${totalFormatted}\`** | 활동일수: **\`${activeDays}일\`** | 최고 활동: **\`${peakFormatted}\`**`
 
   if (currentVoiceTime) {
@@ -540,9 +540,9 @@ export const buildStatisticsPayload = async (options: BuildStatisticsOptions) =>
 
   if (selectedDate) {
     if (type === 'message') {
-      overviewText += `\n\n📅 **${selectedDate} 상세 내역**: 전송 메시지 **\`${selectedDateValue.toLocaleString()}개\`**`
+      overviewText += `\n\n📅 **${selectedDate} 상세 정보**: 전송 메시지 **\`${selectedDateValue.toLocaleString()}개\`**`
     } else {
-      overviewText += `\n\n📅 **${selectedDate} 상세 내역**: 총 통화 시간 **\`${formatSeconds(
+      overviewText += `\n\n📅 **${selectedDate} 상세 정보**: 총 통화 시간 **\`${formatSeconds(
         selectedDateValue,
       )}\`**`
       if (detailList.length > 0) {
@@ -604,7 +604,7 @@ export const buildStatisticsPayload = async (options: BuildStatisticsOptions) =>
       .setCustomId(
         `stat:type:${userId}:${type === 'message' ? 'voice' : 'message'}:${year}:${exec}`,
       )
-      .setLabel(type === 'message' ? '🎙️ 음성 잔디' : '💬 메시지 잔디')
+      .setLabel(type === 'message' ? '통화방 통계 보기' : '메시지 통계 보기')
       .setStyle(ButtonStyle.Primary),
     new ButtonBuilder()
       .setCustomId(`stat:modal-open:${userId}:${type}:${year}:${exec}`)
