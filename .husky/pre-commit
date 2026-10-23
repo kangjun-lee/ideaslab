@@ -3,5 +3,4 @@
 
 pnpm run format
 pnpm run lint
-git add .
 
