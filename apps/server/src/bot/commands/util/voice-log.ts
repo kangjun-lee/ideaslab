@@ -77,7 +77,7 @@ export default new SlashCommand(
           new ButtonBuilder()
             .setStyle(ButtonStyle.Link)
             .setLabel('자세히 보기')
-            .setURL(`${config.webURL}/settings/analytics/voice`),
+            .setURL(`${config.webURL}/settings/statistics`),
         ),
       )
 

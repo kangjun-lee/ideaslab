@@ -18,26 +18,21 @@ export const Calendar = ({ data, onClick, tooltip: tooltipFunc, year }: Props) =
   const responsiveSize = useResponsiveSize()
 
   const formatedData = useMemo(() => {
-    const date = new Date()
-    date.setHours(0, 0, 0, 0)
-    const isLeapYear =
-      (date.getFullYear() % 4 == 0 && date.getFullYear() % 100 != 0) ||
-      date.getFullYear() % 400 == 0
+    const isLeapYear = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0
 
     const dataMap: Record<string, number> =
-      data.reduce(
-        (prev, { value, date }) => ({
+      data.reduce((prev, { value, date }) => {
+        const d = date instanceof Date ? date : new Date(date)
+        return {
           ...prev,
-          [`${date.getMonth()}${date.getDate()}`]: value,
-        }),
-        {},
-      ) ?? {}
+          [`${d.getMonth()}-${d.getDate()}`]: value,
+        }
+      }, {}) ?? {}
 
     const list = []
     const dayList = [31, isLeapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
     for (let i = 0; i < 12; i++) {
-      date.setMonth(i)
-      date.setDate(1)
+      const firstDay = new Date(year, i, 1)
 
       const monthList: (null | {
         tooltip: string | null
@@ -45,12 +40,12 @@ export const Calendar = ({ data, onClick, tooltip: tooltipFunc, year }: Props) =
         date: Date
         value: number
       })[] = []
-      monthList.push(...new Array(date.getDay()).fill(null))
+      monthList.push(...new Array(firstDay.getDay()).fill(null))
 
       for (let j = 0; j < dayList[i]; j++) {
-        const targetDate = new Date(`${year}-${i + 1}-${j + 1}`)
+        const targetDate = new Date(year, i, j + 1)
 
-        const item = dataMap[`${i}${j + 1}`]
+        const item = dataMap[`${i}-${j + 1}`]
         const dateStr = Intl.DateTimeFormat('ko', {
           month: 'long',
           day: 'numeric',
