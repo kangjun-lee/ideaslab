@@ -121,7 +121,7 @@ const MessageLog = () => {
             isLoading
               ? '불러오는 중'
               : data?.today && data?.today !== 0
-              ? `${data?.all}개`
+              ? `${data.today}개`
               : '전송한 메시지가 없습니다.'
           }
         />
@@ -131,7 +131,10 @@ const MessageLog = () => {
           <div className="text-lg text-title-color">메시지 작성 통계</div>
           <div className="w-32">
             <Select
-              options={[{ label: '2023년', value: 2023 }]}
+              options={Array.from({ length: new Date().getFullYear() - 2022 }, (_, i) => ({
+                label: `${2023 + i}년`,
+                value: 2023 + i,
+              }))}
               value={year}
               onChange={(value) => {
                 setYear(value as number)
@@ -197,7 +200,7 @@ const VoiceChat = () => {
           value={
             isLoading
               ? '불러오는 중'
-              : data?.today === 0
+              : data?.today != null && data.today > 0
               ? formatMinutes(Math.floor(data.today / 60))
               : '사용기록이 없습니다'
           }
@@ -211,7 +214,10 @@ const VoiceChat = () => {
           <div className="text-lg text-title-color">통화방 사용 통계</div>
           <div className="w-32">
             <Select
-              options={[{ label: '2023년', value: 2023 }]}
+              options={Array.from({ length: new Date().getFullYear() - 2022 }, (_, i) => ({
+                label: `${2023 + i}년`,
+                value: 2023 + i,
+              }))}
               value={year}
               onChange={(value) => {
                 setYear(value as number)
@@ -247,8 +253,8 @@ const VoiceChat = () => {
               '해당 날짜에 사용한 기록이 존재하지 않습니다'
             ) : (
               <div>
-                {focusData.map(({ channelName, time, value }) => (
-                  <div key={`${time.getUTCMilliseconds()}${value}`} className="card px-2 py-1">
+                {focusData.map(({ channelName, time, value }, index) => (
+                  <div key={`${time.toISOString()}-${index}`} className="card px-2 py-1">
                     <div className="text-subtitle-color">
                       {channelName || '채널명을 찾지 못하였어요'}
                     </div>
