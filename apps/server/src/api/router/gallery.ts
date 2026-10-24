@@ -4,7 +4,7 @@ import { dbClient, DefaultVisible } from '@ideaslab/db'
 import { detailStringValidator, detailValidator, galleryPostsValidator } from '@ideaslab/validator'
 
 import { publicProcedure, router } from '~/api/base/trpc'
-import { normalizeGalleryAttachments } from '~/utils'
+import { getFreshGalleryAttachments } from '~/service/gallery-attachments'
 
 export const galleryRouter = router({
   posts: publicProcedure.input(galleryPostsValidator).query(async ({ ctx, input }) => {
@@ -25,6 +25,7 @@ export const galleryRouter = router({
       },
       select: {
         id: true,
+        discordId: true,
         title: true,
         attachments: true,
         author: {
@@ -56,11 +57,13 @@ export const galleryRouter = router({
       },
     })
 
-    return result.map((post) => ({
-      ...post,
-      attachments: normalizeGalleryAttachments(post.attachments),
-      content: post.content.length > 300 ? post.content.slice(0, 305) + '...' : post.content,
-    }))
+    return Promise.all(
+      result.map(async (post) => ({
+        ...post,
+        attachments: await getFreshGalleryAttachments(post),
+        content: post.content.length > 300 ? post.content.slice(0, 305) + '...' : post.content,
+      })),
+    )
   }),
   postDetail: publicProcedure.input(detailValidator).query(async ({ ctx, input: { id } }) => {
     const res = await dbClient.post.findUnique({
@@ -137,7 +140,7 @@ export const galleryRouter = router({
     return res
       ? {
           ...res,
-          attachments: normalizeGalleryAttachments(res.attachments),
+          attachments: await getFreshGalleryAttachments(res),
         }
       : res
   }),

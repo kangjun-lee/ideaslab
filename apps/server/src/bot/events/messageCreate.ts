@@ -7,7 +7,7 @@ import config from '~/config'
 import { getGalleryCategory } from '~/service/gallery'
 import { incrUserMessageCount } from '~/service/message-log'
 import { ticketService } from '~/service/ticket'
-import { ignoreError, normalizeDiscordAttachmentUrl } from '~/utils'
+import { ignoreError } from '~/utils'
 
 export default new Event('messageCreate', async (client, message) => {
   // Skip bot
@@ -92,7 +92,7 @@ export default new Event('messageCreate', async (client, message) => {
 
     const attachments = message.attachments.map((attachment) => {
       return {
-        url: normalizeDiscordAttachmentUrl(attachment.url),
+        url: attachment.url,
         name: attachment.name,
         contentType: attachment.contentType,
         size: attachment.size,

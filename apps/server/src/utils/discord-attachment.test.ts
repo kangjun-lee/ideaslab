@@ -1,36 +1,24 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 
-import { normalizeDiscordAttachmentUrl, normalizeGalleryAttachments } from './discord-attachment.js'
+import { isDiscordAttachmentUrl, isDiscordAttachmentUrlExpired } from './discord-attachment.js'
 
-test('removes expiring query parameters from Discord attachment URLs', () => {
+test('detects Discord attachment URLs and their hexadecimal expiry', () => {
+  const expires = Math.floor((Date.now() + 60 * 60 * 1000) / 1000).toString(16)
+  const valid = `https://cdn.discordapp.com/attachments/1/2/image.png?ex=${expires}&is=1&hm=signature`
+  assert.equal(isDiscordAttachmentUrl(valid), true)
+  assert.equal(isDiscordAttachmentUrlExpired(valid), false)
   assert.equal(
-    normalizeDiscordAttachmentUrl(
-      'https://cdn.discordapp.com/attachments/1/2/image.png?ex=abc&is=def&hm=signature',
-    ),
-    'https://cdn.discordapp.com/attachments/1/2/image.png',
+    isDiscordAttachmentUrlExpired('https://cdn.discordapp.com/attachments/1/2/image.png'),
+    true,
   )
   assert.equal(
-    normalizeDiscordAttachmentUrl(
-      'https://media.discordapp.net/attachments/1/2/image.png?width=800&height=600',
-    ),
-    'https://media.discordapp.net/attachments/1/2/image.png',
+    isDiscordAttachmentUrlExpired('https://cdn.discordapp.com/avatars/1/hash.webp'),
+    false,
   )
 })
 
-test('does not rewrite non-Discord URLs and normalizes stored attachment records', () => {
-  const external = 'https://example.com/image.png?size=large'
-  assert.equal(normalizeDiscordAttachmentUrl(external), external)
-  assert.deepEqual(
-    normalizeGalleryAttachments([
-      { url: 'https://cdn.discordapp.com/attachments/1/2/image.png?ex=expired', name: 'image.png' },
-      { name: 'missing-url' },
-      'invalid-record',
-    ]),
-    [
-      { url: 'https://cdn.discordapp.com/attachments/1/2/image.png', name: 'image.png' },
-      { name: 'missing-url' },
-      'invalid-record',
-    ],
-  )
+test('does not treat non-Discord URLs as expiring attachments', () => {
+  assert.equal(isDiscordAttachmentUrl('https://example.com/image.png?size=large'), false)
+  assert.equal(isDiscordAttachmentUrlExpired('https://example.com/image.png?size=large'), false)
 })

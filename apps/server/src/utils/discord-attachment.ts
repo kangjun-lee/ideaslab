@@ -1,31 +1,28 @@
 const DISCORD_ATTACHMENT_HOSTS = new Set(['cdn.discordapp.com', 'media.discordapp.net'])
 
-/**
- * Discord attachment URLs may contain expiring signature parameters (ex/is/hm).
- * The attachment path itself is the stable CDN resource, so remove the query
- * string before persisting or returning the URL to the web client.
- */
-export const normalizeDiscordAttachmentUrl = (value: string): string => {
+export const isDiscordAttachmentUrl = (value: string): boolean => {
   try {
     const url = new URL(value)
-    if (!DISCORD_ATTACHMENT_HOSTS.has(url.hostname)) return value
-    return `${url.origin}${url.pathname}`
+    return DISCORD_ATTACHMENT_HOSTS.has(url.hostname) && url.pathname.startsWith('/attachments/')
   } catch {
-    return value
+    return false
   }
 }
 
-export const normalizeGalleryAttachments = (attachments: unknown): unknown[] => {
-  if (!Array.isArray(attachments)) return []
+/**
+ * Discord attachment URLs are signed and the `ex` parameter is a hexadecimal
+ * expiry timestamp. A URL without a signature is treated as stale so it can be
+ * refreshed from the source Discord message.
+ */
+export const isDiscordAttachmentUrlExpired = (value: string, now = Date.now()): boolean => {
+  if (!isDiscordAttachmentUrl(value)) return false
 
-  return attachments.map((attachment) => {
-    if (!attachment || typeof attachment !== 'object' || Array.isArray(attachment)) {
-      return attachment
-    }
-
-    const record = attachment as Record<string, unknown>
-    return typeof record.url === 'string'
-      ? { ...record, url: normalizeDiscordAttachmentUrl(record.url) }
-      : attachment
-  })
+  try {
+    const expires = new URL(value).searchParams.get('ex')
+    if (!expires) return true
+    const expiryMs = Number.parseInt(expires, 16) * 1000
+    return !Number.isFinite(expiryMs) || expiryMs <= now + 5 * 60 * 1000
+  } catch {
+    return true
+  }
 }
