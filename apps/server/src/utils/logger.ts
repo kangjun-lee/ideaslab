@@ -4,6 +4,7 @@ import winston, { addColors, createLogger, format, transports } from 'winston'
 
 import { LogLevel } from '~/bot/types'
 import config from '~/config'
+import { DebugReporter } from '~/utils/debug'
 
 const { printf, splat, colorize, timestamp, ms, combine } = format
 
@@ -76,21 +77,27 @@ export class Logger {
 
   log(message: any, ...args: any[]) {
     this.logger.info(message, ...args, { label: this.scope })
+    void DebugReporter.consoleLog(`${this.scope}.info`, [message, ...args]).catch(() => undefined)
   }
 
   info(message: any, ...args: any[]) {
     this.logger.info(message, ...args, { label: this.scope })
+    void DebugReporter.consoleLog(`${this.scope}.info`, [message, ...args]).catch(() => undefined)
   }
   warn(message: any, ...args: any[]) {
     this.logger.warn(message, ...args, { label: this.scope })
+    void DebugReporter.consoleLog(`${this.scope}.warn`, [message, ...args]).catch(() => undefined)
   }
 
   error(message: any, ...args: any[]) {
     this.logger.error(message, ...args, { label: this.scope })
+    void DebugReporter.consoleLog(`${this.scope}.error`, [message, ...args]).catch(() => undefined)
+    void DebugReporter.error(this.scope, message, args).catch(() => undefined)
   }
 
   debug(message: any, ...args: any[]) {
     this.logger.debug(message, ...args, { label: this.scope })
+    void DebugReporter.consoleLog(`${this.scope}.debug`, [message, ...args]).catch(() => undefined)
   }
 
   fatal(message: any, ...args: any[]): never {

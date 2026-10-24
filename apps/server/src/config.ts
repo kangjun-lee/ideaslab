@@ -5,6 +5,14 @@ export interface ServerConfig {
   botToken: string
   botId: string
   errorWebhook: string
+  debugWebhook: string
+  debugThreads: {
+    register: string
+    voice: string
+    message: string
+    error: string
+    console: string
+  }
   redisURL: string
   jwtSecret: string
   redisPrefix: string
@@ -42,6 +50,14 @@ export const config: ServerConfig = {
   botToken: (process.env.BOT_TOKEN ?? '') as string,
   botId: (process.env.BOT_ID ?? process.env.CLIENT_ID ?? '') as string,
   errorWebhook: (process.env.ERROR_WEBHOOK ?? '') as string,
+  debugWebhook: (process.env.DEBUG_WEBHOOK ?? process.env.ERROR_WEBHOOK ?? '') as string,
+  debugThreads: {
+    register: process.env.DEBUG_REGISTER_THREAD_ID ?? '',
+    voice: process.env.DEBUG_VOICE_THREAD_ID ?? '',
+    message: process.env.DEBUG_MESSAGE_THREAD_ID ?? '',
+    error: process.env.DEBUG_ERROR_THREAD_ID ?? '',
+    console: process.env.DEBUG_CONSOLE_THREAD_ID ?? '',
+  },
   redisURL: (process.env.REDIS_URL ?? '') as string,
   jwtSecret: (process.env.JWT_SECRET ?? '') as string,
   redisPrefix: (process.env.REDIS_PREFIX ?? '') as string,
