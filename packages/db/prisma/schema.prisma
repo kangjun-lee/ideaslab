@@ -22,19 +22,19 @@ model User {
   handleDisplay  String         @default("")
   links          Json[]
   registerFrom   String?
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-  leavedAt       DateTime?
+  createdAt      DateTime       @default(now()) @db.Timestamptz()
+  updatedAt      DateTime       @updatedAt @db.Timestamptz()
+  leavedAt       DateTime?      @db.Timestamptz()
   profileVisible DefaultVisible @default(Public)
   defaultVisible DefaultVisible @default(Public)
   roles          Role[]
 
-  likes      Like[]
-  posts      Post[]
-  VoiceLog   VoiceLog[]
-  Comment    Comment[]
-  MessageLog MessageLog[]
-  Point      Point[]
+  likes       Like[]
+  posts       Post[]
+  voiceLogs   VoiceLog[]
+  comments    Comment[]
+  messageLogs MessageLog[]
+  points      Point[]
 }
 
 model Category {
@@ -42,8 +42,8 @@ model Category {
   name           String
   discordChannel String   @unique
   defaultOrder   Int      @default(0)
-  createdAt      DateTime @default(now())
-  updateAt       DateTime @updatedAt
+  createdAt      DateTime @default(now()) @db.Timestamptz()
+  updatedAt      DateTime @updatedAt @db.Timestamptz()
   posts          Post[]
 }
 
@@ -52,19 +52,22 @@ model Comment {
   authorId  String
   content   String
   parentId  String?
-  hasParent Boolean   @default(false) // Make it true when connect parent comment. Can use this value to display "original message deleted"
-  parent    Comment?  @relation("CommentParent", fields: [parentId], references: [discordId])
+  hasParent Boolean   @default(false) // Whether the Discord message was a reply
+  parent    Comment?  @relation("CommentParent", fields: [parentId], references: [discordId], onDelete: Cascade)
   comments  Comment[] @relation("CommentParent")
 
-  author User @relation(fields: [authorId], references: [discordId])
+  author User @relation(fields: [authorId], references: [discordId], onDelete: Cascade)
 
-  post   Post @relation(fields: [postId], references: [id])
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId Int
 
   createdAt DateTime @default(now()) @db.Timestamptz()
-  updateAt  DateTime @updatedAt @db.Timestamptz()
+  updatedAt DateTime @updatedAt @db.Timestamptz()
 
   @@index([createdAt(sort: Desc)])
+  @@index([parentId])
+  @@index([authorId])
+  @@index([postId, createdAt(sort: Asc)])
 }
 
 model Role {
@@ -91,23 +94,28 @@ model Post {
   categoryId  Int
   authorId    String
   createdAt   DateTime       @default(now()) @db.Timestamptz()
-  updateAt    DateTime       @updatedAt @db.Timestamptz()
+  updatedAt   DateTime       @updatedAt @db.Timestamptz()
   visible     DefaultVisible @default(Public)
   likes       Like[]
-  author      User           @relation(fields: [authorId], references: [discordId])
-  category    Category       @relation(fields: [categoryId], references: [id])
+  author      User           @relation(fields: [authorId], references: [discordId], onDelete: Cascade)
+  category    Category       @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   tags        Tag[]          @relation("PostToTag")
   comments    Comment[]
 
   @@index([createdAt(sort: Desc)])
+  @@index([authorId, createdAt(sort: Desc)])
+  @@index([categoryId, createdAt(sort: Desc)])
 }
 
 model Like {
   id     Int    @id @default(autoincrement())
   userId String
   postId Int
-  post   Post   @relation(fields: [postId], references: [id])
-  user   User   @relation(fields: [userId], references: [discordId])
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [discordId], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([postId])
 }
 
 model VoiceLog {
@@ -115,7 +123,7 @@ model VoiceLog {
   channelName   String   @default("")
   value         Int
   userDiscordId String
-  user          User     @relation(fields: [userDiscordId], references: [discordId])
+  user          User     @relation(fields: [userDiscordId], references: [discordId], onDelete: Cascade)
 
   @@unique([userDiscordId, time])
   @@index([time(sort: Desc)])
@@ -125,7 +133,7 @@ model MessageLog {
   time          DateTime @default(now()) @db.Timestamptz()
   userDiscordId String
   count         Int
-  user          User     @relation(fields: [userDiscordId], references: [discordId])
+  user          User     @relation(fields: [userDiscordId], references: [discordId], onDelete: Cascade)
 
   @@unique([userDiscordId, time])
   @@index([time(sort: Desc)])
@@ -138,7 +146,9 @@ model Point {
   type   String
   reason String
   date   DateTime @default(now()) @db.Timestamptz()
-  user   User     @relation(fields: [userId], references: [discordId])
+  user   User     @relation(fields: [userId], references: [discordId], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model Setting {

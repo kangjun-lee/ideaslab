@@ -24,16 +24,17 @@
 		"build": "tsup ./src/index.ts",
 		"lint": "eslint \"src/**/*.ts\"",
 		"dev": "tsup ./src/index.ts --watch",
-		"format": "prisma format",
-		"studio": "prisma studio",
-		"db:migrate:deploy": "prisma migrate deploy",
-		"db:migrate:dev": "prisma migrate dev",
-		"db:generate": "prisma generate",
-		"db:push": "prisma db push"
+		"format": "dotenv -e ../../.env -- prisma format",
+		"studio": "dotenv -e ../../.env -- prisma studio",
+		"db:migrate:deploy": "dotenv -e ../../.env -- prisma migrate deploy",
+		"db:migrate:dev": "dotenv -e ../../.env -- prisma migrate dev",
+		"db:generate": "dotenv -e ../../.env -- prisma generate",
+		"db:push": "dotenv -e ../../.env -- prisma db push"
 	},
 	"devDependencies": {
 		"@ideaslab/eslint-config": "workspace:*",
 		"@ideaslab/tsconfig": "workspace:*",
+		"dotenv-cli": "^11.0.0",
 		"eslint": "^9.0.0",
 		"prisma": "^6.3.0",
 		"tsup": "^8.5.1",
