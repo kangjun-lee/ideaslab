@@ -37,6 +37,15 @@ model User {
   points      Point[]
 }
 
+model LinkedRoleToken {
+  userDiscordId String   @id
+  accessToken   String
+  refreshToken  String
+  expiresAt     DateTime @db.Timestamptz()
+  createdAt     DateTime @default(now()) @db.Timestamptz()
+  updatedAt     DateTime @updatedAt @db.Timestamptz()
+}
+
 model Category {
   id             Int      @id @default(autoincrement())
   name           String

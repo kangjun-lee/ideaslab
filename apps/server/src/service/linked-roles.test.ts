@@ -84,8 +84,8 @@ describe('Discord Linked Roles', () => {
         (d) => d.key === 'voice_minutes',
       )
       assert.ok(voiceMinutes)
-      assert.strictEqual(voiceMinutes.type, 2)
-      assert.strictEqual(voiceMinutes.name, '음성 채널 활동(분)')
+      assert.strictEqual(voiceMinutes.type, 2) // Integer Greater Than Or Equal
+      assert.strictEqual(voiceMinutes.name, '음성 채널 활동(시간)')
     })
 
     it('should call Discord REST API to register metadata', async () => {
@@ -243,9 +243,9 @@ describe('Discord Linked Roles', () => {
         _sum: { count: 142 },
       })) as any
 
-      // 7200 seconds = 120 minutes
+      // 1800 seconds = 0.5 hours
       dbClient.voiceLog.aggregate = (async () => ({
-        _sum: { value: 7200 },
+        _sum: { value: 1800 },
       })) as any
 
       try {
@@ -253,7 +253,7 @@ describe('Discord Linked Roles', () => {
         assert.strictEqual(stats.isMember, true)
         assert.strictEqual(stats.points, 250) // Math.floor
         assert.strictEqual(stats.messageCount, 142)
-        assert.strictEqual(stats.voiceMinutes, 120) // 7200 / 60
+        assert.strictEqual(stats.voiceMinutes, 0.5) // 1800 / 3600
         assert.strictEqual(stats.userName, 'testuser')
       } finally {
         dbClient.user.findUnique = origUserFindUnique
@@ -681,7 +681,7 @@ describe('Discord Linked Roles', () => {
         assert.ok(pushedData)
         assert.strictEqual(pushedData.metadata.points, '100')
         assert.strictEqual(pushedData.metadata.message_count, '20')
-        assert.strictEqual(pushedData.metadata.voice_minutes, '10')
+        assert.strictEqual(pushedData.metadata.voice_minutes, '0.17')
 
         // For user without tokens, returns false
         const noTokens = await updateUserRoleConnection('no-tokens-user')
@@ -1067,7 +1067,7 @@ describe('Discord Linked Roles', () => {
         assert.ok(html.includes('연동 완료!'))
         assert.ok(html.includes('500 P'))
         assert.ok(html.includes('88개'))
-        assert.ok(html.includes('60분'))
+        assert.ok(html.includes('1시간'))
         assert.ok(html.includes('가입됨'))
 
         assert.ok(pushedRoleConnection)
@@ -1075,7 +1075,7 @@ describe('Discord Linked Roles', () => {
         assert.strictEqual(pushedRoleConnection.metadata.is_member, '1')
         assert.strictEqual(pushedRoleConnection.metadata.points, '500')
         assert.strictEqual(pushedRoleConnection.metadata.message_count, '88')
-        assert.strictEqual(pushedRoleConnection.metadata.voice_minutes, '60')
+        assert.strictEqual(pushedRoleConnection.metadata.voice_minutes, '1')
       } finally {
         globalThis.fetch = origFetch
         dbClient.user.findUnique = origUserFindUnique

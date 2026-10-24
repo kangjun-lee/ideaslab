@@ -3,6 +3,7 @@ import { scheduleJob } from 'node-schedule'
 import { client } from './bot/base/client.js'
 import { alertToNotVerifiedUser } from './service/auth.js'
 import { runAvatarSyncSafely } from './service/avatar-sync.js'
+import { updateAllLinkedRoleConnections } from './service/linked-roles.js'
 import { saveMessageCounts } from './service/message-log.js'
 
 /*
@@ -18,6 +19,8 @@ import { saveMessageCounts } from './service/message-log.js'
 */
 
 export const setupSchedule = () => {
+  let linkedRolesUpdateRunning = false
+
   // Every Sunday at 03:00 (server timezone)
   scheduleJob('0 3 * * 0', () => {
     void runAvatarSyncSafely()
@@ -36,5 +39,17 @@ export const setupSchedule = () => {
   // Every 10 minutes
   scheduleJob('*/10 * * * *', async () => {
     await alertToNotVerifiedUser()
+  })
+
+  // Every 5 minutes
+  scheduleJob('*/5 * * * *', async () => {
+    if (linkedRolesUpdateRunning) return
+
+    linkedRolesUpdateRunning = true
+    try {
+      await updateAllLinkedRoleConnections()
+    } finally {
+      linkedRolesUpdateRunning = false
+    }
   })
 }

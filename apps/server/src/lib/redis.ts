@@ -1,4 +1,7 @@
+import crypto from 'crypto'
 import Redis from 'ioredis'
+
+import { dbClient } from '@ideaslab/db'
 
 import config from '~/config'
 import { Logger } from '~/utils/logger'
@@ -107,11 +110,81 @@ export interface DiscordOAuthTokens {
   scope?: string
 }
 
+const tokenEncryptionKey = () => {
+  if (!config.jwtSecret) {
+    throw new Error('JWT_SECRET is required to encrypt Linked Roles tokens')
+  }
+  return crypto.createHash('sha256').update(`ideaslab-linked-roles:${config.jwtSecret}`).digest()
+}
+
+const encryptToken = (value: string): string => {
+  const iv = crypto.randomBytes(12)
+  const cipher = crypto.createCipheriv('aes-256-gcm', tokenEncryptionKey(), iv)
+  const encrypted = Buffer.concat([cipher.update(value, 'utf8'), cipher.final()])
+  return `${iv.toString('base64url')}.${cipher
+    .getAuthTag()
+    .toString('base64url')}.${encrypted.toString('base64url')}`
+}
+
+const decryptToken = (value: string): string => {
+  const [ivValue, tagValue, encryptedValue] = value.split('.')
+  if (!ivValue || !tagValue || !encryptedValue) throw new Error('Invalid encrypted token')
+  const decipher = crypto.createDecipheriv(
+    'aes-256-gcm',
+    tokenEncryptionKey(),
+    Buffer.from(ivValue, 'base64url'),
+  )
+  decipher.setAuthTag(Buffer.from(tagValue, 'base64url'))
+  return Buffer.concat([
+    decipher.update(Buffer.from(encryptedValue, 'base64url')),
+    decipher.final(),
+  ]).toString('utf8')
+}
+
 export const redisLinkedRolesStateKey = (state: string) =>
   `${config.redisPrefix}linked-roles:state:${state}`
 
 export const redisLinkedRolesTokenKey = (userId: string) =>
   `${config.redisPrefix}linked-roles:token:${userId}`
+
+/** Returns Discord user IDs with stored Linked Roles OAuth tokens. */
+export const getLinkedRolesUserIds = async (): Promise<string[]> => {
+  const prefix = `${config.redisPrefix}linked-roles:token:`
+  const userIds = new Set<string>()
+  let cursor = '0'
+
+  try {
+    do {
+      const [nextCursor, keys] = await redis.scan(cursor, 'MATCH', `${prefix}*`, 'COUNT', 100)
+      cursor = nextCursor
+      keys
+        .filter((key) => key.startsWith(prefix))
+        .map((key) => key.slice(prefix.length))
+        .forEach((userId) => userIds.add(userId))
+    } while (cursor !== '0')
+  } catch (err) {
+    logger.warn(
+      `Failed to list Linked Roles tokens from Redis: ${
+        err instanceof Error ? err.message : String(err)
+      }`,
+    )
+  }
+
+  try {
+    const storedUsers = await dbClient.linkedRoleToken.findMany({
+      select: { userDiscordId: true },
+    })
+    storedUsers.forEach(({ userDiscordId }) => userIds.add(userDiscordId))
+  } catch (err) {
+    logger.warn(
+      `Failed to list persisted Linked Roles tokens: ${
+        err instanceof Error ? err.message : String(err)
+      }`,
+    )
+  }
+
+  return [...userIds]
+}
 
 /**
  * Stores CSRF state for linked-roles OAuth flow with a TTL (default 10 minutes).
@@ -168,6 +241,28 @@ export const storeLinkedRolesTokens = async (
 ): Promise<boolean> => {
   if (!userId || !tokens) return false
   try {
+    try {
+      await dbClient.linkedRoleToken.upsert({
+        where: { userDiscordId: userId },
+        create: {
+          userDiscordId: userId,
+          accessToken: encryptToken(tokens.access_token),
+          refreshToken: encryptToken(tokens.refresh_token),
+          expiresAt: new Date(tokens.expires_at),
+        },
+        update: {
+          accessToken: encryptToken(tokens.access_token),
+          refreshToken: encryptToken(tokens.refresh_token),
+          expiresAt: new Date(tokens.expires_at),
+        },
+      })
+    } catch (err) {
+      logger.error(
+        `Failed to persist Linked Roles tokens for user ${userId}: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      )
+    }
     await redis.set(redisLinkedRolesTokenKey(userId), JSON.stringify(tokens))
     return true
   } catch (err) {
@@ -186,9 +281,35 @@ export const storeLinkedRolesTokens = async (
 export const getLinkedRolesTokens = async (userId: string): Promise<DiscordOAuthTokens | null> => {
   if (!userId) return null
   try {
-    const raw = await redis.get(redisLinkedRolesTokenKey(userId))
-    if (!raw) return null
-    return JSON.parse(raw) as DiscordOAuthTokens
+    let raw: string | null = null
+    try {
+      raw = await redis.get(redisLinkedRolesTokenKey(userId))
+    } catch (err) {
+      logger.warn(
+        `Redis unavailable while reading Linked Roles token for user ${userId}: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      )
+    }
+    if (raw) return JSON.parse(raw) as DiscordOAuthTokens
+
+    const stored = await dbClient.linkedRoleToken.findUnique({ where: { userDiscordId: userId } })
+    if (!stored) return null
+    const tokens: DiscordOAuthTokens = {
+      access_token: decryptToken(stored.accessToken),
+      refresh_token: decryptToken(stored.refreshToken),
+      expires_at: stored.expiresAt.getTime(),
+    }
+    try {
+      await redis.set(redisLinkedRolesTokenKey(userId), JSON.stringify(tokens))
+    } catch (err) {
+      logger.warn(
+        `Failed to warm Redis for Linked Roles user ${userId}: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      )
+    }
+    return tokens
   } catch (err) {
     logger.warn(
       `Failed to get linked-roles tokens for user ${userId}: ${
@@ -205,6 +326,15 @@ export const getLinkedRolesTokens = async (userId: string): Promise<DiscordOAuth
 export const deleteLinkedRolesTokens = async (userId: string): Promise<boolean> => {
   if (!userId) return false
   try {
+    try {
+      await dbClient.linkedRoleToken.deleteMany({ where: { userDiscordId: userId } })
+    } catch (err) {
+      logger.warn(
+        `Failed to delete persisted Linked Roles token for user ${userId}: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      )
+    }
     await redis.del(redisLinkedRolesTokenKey(userId))
     return true
   } catch (err) {

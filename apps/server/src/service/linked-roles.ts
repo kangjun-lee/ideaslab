@@ -10,6 +10,7 @@ import {
   deleteLinkedRolesTokens,
   DiscordOAuthTokens,
   getLinkedRolesTokens,
+  getLinkedRolesUserIds,
   storeLinkedRolesState,
   storeLinkedRolesTokens,
 } from '~/lib/redis'
@@ -22,7 +23,7 @@ const logger = new Logger('linked-roles')
  * - is_member (Type 7 - Boolean Equal)
  * - points (Type 2 - Integer Greater Than Or Equal)
  * - message_count (Type 2 - Integer Greater Than Or Equal)
- * - voice_minutes (Type 2 - Integer Greater Than Or Equal)
+ * - voice_minutes (Type 2 - Integer Greater Than Or Equal, value is hours)
  */
 export const ROLE_CONNECTION_METADATA_DEFINITIONS = [
   {
@@ -45,8 +46,8 @@ export const ROLE_CONNECTION_METADATA_DEFINITIONS = [
   },
   {
     key: 'voice_minutes',
-    name: '음성 채널 활동(분)',
-    description: '음성 채널 활동(분)',
+    name: '음성 채널 활동(시간)',
+    description: '음성 채널 활동(시간)',
     type: ApplicationRoleConnectionMetadataType.IntegerGreaterThanOrEqual,
   },
 ] as const
@@ -338,7 +339,7 @@ export async function getDiscordUserData(accessToken: string): Promise<DiscordUs
  * - is_member: Check existence in dbClient.user
  * - points: Sum of points from dbClient.point
  * - message_count: Sum of message counts from dbClient.messageLog
- * - voice_minutes: Sum of voice seconds converted to minutes from dbClient.voiceLog
+ * - voice_minutes: Sum of voice seconds converted to hours from dbClient.voiceLog
  */
 export async function getUserStats(userId: string): Promise<UserStats> {
   const [user, pointAgg, messageAgg, voiceAgg] = await Promise.all([
@@ -374,7 +375,7 @@ export async function getUserStats(userId: string): Promise<UserStats> {
     typeof rawVoice === 'number' && Number.isFinite(rawVoice)
       ? Math.max(0, Math.floor(rawVoice))
       : 0
-  const voiceMinutes = Math.floor(totalVoiceSeconds / 60)
+  const voiceMinutes = totalVoiceSeconds / 3600
 
   return {
     isMember,
@@ -409,12 +410,20 @@ export async function pushRoleConnection(
     return String(Number.isFinite(parsed) ? Math.max(0, parsed) : 0)
   }
 
+  const safeNumber = (val: unknown): string => {
+    if (typeof val === 'number' && Number.isFinite(val)) {
+      return String(Number(Math.max(0, val).toFixed(2)))
+    }
+    const parsed = parseFloat(String(val))
+    return String(Number.isFinite(parsed) ? Number(Math.max(0, parsed).toFixed(2)) : 0)
+  }
+
   // Discord role connections API requires all metadata values to be stringified (or 0/1 for booleans)
   const metadata: Record<string, string> = {
     is_member: stats.isMember ? '1' : '0',
     points: safeInt(stats.points),
     message_count: safeInt(stats.messageCount),
-    voice_minutes: safeInt(stats.voiceMinutes),
+    voice_minutes: safeNumber(stats.voiceMinutes),
   }
 
   const platformUsername = (
@@ -493,6 +502,15 @@ export async function updateUserRoleConnection(userId: string): Promise<boolean>
     logger.error(`Error updating role connection for user ${userId}:`, err)
     return false
   }
+}
+
+/** Updates Linked Roles metadata for every user that has completed OAuth. */
+export async function updateAllLinkedRoleConnections(): Promise<void> {
+  const userIds = await getLinkedRolesUserIds()
+  for (const userId of userIds) {
+    await updateUserRoleConnection(userId)
+  }
+  logger.info(`Updated Linked Roles metadata for ${userIds.length} user(s).`)
 }
 
 /**
@@ -587,7 +605,7 @@ export function renderLinkedRolesHtml({
         }</span></div>
         <div class="stat-row"><span>보유 포인트</span><span class="stat-val">${stats.points.toLocaleString()} P</span></div>
         <div class="stat-row"><span>누적 메시지 수</span><span class="stat-val">${stats.messageCount.toLocaleString()}개</span></div>
-        <div class="stat-row"><span>음성 채널 활동</span><span class="stat-val">${stats.voiceMinutes.toLocaleString()}분</span></div>
+        <div class="stat-row"><span>음성 채널 활동</span><span class="stat-val">${stats.voiceMinutes.toLocaleString()}시간</span></div>
       </div>`
       : ''
 
