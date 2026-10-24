@@ -1,5 +1,4 @@
 import {
-  ContainerBuilder,
   MediaGalleryBuilder,
   MediaGalleryItemBuilder,
   MessageFlags,
@@ -14,7 +13,9 @@ const MAX_TEXT_DISPLAY_LENGTH = 4000
 const imageLine = /^\s*!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)\s*$/
 const separatorLine = /^\s{0,3}([-*_])(?:\s*\1){2,}\s*$/
 
-/** Builds a Components V2 container while preserving Discord Markdown verbatim. */
+type ComponentsV2Builder = TextDisplayBuilder | MediaGalleryBuilder | SeparatorBuilder
+
+/** Builds top-level Components V2 components while preserving Discord Markdown verbatim. */
 export const markdownToComponentsV2 = (markdown: string) => {
   const content = markdown.trim()
   if (!content) throw new Error('메시지 내용을 입력해주세요.')
@@ -22,7 +23,7 @@ export const markdownToComponentsV2 = (markdown: string) => {
     throw new Error(`메시지 내용은 ${MAX_TEXT_DISPLAY_LENGTH}자 이하로 입력해주세요.`)
   }
 
-  const container = new ContainerBuilder()
+  const components: ComponentsV2Builder[] = []
   const textLines: string[] = []
   let galleryItems: MediaGalleryItemBuilder[] = []
 
@@ -30,12 +31,12 @@ export const markdownToComponentsV2 = (markdown: string) => {
     if (textLines.length === 0) return
     const text = textLines.join('\n').trim()
     textLines.length = 0
-    if (text) container.addTextDisplayComponents(new TextDisplayBuilder().setContent(text))
+    if (text) components.push(new TextDisplayBuilder().setContent(text))
   }
 
   const flushGallery = () => {
     if (galleryItems.length === 0) return
-    container.addMediaGalleryComponents(new MediaGalleryBuilder().addItems(...galleryItems))
+    components.push(new MediaGalleryBuilder().addItems(...galleryItems))
     galleryItems = []
   }
 
@@ -53,7 +54,7 @@ export const markdownToComponentsV2 = (markdown: string) => {
     if (separatorLine.test(line)) {
       flushText()
       flushGallery()
-      container.addSeparatorComponents(new SeparatorBuilder())
+      components.push(new SeparatorBuilder())
       continue
     }
 
@@ -63,7 +64,7 @@ export const markdownToComponentsV2 = (markdown: string) => {
 
   flushText()
   flushGallery()
-  return container
+  return components
 }
 
 export const sendComponentsV2Message = async (channelId: string, markdown: string) => {
@@ -74,6 +75,6 @@ export const sendComponentsV2Message = async (channelId: string, markdown: strin
 
   return channel.send({
     flags: MessageFlags.IsComponentsV2,
-    components: [markdownToComponentsV2(markdown)],
+    components: markdownToComponentsV2(markdown),
   })
 }
