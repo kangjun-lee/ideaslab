@@ -356,6 +356,7 @@ export const executeRegistration = async (userId: string, state: RegisterState) 
   debug.sendComponents({
     container: logContainer,
     type: 'log',
+    threadId: config.debugThreads.register,
     json: [
       {
         discordId: userId,

@@ -22,6 +22,7 @@ import config from '~/config'
 import { loginWithPin, loginWithToken } from '~/service/auth'
 import { getSetting } from '~/service/setting'
 import { ignoreError } from '~/utils'
+import { DebugReporter } from '~/utils/debug'
 import { Embed } from '~/utils/embed'
 
 export const authRouter = router({
@@ -167,6 +168,20 @@ export const authRouter = router({
           input.profileVisible === 'Public' ? DefaultVisible.Public : DefaultVisible.MemberOnly,
       },
     })
+    void new DebugReporter().send(
+      {
+        content: `## 회원가입 완료\n${DebugReporter.json({
+          discordId: ctx.session.id,
+          nickname: input.name,
+          handle: input.handle,
+          introduce: input.introduce,
+          registerFrom: input.registerFrom,
+          roles: input.roles,
+          links: input.links,
+        })}`.slice(0, 2000),
+      },
+      config.debugThreads.register,
+    )
     const allRoles = await dbClient.role.findMany({ select: { discordRole: true, id: true } })
 
     for (const role of allRoles) {

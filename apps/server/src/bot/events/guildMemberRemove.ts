@@ -1,15 +1,23 @@
 import { dbClient } from '@ideaslab/db'
 
 import { Event } from '~/bot/base/event'
-import { ignoreError } from '~/utils'
+import config from '~/config'
+import { DebugReporter } from '~/utils/debug'
 
 export default new Event('guildMemberRemove', async (client, member) => {
-  await ignoreError(
-    dbClient.user.delete({
-      where: {
+  const deleted = await dbClient.user
+    .delete({ where: { discordId: member.id } })
+    .then(() => true)
+    .catch(() => false)
+  void new DebugReporter().send(
+    {
+      content: `## 회원 탈퇴\n${DebugReporter.json({
         discordId: member.id,
-      },
-    }),
+        username: member.user.username,
+        deleted,
+      })}`,
+    },
+    config.debugThreads.register,
   )
   // const dmChannel = await member.createDM(true)
 

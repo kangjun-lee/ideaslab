@@ -14,6 +14,7 @@ import {
   storeLinkedRolesState,
   storeLinkedRolesTokens,
 } from '~/lib/redis'
+import { DebugReporter } from '~/utils/debug'
 import { Logger } from '~/utils/logger'
 
 const logger = new Logger('linked-roles')
@@ -507,10 +508,21 @@ export async function updateUserRoleConnection(userId: string): Promise<boolean>
 /** Updates Linked Roles metadata for every user that has completed OAuth. */
 export async function updateAllLinkedRoleConnections(): Promise<void> {
   const userIds = await getLinkedRolesUserIds()
+  let updated = 0
   for (const userId of userIds) {
-    await updateUserRoleConnection(userId)
+    if (await updateUserRoleConnection(userId)) updated++
   }
   logger.info(`Updated Linked Roles metadata for ${userIds.length} user(s).`)
+  void new DebugReporter().send(
+    {
+      content: `## Linked Roles 갱신 완료\n${DebugReporter.json({
+        total: userIds.length,
+        updated,
+        userIds,
+      })}`,
+    },
+    config.debugThreads.register,
+  )
 }
 
 /**
@@ -915,6 +927,16 @@ export async function handleLinkedRolesCallback(
 
     logger.info(
       `Successfully linked role and pushed metadata for user ${userId} (${discordUser.username})`,
+    )
+    void new DebugReporter().send(
+      {
+        content: `## Linked Roles 연동 완료\n${DebugReporter.json({
+          discordId: userId,
+          username: discordUser.username,
+          stats,
+        })}`,
+      },
+      config.debugThreads.register,
     )
 
     res.writeHead(200, {
