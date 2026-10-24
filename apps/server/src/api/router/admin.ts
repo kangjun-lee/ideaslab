@@ -9,7 +9,7 @@ import {
 import { adminProcedure } from '~/api/base/auth-middleware'
 import { router } from '~/api/base/trpc'
 import { sendComponentsV2Message } from '~/service/components-v2'
-import { getAllSettings, setSetting } from '~/service/setting'
+import { getAllSettings, getSetting, setSetting } from '~/service/setting'
 
 export const adminRouter = router({
   loadComponentsV2: adminProcedure.query(async () => ({

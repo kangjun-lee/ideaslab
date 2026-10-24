@@ -8,4 +8,3 @@ CREATE TABLE "LinkedRoleToken" (
 
     CONSTRAINT "LinkedRoleToken_pkey" PRIMARY KEY ("userDiscordId")
 );
-
