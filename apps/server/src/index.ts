@@ -14,6 +14,7 @@ import {
   registerRoleConnectionMetadata,
 } from '~/service/linked-roles'
 import { Logger } from '~/utils/logger'
+import { DebugReporter } from '~/utils/debug'
 
 import { appRouter } from './api/router/_app.js'
 import config from './config.js'
@@ -22,6 +23,16 @@ import { setTimeout } from 'timers/promises'
 export type { AppRouter, OutputTypes } from '~/api/router/_app'
 
 const logger = new Logger('main')
+
+for (const method of ['log', 'info', 'warn', 'debug', 'error'] as const) {
+  const nativeConsoleMethod = console[method].bind(console)
+  console[method] = (...args) => {
+    nativeConsoleMethod(...args)
+    void DebugReporter.consoleLog(method, args).catch(() => undefined)
+    if (method === 'error')
+      void DebugReporter.error('console', args[0], args.slice(1)).catch(() => undefined)
+  }
+}
 
 logger.log('Starting up...')
 

@@ -1,8 +1,7 @@
-import { Message, WebhookClient } from 'discord.js'
+import { Message } from 'discord.js'
 import { v4 } from 'uuid'
 
 import { ErrorReportOptions } from '~/bot/types'
-import config from '~/config'
 import { ignoreError } from '~/utils'
 import { Embed } from '~/utils/embed'
 import { Logger } from '~/utils/logger'
@@ -25,8 +24,6 @@ export default class ErrorManager extends BaseManager {
   public report(error: Error, options?: ErrorReportOptions) {
     this.logger.error(error.stack as string)
 
-    const date = (Number(new Date()) / 1000) | 0
-    const errorText = `**[<t:${date}:T> ERROR]** ${error.stack}`
     const errorCode = v4()
 
     this.client.errors.set(errorCode, error.stack as string)
@@ -38,14 +35,6 @@ export default class ErrorManager extends BaseManager {
 
     if (options && options.isSend) {
       ignoreError((options.executer as Message).reply({ embeds: [errorEmbed] }))
-    }
-
-    if (config.errorWebhook !== '') {
-      const webhook = new WebhookClient({
-        url: config.errorWebhook,
-      })
-
-      webhook.send(errorText)
     }
   }
 }

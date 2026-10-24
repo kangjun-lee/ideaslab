@@ -2,6 +2,7 @@ import { dbClient, Prisma } from '@ideaslab/db'
 
 import config from '~/config'
 import { redis } from '~/lib/redis'
+import { DebugReporter } from '~/utils/debug'
 import { Logger } from '~/utils/logger'
 
 const logger = new Logger('service:message-log')
@@ -49,6 +50,16 @@ export const saveMessageCounts = async () => {
     }
     await dbClient.messageLog.createMany({ data: createManyData })
     await redis.del(redisMessageLogKey(targetDate))
+    void new DebugReporter().send(
+      {
+        content: `## 채팅 저장 완료\n${DebugReporter.json({
+          time: targetDate.toISOString(),
+          users: createManyData,
+          total: createManyData.reduce((sum, item) => sum + item.count, 0),
+        })}`.slice(0, 2000),
+      },
+      config.debugThreads.message,
+    )
   } catch (e) {
     logger.error('Failed to scan messages', e)
   }

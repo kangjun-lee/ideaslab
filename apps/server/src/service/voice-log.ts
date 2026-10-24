@@ -2,12 +2,23 @@ import { dbClient, Prisma } from '@ideaslab/db'
 
 import config from '~/config'
 import { redis } from '~/lib/redis'
+import { DebugReporter } from '~/utils/debug'
 
 const redisVoiceKey = (userId: string) => `${config.redisPrefix}voice-log:${userId}`
 const voiceKeyExpire = 60 * 60 * 24 // 1 day
 
 export const eventMemberJoin = async (userId: string) => {
-  await redis.set(redisVoiceKey(userId), Date.now(), 'EX', voiceKeyExpire)
+  const startedAt = Date.now()
+  await redis.set(redisVoiceKey(userId), startedAt, 'EX', voiceKeyExpire)
+  void new DebugReporter().send(
+    {
+      content: `## 음성 시작 저장\n${DebugReporter.json({
+        userId,
+        startedAt: new Date(startedAt).toISOString(),
+      })}`,
+    },
+    config.debugThreads.voice,
+  )
 }
 
 export const eventMemberLeave = async (userId: string, channelName: string) => {
@@ -35,12 +46,37 @@ export const eventMemberLeave = async (userId: string, channelName: string) => {
         { time: midnightToday, userDiscordId: userId, value: todayDuration, channelName },
       ],
     })
+    void new DebugReporter().send(
+      {
+        content: `## 음성 로그 저장\n${DebugReporter.json({
+          userId,
+          startedAt: time.toISOString(),
+          endedAt: new Date().toISOString(),
+          duration,
+          channelName,
+          splitAt: midnightToday.toISOString(),
+        })}`,
+      },
+      config.debugThreads.voice,
+    )
     return
   }
 
   await dbClient.voiceLog.create({
     data: { time, userDiscordId: userId, value: duration, channelName },
   })
+  void new DebugReporter().send(
+    {
+      content: `## 음성 로그 저장\n${DebugReporter.json({
+        userId,
+        startedAt: time.toISOString(),
+        endedAt: new Date().toISOString(),
+        duration,
+        channelName,
+      })}`,
+    },
+    config.debugThreads.voice,
+  )
 }
 
 export const getVoiceLogDetail = async (userId: string, date: string) => {
