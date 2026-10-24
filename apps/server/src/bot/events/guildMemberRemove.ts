@@ -5,12 +5,9 @@ import { ignoreError } from '~/utils'
 
 export default new Event('guildMemberRemove', async (client, member) => {
   await ignoreError(
-    dbClient.user.update({
+    dbClient.user.delete({
       where: {
         discordId: member.id,
-      },
-      data: {
-        leavedAt: new Date(),
       },
     }),
   )

@@ -35,3 +35,4 @@ export function hexToRgb(hex: `#${string}`): RGBTuple {
 }
 
 export * from './message.js'
+export * from './discord-attachment.js'

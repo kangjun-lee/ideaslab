@@ -4,6 +4,7 @@ import { dbClient, DefaultVisible } from '@ideaslab/db'
 import { detailStringValidator, detailValidator, galleryPostsValidator } from '@ideaslab/validator'
 
 import { publicProcedure, router } from '~/api/base/trpc'
+import { normalizeGalleryAttachments } from '~/utils'
 
 export const galleryRouter = router({
   posts: publicProcedure.input(galleryPostsValidator).query(async ({ ctx, input }) => {
@@ -57,6 +58,7 @@ export const galleryRouter = router({
 
     return result.map((post) => ({
       ...post,
+      attachments: normalizeGalleryAttachments(post.attachments),
       content: post.content.length > 300 ? post.content.slice(0, 305) + '...' : post.content,
     }))
   }),
@@ -70,7 +72,7 @@ export const galleryRouter = router({
         discordId: true,
         title: true,
         createdAt: true,
-        updateAt: true,
+        updatedAt: true,
         tags: {
           select: {
             id: true,
@@ -133,6 +135,11 @@ export const galleryRouter = router({
       throw new TRPCError({ code: 'FORBIDDEN' })
     }
     return res
+      ? {
+          ...res,
+          attachments: normalizeGalleryAttachments(res.attachments),
+        }
+      : res
   }),
   categories: publicProcedure.query(async () => {
     return await dbClient.category.findMany({ select: { name: true, id: true } })
