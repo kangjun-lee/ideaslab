@@ -7,7 +7,7 @@ describe('Components V2 Markdown conversion', () => {
   it('preserves Discord Markdown and converts images and separators', () => {
     const components = markdownToComponentsV2(
       '# 제목\n\n**내용**\n\n![이미지](https://example.com/image.png)\n\n---\n\n[링크](https://example.com)',
-    ).map((component) => component.toJSON())
+    ).map((component) => component.toJSON()) as any[]
 
     assert.deepStrictEqual(
       components.map(({ type }) => type),
