@@ -1,5 +1,6 @@
 import { dbClient } from '@ideaslab/db'
 import {
+  adminComponentsV2Validator,
   adminGallerySettingValidator,
   adminRoleSettingValidator,
   adminSaveSettingsValidator,
@@ -7,9 +8,23 @@ import {
 
 import { adminProcedure } from '~/api/base/auth-middleware'
 import { router } from '~/api/base/trpc'
+import { sendComponentsV2Message } from '~/service/components-v2'
 import { getAllSettings, setSetting } from '~/service/setting'
 
 export const adminRouter = router({
+  loadComponentsV2: adminProcedure.query(async () => ({
+    channelId: await getSetting('componentsV2Channel'),
+    markdown: await getSetting('componentsV2Markdown'),
+  })),
+  saveComponentsV2: adminProcedure.input(adminComponentsV2Validator).mutation(async ({ input }) => {
+    await Promise.all([
+      setSetting('componentsV2Channel', input.channelId),
+      setSetting('componentsV2Markdown', input.markdown),
+    ])
+  }),
+  testComponentsV2: adminProcedure.input(adminComponentsV2Validator).mutation(async ({ input }) => {
+    await sendComponentsV2Message(input.channelId, input.markdown)
+  }),
   loadGallerySetting: adminProcedure.query(async () => {
     const categories = await dbClient.category.findMany()
     return {

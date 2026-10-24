@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import {
   ChartBarIcon,
+  MegaphoneIcon,
   RectangleStackIcon,
   TagIcon,
   UserCircleIcon,
@@ -70,6 +71,12 @@ const navList: NavType[] = [
         name: '관리자 설정',
         description: '서비스 관련 각종 변수들을 설정합니다.',
         icon: RectangleStackIcon,
+      },
+      {
+        url: '/settings/manager/components-v2',
+        name: 'Components V2 메시지',
+        description: 'Markdown 메시지를 Discord Components V2로 전송합니다.',
+        icon: MegaphoneIcon,
       },
     ],
   },

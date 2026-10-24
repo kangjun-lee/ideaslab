@@ -31,6 +31,8 @@ const SettingList = {
   followUpWelcomeWebhook: SettingValueType.String,
   followUpWelcomeMessage: SettingValueType.LongText,
   registerMessage: SettingValueType.LongText,
+  componentsV2Channel: SettingValueType.Channel,
+  componentsV2Markdown: SettingValueType.LongText,
 } as const
 
 type SettingKeys = keyof typeof SettingList
@@ -122,6 +124,14 @@ export const settingDetails: {
   followUpWelcomeMessage: {
     description:
       '팔로업 웰컴 메시지 내용을 설정해요. <name>, <mention>, <handle>, <introduce> 를 사용할 수 있어요.',
+    cache: false,
+  },
+  componentsV2Channel: {
+    description: 'Components V2 메시지를 전송할 채널입니다.',
+    cache: true,
+  },
+  componentsV2Markdown: {
+    description: 'Components V2 메시지 내용입니다. Discord Markdown 문법을 사용합니다.',
     cache: false,
   },
 }

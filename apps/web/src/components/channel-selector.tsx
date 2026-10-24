@@ -22,6 +22,7 @@ export type ChannelSelectorProps = {
     | ChannelType.GuildCategory
     | ChannelType.GuildForum
     | ChannelType.GuildVoice
+    | ChannelType.GuildAnnouncement
   )[]
   error?: string
 }

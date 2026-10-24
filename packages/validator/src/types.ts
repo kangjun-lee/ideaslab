@@ -96,6 +96,11 @@ export const adminSaveSettingsValidator = z.object({
   ),
 })
 
+export const adminComponentsV2Validator = z.object({
+  channelId: z.string().min(1).max(30),
+  markdown: z.string().min(1).max(4000),
+})
+
 export const galleryPostsValidator = z.object({
   cursor: z.number().optional(),
   limit: z.number().min(10).max(50).prefault(50),

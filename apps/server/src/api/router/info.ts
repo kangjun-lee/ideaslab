@@ -46,6 +46,7 @@ export const infoRouter = router({
     channels.forEach((d) => {
       if (
         d?.type === ChannelType.GuildText ||
+        d?.type === ChannelType.GuildAnnouncement ||
         d?.type === ChannelType.GuildForum ||
         d?.type === ChannelType.GuildCategory ||
         d?.type === ChannelType.GuildVoice
