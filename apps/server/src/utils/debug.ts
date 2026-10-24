@@ -107,9 +107,7 @@ export class DebugReporter {
       DebugReporter.consoleQueues.delete(threadId)
       if (!pending) return
       const content = pending.entries.join('\n').slice(0, 1950)
-      void new DebugReporter()
-        .send({ content: codeBlock('ts', content) }, threadId)
-        .catch(() => undefined)
+      void new DebugReporter().send({ content }, threadId).catch(() => undefined)
     }, 5000)
     DebugReporter.consoleQueues.set(threadId, {
       entries: [`${DebugReporter.timestamp()} [console.${level}] ${text}`],
