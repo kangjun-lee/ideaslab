@@ -1,3 +1,4 @@
+import type { JSX } from 'react'
 import { forwardRef, Fragment } from 'react'
 import { Listbox, Transition } from '@headlessui/react'
 import { CheckIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
@@ -50,7 +51,7 @@ const SelectContent = <T extends number | string>(
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-              <Listbox.Options className="border border-base-color absolute z-[99] mt-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-base shadow-sm focus:outline-none sm:text-sm">
+              <Listbox.Options className="border border-base-color absolute z-[99] mt-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-base shadow-xs focus:outline-none sm:text-sm">
                 {options.map((option) => (
                   <Listbox.Option
                     key={`${option.value}`}

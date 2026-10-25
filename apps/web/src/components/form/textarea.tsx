@@ -1,3 +1,4 @@
+import type { JSX } from 'react'
 import { forwardRef, useMemo, useState } from 'react'
 import classNames from 'classnames'
 

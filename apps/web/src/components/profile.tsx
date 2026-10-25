@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 
-import type { AppRouter } from '@ideaslab/server'
+import type { OutputTypes } from '@ideaslab/server'
 
 import { Unarray } from '~/types/utils'
 import { relativeTimeFormat } from '~/utils'
@@ -9,10 +9,10 @@ import { relativeTimeFormat } from '~/utils'
 export const ProfileView = ({
   data,
 }: {
-  data: Unarray<AppRouter['info']['profiles']['_def']['_output_out']>
+  data: Unarray<OutputTypes['info']['profiles']>
 }) => {
   return (
-    <div className="bg-white dark:bg-gray-700/50 border-base-color rounded-lg relative flex flex-col px-4 py-4 border drop-shadow-sm h-60">
+    <div className="bg-white dark:bg-gray-700/50 border-base-color rounded-lg relative flex flex-col px-4 py-4 border drop-shadow-xs h-60">
       <div className="flex flex-col no-click h-full" onClick={() => {}}>
         <div className="flex flex-col h-full flex-grow">
           <Link href={`/@${data.handleDisplay}`} className="flex gap-x-2 items-center">
@@ -29,7 +29,7 @@ export const ProfileView = ({
             </div>
           </Link>
           <div className="flex gap-2 mt-2 flex-wrap">
-            {data.roles?.slice(0, 2).map((item, index) => (
+            {data.roles?.slice(0, 2).map((item: { name: string }, index: number) => (
               <div key={index} className="tag small">
                 {item.name}
               </div>
@@ -43,7 +43,7 @@ export const ProfileView = ({
 
           {data.links.length > 0 && (
             <div className="mt-2 flex gap-2 flex-wrap">
-              {data.links.map((link: any, index) => (
+              {data.links.map((link: any, index: number) => (
                 <a key={index} href={link?.url ?? ''} className="title-highlight">
                   {link?.name}
                 </a>

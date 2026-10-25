@@ -2,7 +2,7 @@ import React from 'react'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
+import { usePathname } from 'next/navigation'
 import { Disclosure } from '@headlessui/react'
 import { Bars3Icon } from '@heroicons/react/24/outline'
 
@@ -42,7 +42,7 @@ const NavItem = ({
 }
 
 export const Navbar = () => {
-  const { pathname } = useRouter()
+  const pathname = usePathname()
   const profile = useUser()
 
   const NavItems = ({ isMobile }: { isMobile: boolean }) => (
@@ -56,13 +56,13 @@ export const Navbar = () => {
       <NavItem
         name="프로필"
         href="/profiles"
-        isActive={pathname.startsWith('/profiles')}
+        isActive={pathname?.startsWith('/profiles') ?? false}
         isMobile={isMobile}
       />
       <NavItem
         name="갤러리"
         href="/gallery"
-        isActive={pathname.startsWith('/gallery')}
+        isActive={pathname?.startsWith('/gallery') ?? false}
         isMobile={isMobile}
       />
     </>

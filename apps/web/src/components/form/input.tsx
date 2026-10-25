@@ -4,7 +4,7 @@ import classNames from 'classnames'
 
 import { FormBlock, FormBlockProps, formBlockPropsRemover } from './form-block'
 
-interface Props extends React.PropsWithoutRef<JSX.IntrinsicElements['input']>, FormBlockProps {
+interface Props extends React.PropsWithoutRef<React.JSX.IntrinsicElements['input']>, FormBlockProps {
   type?: 'text' | 'password' | 'email' | 'number'
   prefix?: string
 }

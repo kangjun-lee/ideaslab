@@ -31,7 +31,7 @@ export const buttonClassNames = (
       'px-2 py-1': compact && !forIcon,
       'px-2 py-2': forIcon,
       'bg-gray-100 text-gray-400 dark:bg-gray-700 border-base-color': disabled,
-      'shadow-sm': variant !== 'subtle' && variant !== 'light',
+      'shadow-xs': variant !== 'subtle' && variant !== 'light',
       'bg-white hover:bg-gray-100 border-base-light dark:bg-gray-700 dark:hover:bg-gray-800 dark:border-base-dark dark:text-white':
         !disabled && variant === 'default',
       'bg-primary-500 hover:bg-primary-600 dark:bg-primary-500 dark:hover:bg-primary-600 text-white border-transparent dark:text-black':
@@ -47,7 +47,7 @@ export const buttonClassNames = (
     otherClasses,
   )
 
-type ButtonProps = React.PropsWithoutRef<JSX.IntrinsicElements['button']> & DefaultProps
+type ButtonProps = React.PropsWithoutRef<React.JSX.IntrinsicElements['button']> & DefaultProps
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
@@ -81,7 +81,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
 Button.displayName = 'Button'
 
-type ButtonLinkProps = React.PropsWithoutRef<JSX.IntrinsicElements['a']> &
+type ButtonLinkProps = React.PropsWithoutRef<React.JSX.IntrinsicElements['a']> &
   DefaultProps & { active?: boolean }
 
 export const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(

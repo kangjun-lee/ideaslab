@@ -1,9 +1,8 @@
 import React, { ComponentProps, ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
+import { usePathname, useRouter } from 'next/navigation'
 import classNames from 'classnames'
-import { NextSeo } from 'next-seo'
 import toast, { Toaster } from 'react-hot-toast'
 
 import { Button, ButtonLink, PageBack } from '~/components/common'
@@ -50,6 +49,7 @@ export const MainLayout = ({
   pageBack,
 }: props) => {
   const router = useRouter()
+  const pathname = usePathname()
   const [authConfirm, setAuthConfirm] = useState<null | (JWTToken & { token: string })>(null)
   const [tokenExpired, setTokenExpired] = useState<boolean>(false)
   const { profile, isLoading } = useLoadUserData()
@@ -57,18 +57,18 @@ export const MainLayout = ({
   const loginWithToken = trpc.auth.loginWithToken.useMutation()
 
   useEffect(() => {
-    const { token } = router.query
+    const token = new URLSearchParams(window.location.search).get('token')
     if (!isLoading && !profile.data && typeof token === 'string') {
       const parsed = parseJWT<{ name: string; avatar: string; isAdmin: boolean }>(token)
       if (!parsed) return
 
-      if (Date.now() < parsed.exp) {
+      if (Date.now() >= parsed.exp * 1000) {
         setTokenExpired(true)
       }
 
       setAuthConfirm({ ...parsed, token })
     }
-  }, [isLoading, profile, router.query])
+  }, [isLoading, profile.data])
 
   const login = useCallback(async () => {
     if (authConfirm?.token) {
@@ -78,9 +78,11 @@ export const MainLayout = ({
         return
       }
     }
-    if (router.pathname === '/login') router.push('/')
-    location.href = location.href.replace(/token=[a-zA-Z0-9._-]+/, '')
-  }, [authConfirm?.token, loginWithToken, router])
+    const url = new URL(location.href)
+    url.searchParams.delete('token')
+    if (pathname === '/login') url.pathname = '/'
+    location.assign(url.href)
+  }, [authConfirm?.token, loginWithToken, pathname])
 
   useEffect(() => {
     if (guard === 'guestOnly' && profile.data) router.push('/user-home')
@@ -186,23 +188,6 @@ export const MainLayout = ({
 
   return (
     <>
-      <NextSeo
-        title={title}
-        titleTemplate="%s | 아이디어스랩"
-        description={description}
-        openGraph={{
-          type: 'web',
-          locale: 'ko_KR',
-          siteName: '아이디어스랩',
-          url: '',
-          description: '',
-        }}
-        twitter={{
-          handle: '@handle',
-          site: '@site',
-          cardType: 'summary_large_image',
-        }}
-      />
       <Toaster />
       <Navbar />
       <div

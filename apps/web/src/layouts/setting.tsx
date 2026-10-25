@@ -1,7 +1,7 @@
 import { ComponentProps, useMemo } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
+import { usePathname } from 'next/navigation'
 import {
   ChartBarIcon,
   MegaphoneIcon,
@@ -84,7 +84,7 @@ const navList: NavType[] = [
 
 export const SettingLayout = ({ children, ...mainLayoutProps }: Props) => {
   const profile = useUser()
-  const { pathname } = useRouter()
+  const pathname = usePathname()
 
   const curPage = useMemo(() => {
     return navList
@@ -95,7 +95,7 @@ export const SettingLayout = ({ children, ...mainLayoutProps }: Props) => {
   return (
     <MainLayout showTitle tinyContainer {...mainLayoutProps}>
       <div className="mb-4 flex items-center">
-        <Image src={profile?.avatar || ''} className="rounded-full" alt="" width={64} height={64} />
+        {profile?.avatar && <Image src={profile.avatar} className="rounded-full" alt="" width={64} height={64} />}
         <div className="ml-4 flex flex-row justify-between w-full items-center">
           <div className="flex flex-col">
             <div

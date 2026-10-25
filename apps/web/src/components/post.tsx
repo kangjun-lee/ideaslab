@@ -1,7 +1,7 @@
-import { ReactNode, Suspense, useCallback, useMemo, useState } from 'react'
+import { ReactNode, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 import {
   ArchiveBoxIcon,
   ChatBubbleLeftRightIcon,
@@ -10,11 +10,11 @@ import {
 } from '@heroicons/react/24/outline'
 import classNames from 'classnames'
 import toast from 'react-hot-toast'
-import { ReactMarkdown } from 'react-markdown/lib/react-markdown'
+import ReactMarkdown from 'react-markdown'
 import { A11y, FreeMode, Navigation, Thumbs } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
 
-import type { AppRouter, OutputTypes } from '@ideaslab/server'
+import type { OutputTypes } from '@ideaslab/server'
 
 import { useDisclosure } from '~/hooks/useDisclosure'
 import { useResponsiveSize } from '~/hooks/useWindowe'
@@ -35,7 +35,6 @@ type PostAttachment = {
 }
 
 export const PostDetailModalWrapper = ({
-  baseUrl = '',
   children,
 }: {
   children: ({ showDetail }: { showDetail: (id: number) => void }) => ReactNode
@@ -43,8 +42,14 @@ export const PostDetailModalWrapper = ({
 }) => {
   const router = useRouter()
   const [showDetailModal, handleShowDetailModal] = useDisclosure()
+  const { open, close } = handleShowDetailModal
   const [id, setId] = useState<number | null>(null)
   const responsiveSize = useResponsiveSize()
+
+  useEffect(() => {
+    window.addEventListener('popstate', close)
+    return () => window.removeEventListener('popstate', close)
+  }, [close])
 
   const showDetail = useCallback(
     (id: number) => {
@@ -54,15 +59,15 @@ export const PostDetailModalWrapper = ({
       }
       setId(id)
       window.history.pushState(null, '', `/gallery/${id}`)
-      handleShowDetailModal.open()
+      open()
     },
-    [handleShowDetailModal, responsiveSize, router],
+    [open, responsiveSize, router],
   )
 
   const onClose = useCallback(() => {
-    handleShowDetailModal.close()
-    window.history.pushState(null, '', baseUrl)
-  }, [baseUrl, handleShowDetailModal])
+    close()
+    window.history.back()
+  }, [close])
 
   return (
     <>
@@ -78,7 +83,7 @@ export const PostView2 = ({
   post,
   onClick,
 }: {
-  post: Unarray<AppRouter['gallery']['posts']['_def']['_output_out']>
+  post: Unarray<OutputTypes['gallery']['posts']>
   onClick?: () => void
 }) => {
   const image = useMemo(() => {
@@ -93,7 +98,7 @@ export const PostView2 = ({
   return (
     <div
       className={classNames(
-        'bg-white dark:bg-gray-700/50 border-base-color rounded-lg galleryUploadCard relative flex flex-col px-4 py-4 drop-shadow-sm border',
+        'bg-white dark:bg-gray-700/50 border-base-color rounded-lg galleryUploadCard relative flex flex-col px-4 py-4 drop-shadow-xs border',
       )}
       key={post.id}
       onClick={(e) => {
@@ -129,7 +134,7 @@ export const PostView2 = ({
         )}
       >
         {image ? (
-          <Image src={image.url} alt="" className="rounded-lg" layout="fill" objectFit="cover" />
+          <Image src={image.url} alt="" className="rounded-lg object-cover" fill />
         ) : (
           <>
             <div className="p-3 h-full break-words text-ellipsis line-clamp-[7]">
@@ -152,7 +157,7 @@ export const PostView = ({
   post,
   onClick,
 }: {
-  post: Unarray<AppRouter['gallery']['posts']['_def']['_output_out']>
+  post: Unarray<OutputTypes['gallery']['posts']>
   onClick?: () => void
 }) => {
   const image = useMemo(() => {
@@ -167,7 +172,7 @@ export const PostView = ({
   return (
     <div
       className={classNames(
-        'bg-white dark:bg-gray-700/50 border-base-color rounded-lg galleryUploadCard relative flex flex-col px-4 py-4 drop-shadow-sm border',
+        'bg-white dark:bg-gray-700/50 border-base-color rounded-lg galleryUploadCard relative flex flex-col px-4 py-4 drop-shadow-xs border',
       )}
       key={post.id}
       onClick={(e) => {
@@ -259,10 +264,7 @@ export const GalleryDetailModal = ({ id }: { id?: number | null }) => {
 }
 
 export const DetailContent = ({ id }: { id?: number | null }) => {
-  const { data } = trpc.gallery.postDetail.useQuery(
-    { id: id ?? 0 },
-    { enabled: typeof id === 'number', suspense: true },
-  )
+  const [data] = trpc.gallery.postDetail.useSuspenseQuery({ id: id ?? 0 })
 
   return <PostDetail forDialog post={data} />
 }
@@ -321,16 +323,16 @@ export const PostDetail = ({
           {post.tags.length > 0 && (
             <div className="w-1.5 h-1.5 rounded-full bg-gray-500 dark:bg-gray-300"></div>
           )}
-          {post.tags.map(({ name, id }) => (
+          {post.tags.map(({ name, id }: { name: string; id: number }) => (
             <div className="tag" key={id}>
               <TagIcon width={24} height={24} />
               {name}
             </div>
           ))}
         </div>
-        <ReactMarkdown className="max-w-none markdown break-all">
-          {post.content.replace(/\n/g, '\n\n')}
-        </ReactMarkdown>
+        <div className="max-w-none markdown break-all">
+          <ReactMarkdown>{post.content.replace(/\n/g, '\n\n')}</ReactMarkdown>
+        </div>
         <div className="space-y-4">
           <div className="relative rounded">
             <Swiper

@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import CheckIcon from '@heroicons/react/24/outline/CheckIcon'
-import Typed from 'react-typed'
+import { ReactTyped } from 'react-typed'
 
 import MainImage from '~/assets/main-image.svg'
 import { trpc } from '~/utils'
@@ -9,12 +9,12 @@ import { trpc } from '~/utils'
 const HeaderSection = () => {
   return (
     <div className="container flex flex-col justify-center p-6 mx-auto sm:py-12 lg:py-24 lg:flex-row lg:justify-between gap-x-8 mt-12">
-      <div className="flex flex-col justify-center p-2 text-center rounded-sm lg:px-0 xl:px-6 lg:text-left w-full flex-1">
+      <div className="flex flex-col justify-center p-2 text-center rounded-xs lg:px-0 xl:px-6 lg:text-left w-full flex-1">
         <div className="block sm:hidden mb-6 -mt-8">
           <Image src="/logo-once.gif" width={150} height={150} className="rounded-full" alt="" />
         </div>
         <h1 className="text-4xl font-bold sm:text-6xl">
-          <Typed
+          <ReactTyped
             strings={[
               '당신의 <span class="title-highlight">아이디어가</span><br /> 현실로 이루어지길',
               '<span class="title-highlight">아이디어스</span>랩',
@@ -60,7 +60,7 @@ const HeaderSection = () => {
 
 // eslint-disable-next-line unused-imports/no-unused-vars
 const StatSection = () => {
-  const { data: stat } = trpc.info.stat.useQuery(undefined, { trpc: { ssr: true } })
+  const { data: stat } = trpc.info.stat.useQuery(undefined, {})
 
   return (
     <section className="p-6 text-gray-800 dark:text-gray-100">

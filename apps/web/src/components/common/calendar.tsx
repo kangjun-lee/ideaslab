@@ -86,7 +86,7 @@ export const Calendar = ({ data, onClick, tooltip: tooltipFunc, year }: Props) =
                   </>
                 )}
                 {monthData.map((data, index) => {
-                  if (data === null) return <div key={index} className="rounded-sm h-4 w-4"></div>
+                  if (data === null) return <div key={index} className="rounded-xs h-4 w-4"></div>
                   const { value, dateStr, tooltip, date } = data
                   return (
                     <TooltipWrapper
@@ -96,7 +96,7 @@ export const Calendar = ({ data, onClick, tooltip: tooltipFunc, year }: Props) =
                     >
                       <div
                         onClick={() => (typeof onClick === 'function' ? onClick(date) : {})}
-                        className={classNames('rounded-sm h-4 w-4', {
+                        className={classNames('rounded-xs h-4 w-4', {
                           'bg-gray-200 dark:bg-gray-700': value < 1,
                           'bg-primary-100 dark:bg-primary-900': value >= 1 && value < 10,
                           'bg-primary-200 dark:bg-primary-800': value >= 10 && value < 30,
