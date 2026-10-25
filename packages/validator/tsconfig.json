@@ -3,6 +3,7 @@
 	"include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "tsup.config.ts"],
 	"exclude": ["node_modules", "dist"],
 	"compilerOptions": {
-		"isolatedModules": false
+		"isolatedModules": false,
+		"ignoreDeprecations": "6.0"
 	}
 }

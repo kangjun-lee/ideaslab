@@ -4,12 +4,12 @@
 	"exclude": ["node_modules", "dist", ".dev", ".turbo", "../../node_modules"],
 	"compilerOptions": {
 		"outDir": "dist",
+		"rootDir": "src",
 		"target": "ESNext",
 		"module": "ESNext",
-		"baseUrl": "./src",
 		"moduleResolution": "bundler",
 		"paths": {
-			"~/*": ["./*"]
+			"~/*": ["./src/*"]
 		},
 		"moduleDetection": "force",
 		"skipLibCheck": true

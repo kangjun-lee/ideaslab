@@ -1,17 +1,12 @@
-import { fixupConfigRules } from '@eslint/compat'
-import { FlatCompat } from '@eslint/eslintrc'
+import nextVitals from 'eslint-config-next/core-web-vitals'
 import turboConfig from 'eslint-config-turbo/flat'
 import globals from 'globals'
 
 import base from './base.mjs'
 
-const compat = new FlatCompat({
-  baseDirectory: import.meta.dirname,
-})
-
 /** @type {import('eslint').Linter.Config[]} */
 export default [
-  ...fixupConfigRules(compat.extends('next/core-web-vitals')),
+  ...nextVitals,
   ...base,
   ...turboConfig,
   {
@@ -26,6 +21,12 @@ export default [
       'react/display-name': 'off',
       'react/react-in-jsx-scope': 'off',
       'import/no-anonymous-default-export': 'off',
+      // Existing components are not compiled with React Compiler.
+      'react-hooks/refs': 'off',
+      'react-hooks/static-components': 'off',
+      'react-hooks/set-state-in-effect': 'off',
+      'react-hooks/preserve-manual-memoization': 'off',
+      'react-hooks/immutability': 'off',
     },
   },
 ]

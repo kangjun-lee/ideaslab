@@ -1,5 +1,8 @@
 {
 	"extends": "@ideaslab/tsconfig/node20.json",
 	"include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "tsup.config.ts"],
-	"exclude": ["node_modules", "dist"]
+	"exclude": ["node_modules", "dist"],
+	"compilerOptions": {
+		"ignoreDeprecations": "6.0"
+	}
 }
