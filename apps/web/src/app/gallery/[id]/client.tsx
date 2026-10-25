@@ -1,13 +1,11 @@
 'use client'
 
-
 import { MemberOnlyContent } from '~/components/login'
 import { PostDetail, PostLoading } from '~/components/post'
 import { MainLayout } from '~/layouts'
 import { trpc } from '~/utils'
 
 const GalleryDetailPage = ({ id }: { id: number }) => {
-
   const { data, isLoading, error } = trpc.gallery.postDetail.useQuery(
     { id },
     {

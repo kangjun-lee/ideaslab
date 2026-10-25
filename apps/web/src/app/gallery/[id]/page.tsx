@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
-import Client from './client'
 import { publicApi } from '../../seo'
+import Client from './client'
 
 type Props = { params: Promise<{ id: string }> }
 

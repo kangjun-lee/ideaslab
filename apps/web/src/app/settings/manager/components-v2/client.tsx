@@ -13,8 +13,7 @@ import { trpc } from '~/utils'
 import { ChannelType } from '~/utils/discord'
 
 const ComponentsV2SettingPage: NextPage = () => {
-  const { data, isLoading } = trpc.admin.loadComponentsV2.useQuery(undefined, {
-  })
+  const { data, isLoading } = trpc.admin.loadComponentsV2.useQuery(undefined, {})
   const save = trpc.admin.saveComponentsV2.useMutation({
     onError: (error) => toast.error(error.message),
   })
@@ -97,9 +96,11 @@ const ComponentsV2SettingPage: NextPage = () => {
             description="웹 프리뷰와 Discord의 실제 렌더링에는 일부 차이가 있을 수 있습니다."
           >
             <div className="min-h-40 rounded-lg border border-base-color bg-white dark:bg-gray-800 p-4">
-              <div className="markdown break-all"><ReactMarkdown>
-                {markdown || '*내용을 입력하면 프리뷰가 표시됩니다.*'}
-              </ReactMarkdown></div>
+              <div className="markdown break-all">
+                <ReactMarkdown>
+                  {markdown || '*내용을 입력하면 프리뷰가 표시됩니다.*'}
+                </ReactMarkdown>
+              </div>
             </div>
           </FormBlock>
 

@@ -27,7 +27,6 @@ interface Props {
   profileHandle: string
 }
 
-
 const MemberDetailPage = ({ profileHandle }: Props) => {
   const loadingItemList = useRandomArray(['h-40', 'h-48', 'h-56', 'h-64', 'h-72', 'h-80'], 40)
 
@@ -93,11 +92,16 @@ const MemberDetailPage = ({ profileHandle }: Props) => {
               <div className="text-subtitle-color">{`@${profile?.handle}`}</div>
               <div className="text-description-color mt-2 text-sm">{profile?.introduce}</div>
               <div className="flex gap-2 mt-2 flex-wrap">
-                {profile?.roles?.map((item: NonNullable<OutputTypes['gallery']['profile']>['roles'][number], index: number) => (
-                  <div key={index} className="tag small">
-                    {item.name}
-                  </div>
-                ))}
+                {profile?.roles?.map(
+                  (
+                    item: NonNullable<OutputTypes['gallery']['profile']>['roles'][number],
+                    index: number,
+                  ) => (
+                    <div key={index} className="tag small">
+                      {item.name}
+                    </div>
+                  ),
+                )}
               </div>
 
               {profile?.links.length > 0 && (

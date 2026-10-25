@@ -2,9 +2,9 @@
 
 import { useEffect } from 'react'
 import type { NextPage } from 'next'
+import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd'
 import { TrashIcon } from '@heroicons/react/24/outline'
 import classNames from 'classnames'
-import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd'
 import { Control, useFieldArray } from 'react-hook-form'
 import toast from 'react-hot-toast'
 

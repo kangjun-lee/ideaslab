@@ -6,6 +6,7 @@ import { Providers } from './providers'
 import 'react-tooltip/dist/react-tooltip.css'
 import 'swiper/css'
 import '../styles/globals.css'
+
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 import 'swiper/css/scrollbar'

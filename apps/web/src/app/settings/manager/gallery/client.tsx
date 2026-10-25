@@ -2,9 +2,9 @@
 
 import { useEffect } from 'react'
 import type { NextPage } from 'next'
+import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd'
 import { TrashIcon } from '@heroicons/react/24/outline'
 import classNames from 'classnames'
-import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd'
 import { Control, useFieldArray, UseFormRegister } from 'react-hook-form'
 import { toast } from 'react-hot-toast'
 
@@ -30,7 +30,10 @@ const GallerySetting: NextPage = () => {
       const list = data.categories.map((item, index) => ({ ...item, defaultOrder: index }))
       list.filter((item) => {
         if (!item.id) return true
-        const target = settings?.categories.find((category: { id: number; defaultOrder: number; name: string; discordChannel: string }) => category.id === item.id)
+        const target = settings?.categories.find(
+          (category: { id: number; defaultOrder: number; name: string; discordChannel: string }) =>
+            category.id === item.id,
+        )
         if (!target) return true
 
         if (
@@ -41,11 +44,13 @@ const GallerySetting: NextPage = () => {
           return false
         return true
       })
-      settings?.categories.filter((category: { id: number; defaultOrder: number; name: string; discordChannel: string }) => {
-        if (!data.categories.find((item) => item.id === category.id)) {
-          list.push({ ...category, delete: true })
-        }
-      })
+      settings?.categories.filter(
+        (category: { id: number; defaultOrder: number; name: string; discordChannel: string }) => {
+          if (!data.categories.find((item) => item.id === category.id)) {
+            list.push({ ...category, delete: true })
+          }
+        },
+      )
       await gallerySetting.mutateAsync({ categories: list })
       toast.success('성공적으로 저장되었어요')
     },
@@ -55,12 +60,24 @@ const GallerySetting: NextPage = () => {
     if (form.getValues().categories?.length > 0) return
     if (!settings) return
     form.reset({
-      categories: settings.categories.map(({ defaultOrder, discordChannel, name, id }: { defaultOrder: number; discordChannel: string; name: string; id: number }) => ({
-        defaultOrder,
-        discordChannel,
-        name,
-        id,
-      })),
+      categories: settings.categories.map(
+        ({
+          defaultOrder,
+          discordChannel,
+          name,
+          id,
+        }: {
+          defaultOrder: number
+          discordChannel: string
+          name: string
+          id: number
+        }) => ({
+          defaultOrder,
+          discordChannel,
+          name,
+          id,
+        }),
+      ),
     })
   }, [form, settings])
 

@@ -2,7 +2,6 @@
 
 import { Tab } from '~/components/common'
 import { MemberLoginSection } from '~/components/login'
-
 import { MainLayout } from '~/layouts'
 
 const LoginPage = () => {

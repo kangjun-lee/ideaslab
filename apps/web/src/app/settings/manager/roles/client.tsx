@@ -2,9 +2,9 @@
 
 import { useEffect } from 'react'
 import type { NextPage } from 'next'
+import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd'
 import { TrashIcon } from '@heroicons/react/24/outline'
 import classNames from 'classnames'
-import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd'
 import { Control, useFieldArray, UseFormRegister } from 'react-hook-form'
 import { toast } from 'react-hot-toast'
 
@@ -30,7 +30,10 @@ const RoleSetting: NextPage = () => {
       const list = data.roles.map((item, index) => ({ ...item, defaultOrder: index }))
       list.filter((item) => {
         if (!item.id) return true
-        const target = roles?.find((role: { id: number; defaultOrder: number; name: string; discordRole: string }) => role.id === item.id)
+        const target = roles?.find(
+          (role: { id: number; defaultOrder: number; name: string; discordRole: string }) =>
+            role.id === item.id,
+        )
         if (!target) return true
 
         if (
@@ -50,12 +53,24 @@ const RoleSetting: NextPage = () => {
     if (form.getValues().roles?.length > 0) return
     if (!roles) return
     form.reset({
-      roles: roles.map(({ defaultOrder, discordRole, name, id }: { defaultOrder: number; discordRole: string; name: string; id: number }) => ({
-        id,
-        defaultOrder,
-        discordRole,
-        name,
-      })),
+      roles: roles.map(
+        ({
+          defaultOrder,
+          discordRole,
+          name,
+          id,
+        }: {
+          defaultOrder: number
+          discordRole: string
+          name: string
+          id: number
+        }) => ({
+          id,
+          defaultOrder,
+          discordRole,
+          name,
+        }),
+      ),
     })
   }, [form, roles])
 

@@ -6,11 +6,7 @@ import type { OutputTypes } from '@ideaslab/server'
 import { Unarray } from '~/types/utils'
 import { relativeTimeFormat } from '~/utils'
 
-export const ProfileView = ({
-  data,
-}: {
-  data: Unarray<OutputTypes['info']['profiles']>
-}) => {
+export const ProfileView = ({ data }: { data: Unarray<OutputTypes['info']['profiles']> }) => {
   return (
     <div className="bg-white dark:bg-gray-700/50 border-base-color rounded-lg relative flex flex-col px-4 py-4 border drop-shadow-xs h-60">
       <div className="flex flex-col no-click h-full" onClick={() => {}}>

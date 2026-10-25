@@ -95,7 +95,9 @@ export const SettingLayout = ({ children, ...mainLayoutProps }: Props) => {
   return (
     <MainLayout showTitle tinyContainer {...mainLayoutProps}>
       <div className="mb-4 flex items-center">
-        {profile?.avatar && <Image src={profile.avatar} className="rounded-full" alt="" width={64} height={64} />}
+        {profile?.avatar && (
+          <Image src={profile.avatar} className="rounded-full" alt="" width={64} height={64} />
+        )}
         <div className="ml-4 flex flex-row justify-between w-full items-center">
           <div className="flex flex-col">
             <div

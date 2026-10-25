@@ -255,16 +255,25 @@ const VoiceChat = () => {
               '해당 날짜에 사용한 기록이 존재하지 않습니다'
             ) : (
               <div>
-                {focusData.map(({ channelName, time, value }: { channelName: string; time: Date; value: number }, index: number) => (
-                  <div key={`${time.toISOString()}-${index}`} className="card px-2 py-1">
-                    <div className="text-subtitle-color">
-                      {channelName || '채널명을 찾지 못하였어요'}
-                    </div>
-                    <div className="text-sm">{`참여일: ${timeShortFormat(
+                {focusData.map(
+                  (
+                    {
+                      channelName,
                       time,
-                    )}, 참여시간: ${formatSeconds(value)}`}</div>
-                  </div>
-                ))}
+                      value,
+                    }: { channelName: string; time: Date; value: number },
+                    index: number,
+                  ) => (
+                    <div key={`${time.toISOString()}-${index}`} className="card px-2 py-1">
+                      <div className="text-subtitle-color">
+                        {channelName || '채널명을 찾지 못하였어요'}
+                      </div>
+                      <div className="text-sm">{`참여일: ${timeShortFormat(
+                        time,
+                      )}, 참여시간: ${formatSeconds(value)}`}</div>
+                    </div>
+                  ),
+                )}
               </div>
             )}
           </div>

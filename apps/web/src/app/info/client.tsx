@@ -19,7 +19,9 @@ const InfoPage = () => {
       showTitle
       tinyContainer
     >
-      <div className="markdown"><ReactMarkdown>{info ?? ''}</ReactMarkdown></div>
+      <div className="markdown">
+        <ReactMarkdown>{info ?? ''}</ReactMarkdown>
+      </div>
     </MainLayout>
   )
 }

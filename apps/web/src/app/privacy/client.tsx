@@ -19,7 +19,9 @@ const PricacyPage = () => {
       showTitle
       tinyContainer
     >
-      <div className="markdown"><ReactMarkdown>{privacy ?? ''}</ReactMarkdown></div>
+      <div className="markdown">
+        <ReactMarkdown>{privacy ?? ''}</ReactMarkdown>
+      </div>
     </MainLayout>
   )
 }

@@ -55,7 +55,12 @@ const GalleryPage = () => {
   return (
     <MainLayout title="갤러리" description="서로의 작품을 올리고 공유해요" guard="default">
       <TagFilter
-        data={categories?.map(({ id, name }: { id: number; name: string }) => ({ label: name, value: id })) ?? []}
+        data={
+          categories?.map(({ id, name }: { id: number; name: string }) => ({
+            label: name,
+            value: id,
+          })) ?? []
+        }
         onSelect={(value) => setSelectedCategory(value)}
         selected={selectedCategory}
       />

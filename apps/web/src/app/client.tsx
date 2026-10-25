@@ -3,7 +3,6 @@
 import type { NextPage } from 'next'
 
 import { HomePage } from '~/components/pages/Home'
-
 import { MainLayout } from '~/layouts'
 
 const Home: NextPage = () => {
@@ -13,6 +12,5 @@ const Home: NextPage = () => {
     </MainLayout>
   )
 }
-
 
 export default Home

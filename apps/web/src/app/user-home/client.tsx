@@ -1,7 +1,5 @@
 'use client'
 
-import type { OutputTypes } from '@ideaslab/server'
-
 import { ReactNode, useEffect, useRef, useState } from 'react'
 import type { NextPage } from 'next'
 import Link from 'next/link'
@@ -9,12 +7,13 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
 import classNames from 'classnames'
 import { Swiper, SwiperRef, SwiperSlide } from 'swiper/react'
 
+import type { OutputTypes } from '@ideaslab/server'
+
 import { PostDetailModalWrapper, PostView2 } from '~/components/post'
 import { ProfileView } from '~/components/profile'
 import { useUser } from '~/hooks'
-import { trpc } from '~/utils'
-
 import { MainLayout } from '~/layouts'
+import { trpc } from '~/utils'
 
 const LIMIT = 10
 

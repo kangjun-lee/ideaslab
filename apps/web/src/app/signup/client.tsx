@@ -4,9 +4,9 @@ import { Fragment } from 'react'
 import React from 'react'
 import type { NextPage } from 'next'
 import HCaptcha from '@hcaptcha/react-hcaptcha'
+import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd'
 import { TrashIcon } from '@heroicons/react/20/solid'
 import classNames from 'classnames'
-import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd'
 import { Control, useFieldArray, UseFormRegister } from 'react-hook-form'
 import { toast } from 'react-hot-toast'
 import ReactMarkdown from 'react-markdown'
@@ -21,9 +21,8 @@ import { Textarea } from '~/components/form/textarea'
 import { useUser } from '~/hooks/useAuth'
 import { useForm } from '~/hooks/useForm'
 import { useCurrentTheme } from '~/hooks/useTheme'
-import { trpc } from '~/utils'
-
 import { MainLayout } from '~/layouts'
+import { trpc } from '~/utils'
 
 const Signup: NextPage = () => {
   return (
@@ -99,9 +98,9 @@ const Policy = ({ prev, next }: StepContentProps) => {
         <div className="flex justify-between mt-2 items-center">
           <div className="text-3xl font-bold mt-4 mb-2">개인정보 처리방침</div>
         </div>
-        <div className="markdown w-full px-1.5 py-1 bg-gray-100 dark:bg-gray-800 border-base-color border-2 rounded-lg mx-1"><ReactMarkdown>
-          {privacyPolicy ?? '불러오는 중...'}
-        </ReactMarkdown></div>
+        <div className="markdown w-full px-1.5 py-1 bg-gray-100 dark:bg-gray-800 border-base-color border-2 rounded-lg mx-1">
+          <ReactMarkdown>{privacyPolicy ?? '불러오는 중...'}</ReactMarkdown>
+        </div>
       </div>
       <div className="flex justify-between w-full mt-4">
         <Button variant="default" onClick={prev}>

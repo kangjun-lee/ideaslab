@@ -84,7 +84,10 @@ const ProfilesPage = () => {
       />
       <TagFilter
         className="mt-4"
-        data={roles?.map(({ name, id }: { name: string; id: number }) => ({ label: name, value: id }))}
+        data={roles?.map(({ name, id }: { name: string; id: number }) => ({
+          label: name,
+          value: id,
+        }))}
         onSelect={(value) => setSelectedRole(value)}
         selected={selectedRole}
       />
@@ -107,7 +110,9 @@ const ProfilesPage = () => {
         ) : (
           <>
             {profiles?.pages.map((page) =>
-              page.map((profile: OutputTypes['info']['profiles'][number]) => <ProfileView key={profile.discordId} data={profile} />),
+              page.map((profile: OutputTypes['info']['profiles'][number]) => (
+                <ProfileView key={profile.discordId} data={profile} />
+              )),
             )}
             {!hasNextPage && !user && (
               <div className="card p-5 text-description-color flex items-center text-center justify-center">
