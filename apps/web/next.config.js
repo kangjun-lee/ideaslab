@@ -1,21 +1,14 @@
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
-  enabled: process.env.ANALYZE === 'true',
-})
-
-const nextConfig = withBundleAnalyzer({
-  // reactStrictMode: true,
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   images: {
-    domains: ['cdn.discordapp.com', 'media.discordapp.net'],
+    remotePatterns: [
+      { protocol: 'https', hostname: 'cdn.discordapp.com' },
+      { protocol: 'https', hostname: 'media.discordapp.net' },
+    ],
   },
-  // pageExtensions: ["page.tsx", "api.ts", "ts"],
   async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: 'http://localhost:4000/:path*',
-      },
-    ]
+    return [{ source: '/api/:path*', destination: 'http://localhost:4000/:path*' }]
   },
-})
+}
 
 module.exports = nextConfig
