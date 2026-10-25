@@ -16,6 +16,7 @@ import {
 } from '~/lib/redis'
 import {
   buildStateCookieHeader,
+  disconnectLinkedRoles,
   escapeHtml,
   exchangeCodeForTokens,
   getOAuthUrl,
@@ -792,6 +793,49 @@ describe('Discord Linked Roles', () => {
 
       const afterDel = await getLinkedRolesTokens(testUserId)
       assert.strictEqual(afterDel, null)
+    })
+
+    it('deletes the role connection and revokes OAuth when a member leaves', async () => {
+      const userId = `test-user-disconnect-${Date.now()}`
+      const originalFetch = globalThis.fetch
+      const originalBotId = config.botId
+      const originalSecret = config.discordClientSecret
+      const calls: Array<{ url: string; init: RequestInit }> = []
+      config.botId = '12345'
+      config.discordClientSecret = 'test-secret'
+      await storeLinkedRolesTokens(userId, {
+        access_token: 'test-access',
+        refresh_token: 'test-refresh',
+        expires_at: Date.now() + 3600000,
+      })
+      globalThis.fetch = async (url, init) => {
+        calls.push({ url: String(url), init: init ?? {} })
+        return { ok: true, status: 204 } as Response
+      }
+
+      try {
+        await disconnectLinkedRoles(userId)
+        assert.deepEqual(
+          calls.map(({ init }) => init.method),
+          ['DELETE', 'POST'],
+        )
+        assert.equal(
+          calls[0].url,
+          'https://discord.com/api/v10/users/@me/applications/12345/role-connection',
+        )
+        assert.equal(
+          calls[0].init.headers && (calls[0].init.headers as Record<string, string>).Authorization,
+          'Bearer test-access',
+        )
+        assert.equal(calls[1].url, 'https://discord.com/api/v10/oauth2/token/revoke')
+        assert.equal(new URLSearchParams(calls[1].init.body as string).get('token'), 'test-refresh')
+        assert.equal(await getLinkedRolesTokens(userId), null)
+      } finally {
+        globalThis.fetch = originalFetch
+        config.botId = originalBotId
+        config.discordClientSecret = originalSecret
+        await deleteLinkedRolesTokens(userId)
+      }
     })
 
     it('getValidAccessToken should purge tokens from Redis when refresh returns invalid_grant', async () => {

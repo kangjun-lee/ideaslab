@@ -307,6 +307,50 @@ export async function getValidAccessToken(
   return await refreshPromise
 }
 
+/** Removes a departing member's role connection and revokes this app's OAuth authorization. */
+export async function disconnectLinkedRoles(userId: string): Promise<void> {
+  const tokens = await getLinkedRolesTokens(userId)
+  if (!tokens) return
+
+  try {
+    const accessToken = await getValidAccessToken(userId)
+    if (accessToken) {
+      try {
+        const response = await fetch(
+          `https://discord.com/api/v10/users/@me/applications/${config.botId}/role-connection`,
+          { method: 'DELETE', headers: { Authorization: `Bearer ${accessToken}` } },
+        )
+        if (!response.ok && response.status !== 404) {
+          throw new Error(`Discord rejected role connection deletion: ${response.status}`)
+        }
+      } catch (err) {
+        logger.warn(`Failed to delete role connection for user ${userId}: ${String(err)}`)
+      }
+    }
+
+    const currentTokens = await getLinkedRolesTokens(userId)
+    if (currentTokens) {
+      const response = await fetch('https://discord.com/api/v10/oauth2/token/revoke', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: `Basic ${Buffer.from(
+            `${config.botId}:${config.discordClientSecret}`,
+          ).toString('base64')}`,
+        },
+        body: new URLSearchParams({
+          token: currentTokens.refresh_token,
+        }).toString(),
+      })
+      if (!response.ok) {
+        throw new Error(`Discord rejected OAuth token revocation: ${response.status}`)
+      }
+    }
+  } finally {
+    await deleteLinkedRolesTokens(userId)
+  }
+}
+
 /**
  * Fetches user profile data from Discord using the OAuth2 access token.
  */

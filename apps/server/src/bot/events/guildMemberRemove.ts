@@ -2,9 +2,18 @@ import { dbClient } from '@ideaslab/db'
 
 import { Event } from '~/bot/base/event'
 import config from '~/config'
+import { disconnectLinkedRoles } from '~/service/linked-roles'
 import { DebugReporter } from '~/utils/debug'
+import { Logger } from '~/utils/logger'
+
+const logger = new Logger('guild-member-remove')
 
 export default new Event('guildMemberRemove', async (client, member) => {
+  if (member.guild.id !== config.guildId) return
+
+  await disconnectLinkedRoles(member.id).catch((err) => {
+    logger.error(`Failed to disconnect Linked Roles for ${member.id}:`, err)
+  })
   const deleted = await dbClient.user
     .delete({ where: { discordId: member.id } })
     .then(() => true)
