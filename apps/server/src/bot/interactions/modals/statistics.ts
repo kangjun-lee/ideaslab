@@ -5,7 +5,7 @@ export default new Modal('stat-modal:', async (client, interaction) => {
   const parts = interaction.customId.split(':')
   // Format: stat-modal:userId:type:year:exec
   const userId = parts[1]
-  const type = (parts[2] as 'message' | 'voice') || 'message'
+  const type = (parts[2] as 'message' | 'voice' | 'attendance') || 'message'
   const yearStr = parts[3]
   const exec = parts[4]
 

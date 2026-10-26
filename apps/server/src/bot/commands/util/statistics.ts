@@ -6,7 +6,7 @@ import { buildStatisticsPayload } from '~/service/statistics-canvas'
 export default new SlashCommand(
   new SlashCommandBuilder()
     .setName('통계')
-    .setDescription('아이디어스랩 디스코드에서의 활동 통계(메시지, 통화) 잔디를 확인해요.')
+    .setDescription('아이디어스랩 디스코드 활동 통계를 확인해요.')
     .addUserOption((option) =>
       option.setName('유저').setDescription('통계를 확인할 유저를 선택해요 (기본: 자신)'),
     )
@@ -14,7 +14,11 @@ export default new SlashCommand(
       option
         .setName('종류')
         .setDescription('확인할 통계 종류를 선택해요 (기본: 메시지)')
-        .addChoices({ name: '메시지', value: 'message' }, { name: '통화방', value: 'voice' }),
+        .addChoices(
+          { name: '메시지', value: 'message' },
+          { name: '통화방', value: 'voice' },
+          { name: '출석', value: 'attendance' },
+        ),
     )
     .addIntegerOption((option) =>
       option
@@ -29,7 +33,8 @@ export default new SlashCommand(
     })
 
     const targetUser = interaction.options.getUser('유저') ?? interaction.user
-    const type = (interaction.options.getString('종류') as 'message' | 'voice') || 'message'
+    const type =
+      (interaction.options.getString('종류') as 'message' | 'voice' | 'attendance') || 'message'
     const currentYear = new Date().getFullYear()
     const year = interaction.options.getInteger('연도') ?? currentYear
 

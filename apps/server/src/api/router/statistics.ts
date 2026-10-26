@@ -9,6 +9,7 @@ import { router } from '~/api/base/trpc'
 import { currentGuildMember } from '~/bot/base/client'
 import { allMessageLogByYear, messageLogSummary } from '~/service/message-log'
 import { allVoiceLogByDate, getCurrentVoiceLog, getVoiceLogDetail } from '~/service/voice-log'
+import { getVoiceAttendanceByYear, getVoiceAttendanceCount } from '~/service/voice-attendance'
 
 export const statisticsRouter = router({
   basic: verifiedProcedure.query(async ({ ctx }) => {
@@ -38,6 +39,12 @@ export const statisticsRouter = router({
       const { all, today } = await messageLogSummary(ctx.session.id)
       return { list: result, all, today }
     }),
+  attendanceLog: verifiedProcedure
+    .input(statisticsMessageLogValidator)
+    .query(async ({ ctx, input }) => ({
+      list: await getVoiceAttendanceByYear(ctx.session.id, input.year),
+      all: await getVoiceAttendanceCount(ctx.session.id),
+    })),
   focusVoiceLog: verifiedProcedure
     .input(statisticsFocusVoiceLogValidator)
     .query(async ({ ctx, input }) => {

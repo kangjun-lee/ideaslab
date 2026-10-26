@@ -22,6 +22,8 @@ const StatisticsPage: NextPage = () => {
         <Tab.Panel className="space-y-4">
           <GuildActivity />
           <hr />
+          <AttendanceLog />
+          <hr />
           <MessageLog />
         </Tab.Panel>
         <Tab.Panel className="space-y-4">
@@ -89,6 +91,46 @@ const formatMinutes = (minutes: number) => {
   if (hours === 0) return `${minutesLeft}분`
   if (minutesLeft === 0) return `${hours}시간`
   return `${hours}시간 ${minutesLeft}분`
+}
+
+const AttendanceLog = () => {
+  const [year, setYear] = useState(new Date().getFullYear())
+  const { data, isLoading } = trpc.statistics.attendanceLog.useQuery({ year })
+  const calendarData = useMemo(
+    () => data?.list.map((item) => ({ value: 1, date: item.date })) ?? [],
+    [data?.list],
+  )
+
+  return (
+    <>
+      <ValueCard
+        name="누적 통화방 출석일수"
+        value={isLoading ? <Skeleton className="h-6 w-20" /> : `${data?.all ?? 0}일`}
+      />
+      <div className="card p-4">
+        <div className="flex justify-between items-center">
+          <div className="text-lg text-title-color">통화방 출석 통계</div>
+          <div className="w-32">
+            <Select
+              options={Array.from({ length: new Date().getFullYear() - 2022 }, (_, i) => ({
+                label: `${2023 + i}년`,
+                value: 2023 + i,
+              }))}
+              value={year}
+              onChange={(value) => setYear(value as number)}
+            />
+          </div>
+        </div>
+        <div className="mt-2">
+          <Calendar
+            year={year}
+            data={calendarData}
+            tooltip={(value) => (value ? '출석 인증' : null)}
+          />
+        </div>
+      </div>
+    </>
+  )
 }
 
 export const formatSeconds = (seconds: number) => {

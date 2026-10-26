@@ -9,7 +9,7 @@ export default new Button('stat:', async (client, interaction) => {
   // extra may be dateStr or empty
   const action = parts[1]
   const userId = parts[2]
-  const type = (parts[3] as 'message' | 'voice') || 'message'
+  const type = (parts[3] as 'message' | 'voice' | 'attendance') || 'message'
   const yearStr = parts[4]
   let extra = parts[5]
   let exec = parts[6]
