@@ -3,6 +3,8 @@ import { ContainerBuilder } from 'discord.js'
 import assert from 'node:assert/strict'
 import { after, describe, it } from 'node:test'
 
+import { dbClient } from '@ideaslab/db'
+
 import statisticsCommand from '~/bot/commands/util/statistics'
 import { redis } from '~/lib/redis'
 import {
@@ -318,6 +320,49 @@ describe('Statistics Canvas & Tree Graph Service', () => {
   })
 
   describe('Full Payload Builder (buildStatisticsPayload)', () => {
+    it('keeps button IDs unique when peak or adjacent dates are today', async (t) => {
+      const today = new Date().toISOString().slice(0, 10)
+      const { prevDateStr, nextDateStr } = getAdjacentDays(today)
+      const originalQueryRaw = dbClient.$queryRaw
+      t.after(() => {
+        dbClient.$queryRaw = originalQueryRaw
+      })
+      dbClient.$queryRaw = (async () => [
+        { time: new Date(`${today}T00:00:00.000Z`), count: 10 },
+      ]) as typeof dbClient.$queryRaw
+
+      for (const selectedDate of [null, prevDateStr, nextDateStr]) {
+        const { container } = await buildStatisticsPayload({
+          targetUser: { id: 'mock-user-12345' },
+          type: 'message',
+          year: Number(today.slice(0, 4)),
+          selectedDate,
+          executorId: 'executor-12345',
+        })
+        const json = container.toJSON() as any
+        const buttons = json.components
+          .filter((c: any) => c.type === 1)
+          .flatMap((row: any) => row.components)
+        const ids = buttons.map((button: any) => button.custom_id).filter(Boolean)
+        assert.strictEqual(new Set(ids).size, ids.length)
+
+        const todayButton = buttons.find((button: any) => button.label === '오늘')
+        const parts = todayButton.custom_id.split(':')
+        assert.strictEqual(parts[1], 'date')
+        assert.strictEqual(parts[5], today)
+        assert.strictEqual(parts[6], 'executor-12345')
+        const expectedLabel =
+          selectedDate === null
+            ? '🔥 최다 활동일'
+            : selectedDate === prevDateStr
+            ? '다음 날 ▶'
+            : '◀ 이전 날'
+        const overlappingButton = buttons.find((button: any) => button.label === expectedLabel)
+        assert.ok(overlappingButton)
+        assert.strictEqual(overlappingButton.custom_id.split(':')[5], today)
+      }
+    })
+
     it('builds container with image attachment, witty phrase, and navigation buttons', async () => {
       const mockUser = {
         id: 'mock-user-12345',

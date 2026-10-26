@@ -611,7 +611,7 @@ export const buildStatisticsPayload = async (options: BuildStatisticsOptions) =>
       .setLabel('📅 날짜 선택')
       .setStyle(ButtonStyle.Secondary),
     new ButtonBuilder()
-      .setCustomId(`stat:date:${userId}:${type}:${year}:${todayStr}:${exec}`)
+      .setCustomId(`stat:date:${userId}:${type}:${year}:${todayStr}:${exec}:today`)
       .setLabel('오늘')
       .setStyle(ButtonStyle.Secondary),
   )
