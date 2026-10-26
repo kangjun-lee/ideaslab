@@ -29,12 +29,13 @@ model User {
   defaultVisible DefaultVisible @default(Public)
   roles          Role[]
 
-  likes       Like[]
-  posts       Post[]
-  voiceLogs   VoiceLog[]
-  comments    Comment[]
-  messageLogs MessageLog[]
-  points      Point[]
+  likes            Like[]
+  posts            Post[]
+  voiceLogs        VoiceLog[]
+  comments         Comment[]
+  messageLogs      MessageLog[]
+  voiceAttendances VoiceAttendance[]
+  points           Point[]
 }
 
 model LinkedRoleToken {
@@ -146,6 +147,15 @@ model MessageLog {
 
   @@unique([userDiscordId, time])
   @@index([time(sort: Desc)])
+}
+
+model VoiceAttendance {
+  date          DateTime @db.Date
+  userDiscordId String
+  user          User     @relation(fields: [userDiscordId], references: [discordId], onDelete: Cascade)
+
+  @@id([userDiscordId, date])
+  @@index([date(sort: Desc)])
 }
 
 model Point {
