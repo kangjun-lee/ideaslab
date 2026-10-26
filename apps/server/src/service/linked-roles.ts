@@ -20,7 +20,7 @@ import { Logger } from '~/utils/logger'
 const logger = new Logger('linked-roles')
 
 /**
- * 4 metadata fields registered with Discord for Linked Roles:
+ * Metadata fields registered with Discord for Linked Roles.
  * - is_member (Type 7 - Boolean Equal)
  * - points (Type 2 - Integer Greater Than Or Equal)
  * - message_count (Type 2 - Integer Greater Than Or Equal)
@@ -51,6 +51,12 @@ export const ROLE_CONNECTION_METADATA_DEFINITIONS = [
     description: '음성 채널 활동(시간)',
     type: ApplicationRoleConnectionMetadataType.IntegerGreaterThanOrEqual,
   },
+  {
+    key: 'voice_attendance_days',
+    name: '통화방 출석일수',
+    description: '10분 이상 통화방에 참여한 누적 일수',
+    type: ApplicationRoleConnectionMetadataType.IntegerGreaterThanOrEqual,
+  },
 ] as const
 
 export interface UserStats {
@@ -58,6 +64,7 @@ export interface UserStats {
   points: number
   messageCount: number
   voiceMinutes: number
+  voiceAttendanceDays: number
   userName?: string
 }
 
@@ -387,7 +394,7 @@ export async function getDiscordUserData(accessToken: string): Promise<DiscordUs
  * - voice_minutes: Sum of voice seconds converted to hours from dbClient.voiceLog
  */
 export async function getUserStats(userId: string): Promise<UserStats> {
-  const [user, pointAgg, messageAgg, voiceAgg] = await Promise.all([
+  const [user, pointAgg, messageAgg, voiceAgg, voiceAttendanceDays] = await Promise.all([
     dbClient.user.findUnique({
       where: { discordId: userId },
       select: { discordId: true, name: true, handle: true },
@@ -404,6 +411,7 @@ export async function getUserStats(userId: string): Promise<UserStats> {
       where: { userDiscordId: userId },
       _sum: { value: true },
     }),
+    dbClient.voiceAttendance.count({ where: { userDiscordId: userId } }).catch(() => 0),
   ])
 
   const isMember = !!user
@@ -427,6 +435,7 @@ export async function getUserStats(userId: string): Promise<UserStats> {
     points,
     messageCount,
     voiceMinutes,
+    voiceAttendanceDays,
     userName: user?.handle || user?.name,
   }
 }
@@ -469,6 +478,7 @@ export async function pushRoleConnection(
     points: safeInt(stats.points),
     message_count: safeInt(stats.messageCount),
     voice_minutes: safeNumber(stats.voiceMinutes),
+    voice_attendance_days: safeInt(stats.voiceAttendanceDays),
   }
 
   const platformUsername = (
@@ -662,6 +672,7 @@ export function renderLinkedRolesHtml({
         <div class="stat-row"><span>보유 포인트</span><span class="stat-val">${stats.points.toLocaleString()} P</span></div>
         <div class="stat-row"><span>누적 메시지 수</span><span class="stat-val">${stats.messageCount.toLocaleString()}개</span></div>
         <div class="stat-row"><span>음성 채널 활동</span><span class="stat-val">${stats.voiceMinutes.toLocaleString()}시간</span></div>
+        <div class="stat-row"><span>통화방 출석</span><span class="stat-val">${stats.voiceAttendanceDays.toLocaleString()}일</span></div>
       </div>`
       : ''
 
