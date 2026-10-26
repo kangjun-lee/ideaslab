@@ -36,8 +36,8 @@
 		"react-tooltip": "5.28.0",
 		"react-typed": "^2.0.12",
 		"superjson": "^2.2.2",
-		"swiper": "^11.2.2",
-		"zod": "^4.3.6"
+		"swiper": "^12.1.2",
+		"zod": "^4.6.7"
 	},
 	"devDependencies": {
 		"@ideaslab/eslint-config": "workspace:*",
@@ -51,7 +51,7 @@
 		"@types/react-dom": "^19.2.3",
 		"cross-env": "^7.0.3",
 		"eslint": "^9.0.0",
-		"postcss": "^8.5.1",
+		"postcss": "^8.5.31",
 		"prisma": "^6.3.0",
 		"tailwindcss": "^4.3.3",
 		"typescript": "^6.0.3"

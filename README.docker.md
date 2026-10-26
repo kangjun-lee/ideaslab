@@ -118,7 +118,7 @@ docker run --rm -it --env-file .env ideaslab/server:latest node ./dist --registe
 
 - Ensure all dependencies are properly resolved
 - Check that `.yarn/patches` directory is included
-- Verify Node.js version matches requirements (22.18.0)
+- Verify Node.js version matches requirements (24.x)
 
 ### Runtime Issues
 
