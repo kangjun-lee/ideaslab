@@ -1,7 +1,6 @@
-import { ReactNode, Suspense, useCallback, useMemo, useState } from 'react'
-import Image from 'next/image'
+import { ReactNode, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 import {
   ArchiveBoxIcon,
   ChatBubbleLeftRightIcon,
@@ -10,11 +9,11 @@ import {
 } from '@heroicons/react/24/outline'
 import classNames from 'classnames'
 import toast from 'react-hot-toast'
-import { ReactMarkdown } from 'react-markdown/lib/react-markdown'
+import ReactMarkdown from 'react-markdown'
 import { A11y, FreeMode, Navigation, Thumbs } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
 
-import type { AppRouter, OutputTypes } from '@ideaslab/server'
+import type { OutputTypes } from '@ideaslab/server'
 
 import { useDisclosure } from '~/hooks/useDisclosure'
 import { useResponsiveSize } from '~/hooks/useWindowe'
@@ -23,7 +22,7 @@ import { trpc } from '~/utils'
 import { relativeTimeFormat } from '~/utils'
 
 import { AudioPlayer } from './audio-player'
-import { Button, ButtonLink, Dialog, TimeDynamic } from './common'
+import { Button, ButtonLink, CustomImage, Dialog, Skeleton, TimeDynamic } from './common'
 
 type PostAttachment = {
   url: string
@@ -35,7 +34,6 @@ type PostAttachment = {
 }
 
 export const PostDetailModalWrapper = ({
-  baseUrl = '',
   children,
 }: {
   children: ({ showDetail }: { showDetail: (id: number) => void }) => ReactNode
@@ -43,8 +41,14 @@ export const PostDetailModalWrapper = ({
 }) => {
   const router = useRouter()
   const [showDetailModal, handleShowDetailModal] = useDisclosure()
+  const { open, close } = handleShowDetailModal
   const [id, setId] = useState<number | null>(null)
   const responsiveSize = useResponsiveSize()
+
+  useEffect(() => {
+    window.addEventListener('popstate', close)
+    return () => window.removeEventListener('popstate', close)
+  }, [close])
 
   const showDetail = useCallback(
     (id: number) => {
@@ -54,15 +58,15 @@ export const PostDetailModalWrapper = ({
       }
       setId(id)
       window.history.pushState(null, '', `/gallery/${id}`)
-      handleShowDetailModal.open()
+      open()
     },
-    [handleShowDetailModal, responsiveSize, router],
+    [open, responsiveSize, router],
   )
 
   const onClose = useCallback(() => {
-    handleShowDetailModal.close()
-    window.history.pushState(null, '', baseUrl)
-  }, [baseUrl, handleShowDetailModal])
+    close()
+    window.history.back()
+  }, [close])
 
   return (
     <>
@@ -78,7 +82,7 @@ export const PostView2 = ({
   post,
   onClick,
 }: {
-  post: Unarray<AppRouter['gallery']['posts']['_def']['_output_out']>
+  post: Unarray<OutputTypes['gallery']['posts']>
   onClick?: () => void
 }) => {
   const image = useMemo(() => {
@@ -93,7 +97,7 @@ export const PostView2 = ({
   return (
     <div
       className={classNames(
-        'bg-white dark:bg-gray-700/50 border-base-color rounded-lg galleryUploadCard relative flex flex-col px-4 py-4 drop-shadow-sm border',
+        'bg-white dark:bg-gray-700/50 border-base-color rounded-lg galleryUploadCard relative flex flex-col px-4 py-4 drop-shadow-xs border',
       )}
       key={post.id}
       onClick={(e) => {
@@ -109,7 +113,7 @@ export const PostView2 = ({
         href={`/@${post.author.handle}`}
         className="flex gap-x-2 items-center mb-2 no-click w-fit"
       >
-        <Image
+        <CustomImage
           src={post.author.avatar}
           width={40}
           height={40}
@@ -129,7 +133,7 @@ export const PostView2 = ({
         )}
       >
         {image ? (
-          <Image src={image.url} alt="" className="rounded-lg" layout="fill" objectFit="cover" />
+          <CustomImage src={image.url} alt="" className="rounded-lg object-cover" fill />
         ) : (
           <>
             <div className="p-3 h-full break-words text-ellipsis line-clamp-[7]">
@@ -148,11 +152,41 @@ export const PostView2 = ({
   )
 }
 
+const shimmer = (w: number, h: number) => `
+<svg width="${w}" height="${h}" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <linearGradient id="g">
+      <stop stop-color="#1a2438" offset="20%" /> 
+      <stop stop-color="#45475a" offset="50%" /> 
+      <stop stop-color="#1a2438" offset="70%" />
+    </linearGradient>
+  </defs>
+  <rect width="${w}" height="${h}" fill="#1a2438" />
+  <rect id="r" width="${w}" height="${h}" fill="url(#g)" />
+  <animate xlink:href="#r" attributeName="x" from="-${w}" to="${w}" dur="1.2s" repeatCount="indefinite" />
+</svg>`
+
+const toBase64 = (str: string) => {
+  if (typeof window === 'undefined') {
+    return Buffer.from(str).toString('base64')
+  }
+
+  const bytes = new TextEncoder().encode(str)
+  let binary = ''
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i])
+  }
+  return window.btoa(binary)
+}
+
+const getBlurDataURL = (w: number, h: number) =>
+  `data:image/svg+xml;base64,${toBase64(shimmer(w, h))}`
+
 export const PostView = ({
   post,
   onClick,
 }: {
-  post: Unarray<AppRouter['gallery']['posts']['_def']['_output_out']>
+  post: Unarray<OutputTypes['gallery']['posts']>
   onClick?: () => void
 }) => {
   const image = useMemo(() => {
@@ -167,7 +201,7 @@ export const PostView = ({
   return (
     <div
       className={classNames(
-        'bg-white dark:bg-gray-700/50 border-base-color rounded-lg galleryUploadCard relative flex flex-col px-4 py-4 drop-shadow-sm border',
+        'bg-white dark:bg-gray-700/50 border-base-color rounded-lg galleryUploadCard relative flex flex-col px-4 py-4 drop-shadow-xs border',
       )}
       key={post.id}
       onClick={(e) => {
@@ -181,10 +215,12 @@ export const PostView = ({
     >
       {image && (
         <div className="mb-2 w-full flex items-center justify-center">
-          <Image
+          <CustomImage
             src={image.url}
             width={image.width}
             height={image.height}
+            placeholder="blur"
+            blurDataURL={getBlurDataURL(image.width, image.height)}
             alt=""
             className="rounded-lg"
           />
@@ -194,7 +230,7 @@ export const PostView = ({
         href={`/@${post.author.handle}`}
         className="flex gap-x-2 items-center mb-2 no-click w-fit"
       >
-        <Image
+        <CustomImage
           src={post.author.avatar}
           width={40}
           height={40}
@@ -207,7 +243,7 @@ export const PostView = ({
         </div>
       </Link>
       <div className="text-title-color">{post.title}</div>
-      <div className="text-description-color text-sm mb-2 break-words text-ellipsis">
+      <div className="text-description-color text-sm mb-2 wrap-break-word text-ellipsis">
         {post.content}
       </div>
       <div className="flex">
@@ -219,13 +255,13 @@ export const PostView = ({
 
 const PostLoadingInner = () => (
   <>
-    <div className="h-12 bg-pulse rounded mt-4 w-80"></div>
-    <div className="h-96 bg-pulse rounded w-full"></div>
-    <div className="mt-8 h-24 bg-pulse rounded-lg w-3/5 mx-auto"></div>
-    <div className="mt-4 h-24 bg-pulse rounded-lg w-3/5 mx-auto"></div>
-    <div className="mt-4 h-24 bg-pulse rounded-lg w-3/5 mx-auto"></div>
-    <div className="mt-4 h-24 bg-pulse rounded-lg w-3/5 mx-auto"></div>
-    <div className="mt-4 h-24 bg-pulse rounded-lg w-3/5 mx-auto"></div>
+    <Skeleton className="h-12 mt-4 w-80" />
+    <Skeleton className="h-96 w-full" />
+    <Skeleton className="mt-8 h-24 rounded-lg w-3/5 mx-auto" />
+    <Skeleton className="mt-4 h-24 rounded-lg w-3/5 mx-auto" />
+    <Skeleton className="mt-4 h-24 rounded-lg w-3/5 mx-auto" />
+    <Skeleton className="mt-4 h-24 rounded-lg w-3/5 mx-auto" />
+    <Skeleton className="mt-4 h-24 rounded-lg w-3/5 mx-auto" />
   </>
 )
 
@@ -236,7 +272,7 @@ export const PostLoading = () => (
     aria-label="데이터 불러오는중"
   >
     <div className="flex justify-between items-center">
-      <div className="h-12 bg-pulse rounded w-48"></div>
+      <Skeleton className="h-12 w-48" />
     </div>
     <PostLoadingInner />
   </div>
@@ -259,10 +295,7 @@ export const GalleryDetailModal = ({ id }: { id?: number | null }) => {
 }
 
 export const DetailContent = ({ id }: { id?: number | null }) => {
-  const { data } = trpc.gallery.postDetail.useQuery(
-    { id: id ?? 0 },
-    { enabled: typeof id === 'number', suspense: true },
-  )
+  const [data] = trpc.gallery.postDetail.useSuspenseQuery({ id: id ?? 0 })
 
   return <PostDetail forDialog post={data} />
 }
@@ -303,7 +336,13 @@ export const PostDetail = ({
         )}
       >
         <Link href={`/@${post.author.handle}`} className="flex gap-x-2 items-center">
-          <Image src={post.author.avatar} width={48} height={48} className="rounded-full" alt="" />
+          <CustomImage
+            src={post.author.avatar}
+            width={48}
+            height={48}
+            className="rounded-full"
+            alt=""
+          />
           <div className="flex flex-col justify-center">
             <div className="text-title-color">{post.author.name}</div>
             <TimeDynamic
@@ -321,16 +360,16 @@ export const PostDetail = ({
           {post.tags.length > 0 && (
             <div className="w-1.5 h-1.5 rounded-full bg-gray-500 dark:bg-gray-300"></div>
           )}
-          {post.tags.map(({ name, id }) => (
+          {post.tags.map(({ name, id }: { name: string; id: number }) => (
             <div className="tag" key={id}>
               <TagIcon width={24} height={24} />
               {name}
             </div>
           ))}
         </div>
-        <ReactMarkdown className="max-w-none markdown break-all">
-          {post.content.replace(/\n/g, '\n\n')}
-        </ReactMarkdown>
+        <div className="max-w-none markdown break-all">
+          <ReactMarkdown>{post.content.replace(/\n/g, '\n\n')}</ReactMarkdown>
+        </div>
         <div className="space-y-4">
           <div className="relative rounded">
             <Swiper
@@ -345,7 +384,7 @@ export const PostDetail = ({
             >
               {attachments.image.map((image, index) => (
                 <SwiperSlide key={index}>
-                  <Image
+                  <CustomImage
                     className="rounded"
                     key={index}
                     src={image?.url ?? ''}

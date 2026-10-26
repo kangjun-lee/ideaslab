@@ -1,6 +1,6 @@
 import React from 'react'
 
-type Props = React.PropsWithoutRef<JSX.IntrinsicElements['svg']>
+type Props = React.PropsWithoutRef<React.JSX.IntrinsicElements['svg']>
 
 // https://tabler-icons.io/
 export const GripVerticalIcon = (props: Props) => (

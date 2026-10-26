@@ -60,7 +60,11 @@ if (process.argv.includes('--register-metadata')) {
   })
   process.stdin.resume()
 } else {
-  client.start(config.botToken)
+  if (config.botToken) {
+    client.start(config.botToken)
+  } else {
+    logger.warn('BOT_TOKEN is not configured; Discord bot client will not be started.')
+  }
 
   logger.info('Create HTTPS Server')
 

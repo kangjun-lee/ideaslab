@@ -1,3 +1,4 @@
+import type { JSX } from 'react'
 import { ComponentProps, JSXElementConstructor, ReactElement, ReactNode } from 'react'
 import {
   Controller,

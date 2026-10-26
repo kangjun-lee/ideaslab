@@ -3,12 +3,12 @@
 	"include": ["next-env.d.ts", "src/**/*.ts", "src/**/*.tsx"],
 	"compilerOptions": {
 		"composite": true,
-		"baseUrl": "src",
 		"paths": {
-			"~/*": ["*"]
+			"~/*": ["./src/*"]
 		},
 		"skipLibCheck": true,
-		"types": []
+		"noUncheckedSideEffectImports": false,
+		"types": ["node", "react", "react-dom"]
 	},
 	"exclude": ["node_modules", ".next", "../../node_modules"]
 }

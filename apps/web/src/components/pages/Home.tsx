@@ -1,20 +1,26 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import CheckIcon from '@heroicons/react/24/outline/CheckIcon'
-import Typed from 'react-typed'
+import { ReactTyped } from 'react-typed'
 
 import MainImage from '~/assets/main-image.svg'
+import { CustomImage, Skeleton } from '~/components/common'
 import { trpc } from '~/utils'
 
 const HeaderSection = () => {
   return (
     <div className="container flex flex-col justify-center p-6 mx-auto sm:py-12 lg:py-24 lg:flex-row lg:justify-between gap-x-8 mt-12">
-      <div className="flex flex-col justify-center p-2 text-center rounded-sm lg:px-0 xl:px-6 lg:text-left w-full flex-1">
+      <div className="flex flex-col justify-center p-2 text-center rounded-xs lg:px-0 xl:px-6 lg:text-left w-full flex-1">
         <div className="block sm:hidden mb-6 -mt-8">
-          <Image src="/logo-once.gif" width={150} height={150} className="rounded-full" alt="" />
+          <CustomImage
+            src="/logo-once.gif"
+            width={150}
+            height={150}
+            className="rounded-full"
+            alt=""
+          />
         </div>
         <h1 className="text-4xl font-bold sm:text-6xl">
-          <Typed
+          <ReactTyped
             strings={[
               '당신의 <span class="title-highlight">아이디어가</span><br /> 현실로 이루어지길',
               '<span class="title-highlight">아이디어스</span>랩',
@@ -44,7 +50,7 @@ const HeaderSection = () => {
           </a>
 
           <Link
-            href="/settings/profile"
+            href="/gallery"
             className="px-8 py-3 text-lg font-semibold border rounded border-gray-800 dark:border-gray-100"
           >
             둘러보기
@@ -52,7 +58,11 @@ const HeaderSection = () => {
         </div>
       </div>
       <div className="hidden items-center justify-center  sm:flex p-6 mt-8 lg:mt-0 h-72 sm:h-80 lg:h-96 xl:h-112 flex-1">
-        <Image src={MainImage} alt="" className="object-contain h-72 sm:h-80 lg:h-96 xl:h-112" />
+        <CustomImage
+          src={MainImage}
+          alt=""
+          className="object-contain h-72 sm:h-80 lg:h-96 xl:h-112"
+        />
       </div>
     </div>
   )
@@ -60,27 +70,33 @@ const HeaderSection = () => {
 
 // eslint-disable-next-line unused-imports/no-unused-vars
 const StatSection = () => {
-  const { data: stat } = trpc.info.stat.useQuery(undefined, { trpc: { ssr: true } })
+  const { data: stat } = trpc.info.stat.useQuery(undefined, {})
 
   return (
     <section className="p-6 text-gray-800 dark:text-gray-100">
       <div className="container mx-auto grid justify-center grid-cols-2 text-center lg:grid-cols-3">
-        <div className="flex flex-col justify-start m-2 lg:m-6">
-          <p className="text-4xl font-bold leading-none lg:text-6xl">
-            {stat ? `${stat.memberCount}` : '불러오는중'}
-          </p>
+        <div className="flex flex-col justify-start m-2 lg:m-6 items-center">
+          {stat ? (
+            <p className="text-4xl font-bold leading-none lg:text-6xl">{stat.memberCount}</p>
+          ) : (
+            <Skeleton className="h-10 lg:h-14 w-28 mb-1" />
+          )}
           <p className="text-sm sm:text-base">창작자들</p>
         </div>
-        <div className="flex flex-col justify-start m-2 lg:m-6">
-          <p className="text-4xl font-bold leading-none lg:text-6xl">
-            {stat ? `${stat.voiceChatUser}` : '불러오는중'}
-          </p>
+        <div className="flex flex-col justify-start m-2 lg:m-6 items-center">
+          {stat ? (
+            <p className="text-4xl font-bold leading-none lg:text-6xl">{stat.voiceChatUser}</p>
+          ) : (
+            <Skeleton className="h-10 lg:h-14 w-28 mb-1" />
+          )}
           <p className="text-sm sm:text-base">현재 음성채팅방 사용자</p>
         </div>
-        <div className="flex flex-col justify-start m-2 lg:m-6">
-          <p className="text-4xl font-bold leading-none lg:text-6xl">
-            {stat ? `${stat.articleCount}` : '불러오는중'}
-          </p>
+        <div className="flex flex-col justify-start m-2 lg:m-6 items-center">
+          {stat ? (
+            <p className="text-4xl font-bold leading-none lg:text-6xl">{stat.articleCount}</p>
+          ) : (
+            <Skeleton className="h-10 lg:h-14 w-28 mb-1" />
+          )}
           <p className="text-sm sm:text-base">등록된 게시글</p>
         </div>
       </div>
@@ -138,7 +154,7 @@ const DescriptionSection = () => {
           </div>
         </div>
         <div aria-hidden="true" className="mt-10 lg:mt-0">
-          <Image
+          <CustomImage
             src="https://media.discordapp.net/attachments/1022121230289096744/1053273035081269258/jo-szczepanska-9OKGEVJiTKk-unsplash.jpg?width=500&height=800"
             alt=""
             width={500}

@@ -1,7 +1,6 @@
 import { ComponentProps, useMemo } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
+import { usePathname } from 'next/navigation'
 import {
   ChartBarIcon,
   MegaphoneIcon,
@@ -13,7 +12,7 @@ import {
 } from '@heroicons/react/24/outline'
 import classNames from 'classnames'
 
-import { ButtonLink } from '~/components/common'
+import { ButtonLink, CustomImage, Skeleton } from '~/components/common'
 import { useUser } from '~/hooks/useAuth'
 import { MainLayout } from '~/layouts'
 
@@ -84,7 +83,7 @@ const navList: NavType[] = [
 
 export const SettingLayout = ({ children, ...mainLayoutProps }: Props) => {
   const profile = useUser()
-  const { pathname } = useRouter()
+  const pathname = usePathname()
 
   const curPage = useMemo(() => {
     return navList
@@ -95,20 +94,41 @@ export const SettingLayout = ({ children, ...mainLayoutProps }: Props) => {
   return (
     <MainLayout showTitle tinyContainer {...mainLayoutProps}>
       <div className="mb-4 flex items-center">
-        <Image src={profile?.avatar || ''} className="rounded-full" alt="" width={64} height={64} />
+        {profile?.avatar ? (
+          <CustomImage
+            src={profile.avatar}
+            className="rounded-full"
+            alt=""
+            width={64}
+            height={64}
+          />
+        ) : (
+          <Skeleton className="w-16 h-16 rounded-full shrink-0" />
+        )}
         <div className="ml-4 flex flex-row justify-between w-full items-center">
           <div className="flex flex-col">
-            <div
-              className="flex flex-col sm:flex-row sm:items-center gap-x-3 text-lg font-bold text-title-color"
-              role="presentation"
-            >
-              <div className="">{`${profile?.isAdmin ? ' [관리자]' : ''} ${profile?.name}`}</div>
-              <div className="flex gap-x-3 sm:items-center">
-                <div className="mb-1 font-normal text-gray-400">/</div>
-                <div>{curPage?.name}</div>
+            {!profile ? (
+              <div className="flex flex-col gap-1.5">
+                <Skeleton className="h-6 w-36" />
+                <Skeleton className="h-4 w-48" />
               </div>
-            </div>
-            <div className="text-description-color text-sm">{curPage?.description}</div>
+            ) : (
+              <>
+                <div
+                  className="flex flex-col sm:flex-row sm:items-center gap-x-3 text-lg font-bold text-title-color"
+                  role="presentation"
+                >
+                  <div className="">{`${profile?.isAdmin ? ' [관리자]' : ''} ${
+                    profile?.name
+                  }`}</div>
+                  <div className="flex gap-x-3 sm:items-center">
+                    <div className="mb-1 font-normal text-gray-400">/</div>
+                    <div>{curPage?.name}</div>
+                  </div>
+                </div>
+                <div className="text-description-color text-sm">{curPage?.description}</div>
+              </>
+            )}
           </div>
           {profile?.handleDisplay && (
             <Link href={`/@${profile?.handleDisplay}`}>

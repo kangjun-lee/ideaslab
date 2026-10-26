@@ -45,7 +45,7 @@ export const TagFilter = <T extends Key, U extends boolean | undefined = true>({
           className={classNames('tag hover', selected === value && 'primary')}
           aria-checked={selected === value}
           onClick={() => onSelect(value)}
-          aria-label={`필터 ${value}`}
+          aria-label={`필터 ${String(value)}`}
         >
           {label}
         </button>

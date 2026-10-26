@@ -1,13 +1,16 @@
+import type { JSX } from 'react'
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { Combobox, Transition } from '@headlessui/react'
 import { CheckIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
 import classNames from 'classnames'
 
-import type { AppRouter } from '@ideaslab/server'
+import type { OutputTypes } from '@ideaslab/server'
 
 import { Unarray } from '~/types/utils'
 import { trpc } from '~/utils'
 import { ChannelType } from '~/utils/discord'
+
+import { Skeleton } from './common/skeleton'
 
 export type ChannelSelectorProps = {
   value?: string | null
@@ -27,7 +30,7 @@ export type ChannelSelectorProps = {
   error?: string
 }
 
-type Channel = Unarray<AppRouter['info']['channels']['_def']['_output_out']>
+type Channel = Unarray<OutputTypes['info']['channels']>
 
 export const ChannelSelector = ({
   onBlur,
@@ -44,7 +47,7 @@ export const ChannelSelector = ({
     ChannelType.GuildForum,
   ],
 }: ChannelSelectorProps) => {
-  const { data } = trpc.info.channels.useQuery()
+  const { data, isLoading } = trpc.info.channels.useQuery()
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState<Channel>()
 
@@ -56,7 +59,8 @@ export const ChannelSelector = ({
   }, [data, value])
 
   const onSelect = useCallback(
-    (value: Channel) => {
+    (value: Channel | null) => {
+      if (!value) return
       setSelected(value)
       if (typeof onChange === 'function') onChange(value.id)
     },
@@ -78,6 +82,15 @@ export const ChannelSelector = ({
       ) ?? [],
     [category, data, filterType, query],
   )
+
+  if (isLoading) {
+    return (
+      <div className="w-full">
+        {label && <div className="text-sm mb-1">{label}</div>}
+        <Skeleton className="h-10 w-full rounded-lg" />
+      </div>
+    )
+  }
 
   return (
     <Combobox value={selected} onChange={onSelect}>
@@ -122,7 +135,7 @@ export const ChannelSelector = ({
             leaveTo="opacity-0"
             afterLeave={() => setQuery('')}
           >
-            <Combobox.Options className="border border-base-color absolute z-[99] mt-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-base shadow-sm focus:outline-none sm:text-sm">
+            <Combobox.Options className="border border-base-color absolute z-[99] mt-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-base shadow-xs focus:outline-none sm:text-sm">
               {filteredChannels?.length === 0 && query !== '' ? (
                 <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
                   채널을 찾을 수 없습니다.

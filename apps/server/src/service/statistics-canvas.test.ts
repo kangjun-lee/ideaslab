@@ -358,7 +358,7 @@ describe('Statistics Canvas & Tree Graph Service', () => {
         buttonLabels.includes('2027년 ▶') ||
           allButtons.some((b: any) => b.custom_id.includes('year')),
       )
-      assert.ok(buttonLabels.includes('🎙️ 음성 잔디'))
+      assert.ok(buttonLabels.includes('통화방 통계 보기'))
       assert.ok(buttonLabels.includes('📅 날짜 선택'))
       assert.ok(buttonLabels.includes('오늘'))
       assert.ok(buttonLabels.includes('웹에서 보기'))

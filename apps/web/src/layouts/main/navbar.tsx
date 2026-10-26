@@ -1,13 +1,19 @@
 import React from 'react'
 import dynamic from 'next/dynamic'
-import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
+import { usePathname } from 'next/navigation'
 import { Disclosure } from '@headlessui/react'
 import { Bars3Icon } from '@heroicons/react/24/outline'
 
-import { buttonClassNames, ButtonLink, Transition, UserMenu } from '~/components/common'
-import { useUser } from '~/hooks/useAuth'
+import {
+  buttonClassNames,
+  ButtonLink,
+  CustomImage,
+  Skeleton,
+  Transition,
+  UserMenu,
+} from '~/components/common'
+import { useLoadUserData } from '~/hooks/useAuth'
 
 const ThemeChanger = dynamic(
   import('./theme').then((d) => d.ThemeChanger),
@@ -42,8 +48,11 @@ const NavItem = ({
 }
 
 export const Navbar = () => {
-  const { pathname } = useRouter()
-  const profile = useUser()
+  const pathname = usePathname()
+  const {
+    profile: { data: profile },
+    isLoading,
+  } = useLoadUserData()
 
   const NavItems = ({ isMobile }: { isMobile: boolean }) => (
     <>
@@ -56,13 +65,13 @@ export const Navbar = () => {
       <NavItem
         name="프로필"
         href="/profiles"
-        isActive={pathname.startsWith('/profiles')}
+        isActive={pathname?.startsWith('/profiles') ?? false}
         isMobile={isMobile}
       />
       <NavItem
         name="갤러리"
         href="/gallery"
-        isActive={pathname.startsWith('/gallery')}
+        isActive={pathname?.startsWith('/gallery') ?? false}
         isMobile={isMobile}
       />
     </>
@@ -76,14 +85,16 @@ export const Navbar = () => {
       <div className="flex items-center" style={{ height: 'var(--nav-height)' }}>
         <div className="px-4 container max-w-4xl mx-auto flex justify-between items-center">
           <Link href="/" className="flex items-center gap-x-3">
-            <Image width={32} height={32} alt="" src="/favicon-196.png" />
+            <CustomImage width={32} height={32} alt="" src="/favicon-196.png" />
             <span className="font-bold text-lg sm:text-xl">아이디어스랩</span>
           </Link>
           <div className={'hidden md:flex gap-x-4 items-center'} id="main-menu">
             <NavItems isMobile={false} />
           </div>
           <div className="flex gap-x-2 items-center ">
-            {profile && typeof profile === 'object' ? (
+            {isLoading ? (
+              <Skeleton className="h-8 w-8 rounded-full" />
+            ) : profile && typeof profile === 'object' ? (
               <UserMenu />
             ) : (
               <Link href="/login">

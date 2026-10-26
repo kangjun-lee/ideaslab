@@ -1,12 +1,15 @@
+import type { JSX } from 'react'
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { Combobox, Transition } from '@headlessui/react'
 import { CheckIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
 import classNames from 'classnames'
 
-import type { AppRouter } from '@ideaslab/server'
+import type { OutputTypes } from '@ideaslab/server'
 
 import { Unarray } from '~/types/utils'
 import { trpc } from '~/utils'
+
+import { Skeleton } from './common/skeleton'
 
 export type ChannelSelectorProps = {
   value?: string | null
@@ -18,7 +21,7 @@ export type ChannelSelectorProps = {
   error?: string
 }
 
-type Role = Unarray<AppRouter['info']['roles']['_def']['_output_out']>
+type Role = Unarray<OutputTypes['info']['roles']>
 
 export const RoleSelector = ({
   onBlur,
@@ -28,7 +31,7 @@ export const RoleSelector = ({
   label,
   error,
 }: ChannelSelectorProps) => {
-  const { data } = trpc.info.roles.useQuery()
+  const { data, isLoading } = trpc.info.roles.useQuery()
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState<Role>()
 
@@ -40,7 +43,8 @@ export const RoleSelector = ({
   }, [data, value])
 
   const onSelect = useCallback(
-    (value: Role) => {
+    (value: Role | null) => {
+      if (!value) return
       setSelected(value)
       if (typeof onChange === 'function') onChange(value.id)
     },
@@ -54,6 +58,15 @@ export const RoleSelector = ({
         .sort((a, b) => b.position - a.position) ?? [],
     [data, query],
   )
+
+  if (isLoading) {
+    return (
+      <div className="w-full">
+        {label && <div className="text-sm mb-1">{label}</div>}
+        <Skeleton className="h-10 w-full rounded-lg" />
+      </div>
+    )
+  }
 
   return (
     <Combobox value={selected} onChange={onSelect}>
@@ -98,7 +111,7 @@ export const RoleSelector = ({
             leaveTo="opacity-0"
             afterLeave={() => setQuery('')}
           >
-            <Combobox.Options className="border border-base-color absolute z-[99] mt-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-base shadow-sm focus:outline-none sm:text-sm">
+            <Combobox.Options className="border border-base-color absolute z-[99] mt-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-base shadow-xs focus:outline-none sm:text-sm">
               {filteredRoles?.length === 0 && query !== '' ? (
                 <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
                   역할을 찾을 수 없습니다.

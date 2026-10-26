@@ -1,3 +1,4 @@
+import type { JSX } from 'react'
 import { ReactNode, useMemo } from 'react'
 import classNames from 'classnames'
 

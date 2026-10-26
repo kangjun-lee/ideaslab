@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react'
-import { useRouter } from 'next/router'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
 type TypeText = 'number' | 'boolean' | 'string'
 type TypeByString<T extends TypeText> = T extends 'number'
@@ -23,36 +23,36 @@ export const useQueryState = <T extends TypeText, Nullable extends boolean = fal
   nullable?: Nullable
 }) => {
   const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
 
   const setQuery = useCallback(
     (value: TypeByString2<T, Nullable>) => {
-      const query = router.query
+      const query = new URLSearchParams(searchParams?.toString())
 
       if (value === defaultValue) {
-        delete query[name]
+        query.delete(name)
       } else {
         if (value === null) {
-          delete query[name]
+          query.delete(name)
         } else if (type === 'number') {
-          query[name] = value.toString()
+          query.set(name, value.toString())
         } else if (type === 'boolean') {
-          query[name] = value ? '1' : '0'
+          query.set(name, value ? '1' : '0')
         } else if (type === 'string') {
-          query[name] = value as string
+          query.set(name, value as string)
         }
       }
 
-      router.push({ pathname: router.pathname, query }, undefined, {
-        shallow: true,
-      })
+      router.push(`${pathname ?? ''}${query.size ? `?${query}` : ''}`, { scroll: false })
     },
-    [router, defaultValue, name, type],
+    [router, pathname, searchParams, defaultValue, name, type],
   )
 
   const value: TypeByString2<T, Nullable> = useMemo(() => {
-    const query = router.query[name]
+    const query = searchParams?.get(name) ?? null
 
-    if (typeof query !== 'string') {
+    if (query === null) {
       return defaultValue
     }
 
@@ -65,7 +65,7 @@ export const useQueryState = <T extends TypeText, Nullable extends boolean = fal
     }
 
     return defaultValue
-  }, [defaultValue, name, router.query, type])
+  }, [defaultValue, name, searchParams, type])
 
   return [value, setQuery] as [typeof value, typeof setQuery]
 }
