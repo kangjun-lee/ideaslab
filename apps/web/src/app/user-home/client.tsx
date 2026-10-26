@@ -9,8 +9,9 @@ import { Swiper, SwiperRef, SwiperSlide } from 'swiper/react'
 
 import type { OutputTypes } from '@ideaslab/server'
 
+import { Skeleton } from '~/components/common'
 import { PostDetailModalWrapper, PostView2 } from '~/components/post'
-import { ProfileView } from '~/components/profile'
+import { ProfileView, ProfileViewSkeleton } from '~/components/profile'
 import { useUser } from '~/hooks'
 import { MainLayout } from '~/layouts'
 import { trpc } from '~/utils'
@@ -145,13 +146,13 @@ const UserHome: NextPage = () => {
               {isLoadingPosts && (
                 <>
                   <SwiperSlide>
-                    <div className="bg-pulse rounded w-full h-80"></div>
+                    <Skeleton className="w-full h-80 rounded-lg" />
                   </SwiperSlide>
                   <SwiperSlide>
-                    <div className="bg-pulse rounded w-full h-80"></div>
+                    <Skeleton className="w-full h-80 rounded-lg" />
                   </SwiperSlide>
                   <SwiperSlide>
-                    <div className="bg-pulse rounded w-full h-80"></div>
+                    <Skeleton className="w-full h-80 rounded-lg" />
                   </SwiperSlide>
                 </>
               )}
@@ -172,13 +173,13 @@ const UserHome: NextPage = () => {
           {isLoadingProfiles && (
             <>
               <SwiperSlide>
-                <div className="bg-pulse rounded w-full h-44"></div>
+                <ProfileViewSkeleton />
               </SwiperSlide>
               <SwiperSlide>
-                <div className="bg-pulse rounded w-full h-44"></div>
+                <ProfileViewSkeleton />
               </SwiperSlide>
               <SwiperSlide>
-                <div className="bg-pulse rounded w-full h-44"></div>
+                <ProfileViewSkeleton />
               </SwiperSlide>
             </>
           )}

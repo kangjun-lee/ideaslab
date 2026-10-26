@@ -10,7 +10,7 @@ import { toast } from 'react-hot-toast'
 
 import { adminRoleSettingValidator, z } from '@ideaslab/validator'
 
-import { Button, GripVerticalIcon } from '~/components/common'
+import { Button, GripVerticalIcon, Skeleton } from '~/components/common'
 import { Form, FormBlock, FormFieldBuilder, Input } from '~/components/form'
 import { RoleSelector } from '~/components/role-selector'
 import { useForm } from '~/hooks/useForm'
@@ -23,7 +23,7 @@ const RoleSetting: NextPage = () => {
       toast.error(error.message)
     },
   })
-  const { data: roles } = trpc.admin.loadRoles.useQuery()
+  const { data: roles, isLoading } = trpc.admin.loadRoles.useQuery()
 
   const form = useForm(adminRoleSettingValidator, {
     onSubmit: async (data) => {
@@ -83,17 +83,29 @@ const RoleSetting: NextPage = () => {
 
   return (
     <SettingLayout title="갤러리 설정" guard="adminOnly">
-      <Form form={form} className="pt-4 md:pt-0 md:col-span-9 flex flex-col gap-y-4">
-        <FieldArray control={control} register={registerForm} error={errors.roles?.message ?? ''} />
-        <div className="flex justify-end gap-x-2">
-          <Button disabled={!isDirty} onClick={() => reset()}>
-            취소
-          </Button>
-          <Button variant="primary" type="submit" disabled={!isDirty} loading={isSubmitting}>
-            저장
-          </Button>
+      {isLoading || !roles ? (
+        <div className="pt-4 md:pt-0 md:col-span-9 flex flex-col gap-y-4">
+          <Skeleton className="h-20 w-full rounded-lg" />
+          <Skeleton className="h-20 w-full rounded-lg" />
+          <Skeleton className="h-20 w-full rounded-lg" />
         </div>
-      </Form>
+      ) : (
+        <Form form={form} className="pt-4 md:pt-0 md:col-span-9 flex flex-col gap-y-4">
+          <FieldArray
+            control={control}
+            register={registerForm}
+            error={errors.roles?.message ?? ''}
+          />
+          <div className="flex justify-end gap-x-2">
+            <Button disabled={!isDirty} onClick={() => reset()}>
+              취소
+            </Button>
+            <Button variant="primary" type="submit" disabled={!isDirty} loading={isSubmitting}>
+              저장
+            </Button>
+          </div>
+        </Form>
+      )}
     </SettingLayout>
   )
 }

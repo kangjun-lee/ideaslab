@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import { Menu } from '@headlessui/react'
 import classNames from 'classnames'
@@ -6,6 +5,7 @@ import classNames from 'classnames'
 import { useUser } from '~/hooks/useAuth'
 import { trpc } from '~/utils'
 
+import { CustomImage } from './image'
 import { Transition } from './transition'
 
 export const UserMenu = () => {
@@ -23,7 +23,7 @@ export const UserMenu = () => {
     <Menu as="div" className="relative w-fit">
       <Menu.Button className="flex items-center rounded-xl px-2 py-1.5 transition-all duration-300 hover:bg-black/5">
         <span className="sr-only">유저메뉴 열기</span>
-        <Image className="rounded-full" src={avatar} alt="" width={32} height={32} />
+        <CustomImage className="rounded-full" src={avatar} alt="" width={32} height={32} />
         <div className="ml-2 mb-1 font-bold leading-tight hidden sm:block">{name}</div>
       </Menu.Button>
       <Transition type="size">

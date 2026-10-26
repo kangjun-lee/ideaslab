@@ -9,7 +9,7 @@ import type { OutputTypes } from '@ideaslab/server'
 import { adminSaveSettingsValidator, z } from '@ideaslab/validator'
 
 import { ChannelSelector } from '~/components/channel-selector'
-import { Button } from '~/components/common'
+import { Button, Skeleton } from '~/components/common'
 import { Form, FormFieldBuilder, Input } from '~/components/form'
 import { FormBlock } from '~/components/form/form-block'
 import { Textarea } from '~/components/form/textarea'
@@ -19,7 +19,7 @@ import { SettingLayout } from '~/layouts'
 import { trpc } from '~/utils'
 
 const SettingsPage: NextPage = () => {
-  const { data: settings } = trpc.admin.loadSettings.useQuery(undefined, {})
+  const { data: settings, isLoading } = trpc.admin.loadSettings.useQuery(undefined, {})
 
   const saveSettings = trpc.admin.saveSettings.useMutation()
   const form = useForm(adminSaveSettingsValidator, {
@@ -57,27 +57,36 @@ const SettingsPage: NextPage = () => {
 
   return (
     <SettingLayout title="서비스 설정" guard="adminOnly">
-      <Form form={form} className="pt-4 md:pt-0 md:col-span-9 flex flex-col gap-y-4">
-        <FieldArray
-          settings={settings ?? []}
-          control={control}
-          register={registerForm}
-          error={errors.settings?.message ?? ''}
-        />
-        <div className="flex justify-end gap-x-2">
-          <Button
-            disabled={!isDirty}
-            onClick={() => {
-              reset()
-            }}
-          >
-            취소
-          </Button>
-          <Button variant="primary" type="submit" disabled={!isDirty} loading={isSubmitting}>
-            저장
-          </Button>
+      {isLoading || !settings ? (
+        <div className="pt-4 md:pt-0 md:col-span-9 flex flex-col gap-y-4">
+          <Skeleton className="h-20 w-full rounded-lg" />
+          <Skeleton className="h-20 w-full rounded-lg" />
+          <Skeleton className="h-20 w-full rounded-lg" />
+          <Skeleton className="h-20 w-full rounded-lg" />
         </div>
-      </Form>
+      ) : (
+        <Form form={form} className="pt-4 md:pt-0 md:col-span-9 flex flex-col gap-y-4">
+          <FieldArray
+            settings={settings ?? []}
+            control={control}
+            register={registerForm}
+            error={errors.settings?.message ?? ''}
+          />
+          <div className="flex justify-end gap-x-2">
+            <Button
+              disabled={!isDirty}
+              onClick={() => {
+                reset()
+              }}
+            >
+              취소
+            </Button>
+            <Button variant="primary" type="submit" disabled={!isDirty} loading={isSubmitting}>
+              저장
+            </Button>
+          </div>
+        </Form>
+      )}
     </SettingLayout>
   )
 }

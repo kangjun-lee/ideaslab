@@ -13,7 +13,7 @@ import ReactMarkdown from 'react-markdown'
 
 import { authSignUpValidator, z } from '@ideaslab/validator'
 
-import { Button, GripVerticalIcon } from '~/components/common'
+import { Button, GripVerticalIcon, Skeleton } from '~/components/common'
 import { Step, StepContent, StepContentProps, StepWrapper } from '~/components/common/step'
 import { Form, FormFieldBuilder, Input, Select } from '~/components/form'
 import { FormBlock } from '~/components/form/form-block'
@@ -98,8 +98,17 @@ const Policy = ({ prev, next }: StepContentProps) => {
         <div className="flex justify-between mt-2 items-center">
           <div className="text-3xl font-bold mt-4 mb-2">개인정보 처리방침</div>
         </div>
-        <div className="markdown w-full px-1.5 py-1 bg-gray-100 dark:bg-gray-800 border-base-color border-2 rounded-lg mx-1">
-          <ReactMarkdown>{privacyPolicy ?? '불러오는 중...'}</ReactMarkdown>
+        <div className="markdown w-full px-1.5 py-1 bg-gray-100 dark:bg-gray-800 border-base-color border-2 rounded-lg mx-1 min-h-40">
+          {!privacyPolicy ? (
+            <div className="space-y-3 p-3">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-5/6" />
+              <Skeleton className="h-4 w-4/6" />
+              <Skeleton className="h-4 w-full" />
+            </div>
+          ) : (
+            <ReactMarkdown>{privacyPolicy}</ReactMarkdown>
+          )}
         </div>
       </div>
       <div className="flex justify-between w-full mt-4">
@@ -127,27 +136,36 @@ const Rule = ({ prev, next }: StepContentProps) => {
         <div className="flex justify-between mt-2 items-center">
           <div className="text-3xl font-bold mt-4 mb-2">서버 규칙</div>
         </div>
-        <div className="w-full px-1.5 py-1 bg-gray-100 dark:bg-gray-800 border-base-color border-2 rounded-lg mx-1">
-          {serverRule?.split('\n').map((line, i) => (
-            <span key={i} className={classNames(line.match(/^[0-9]+/) && 'font-bold')}>
-              {line.split('**').map((text, i) => {
-                if (i % 2 === 0) return <Fragment key={i}>{text}</Fragment>
-                if (text.startsWith('!')) {
+        <div className="w-full px-1.5 py-1 bg-gray-100 dark:bg-gray-800 border-base-color border-2 rounded-lg mx-1 min-h-40">
+          {!serverRule ? (
+            <div className="space-y-3 p-3">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-5/6" />
+              <Skeleton className="h-4 w-4/6" />
+              <Skeleton className="h-4 w-full" />
+            </div>
+          ) : (
+            serverRule.split('\n').map((line, i) => (
+              <span key={i} className={classNames(line.match(/^[0-9]+/) && 'font-bold')}>
+                {line.split('**').map((text, i) => {
+                  if (i % 2 === 0) return <Fragment key={i}>{text}</Fragment>
+                  if (text.startsWith('!')) {
+                    return (
+                      <span className="font-bold title-highlight-red" key={i}>
+                        {text.substring(1)}
+                      </span>
+                    )
+                  }
                   return (
-                    <span className="font-bold title-highlight-red" key={i}>
-                      {text.substring(1)}
+                    <span className="font-bold title-highlight" key={i}>
+                      {text}
                     </span>
                   )
-                }
-                return (
-                  <span className="font-bold title-highlight" key={i}>
-                    {text}
-                  </span>
-                )
-              })}
-              <br />
-            </span>
-          ))}
+                })}
+                <br />
+              </span>
+            ))
+          )}
         </div>
       </div>
       <div className="flex justify-between w-full mt-4">
@@ -274,28 +292,36 @@ const SignupForm = ({ prev, next }: StepContentProps) => {
           description="본인이 창작하는 분야를 선택해주세요. 여러개 선택할 수 있으며 선택하지 않아도 괜찮아요. (선택한 모든 분야의 창작활동을 하지 않는 한, 모든 역할을 선택하지 마세요. 장난이라 판단될 경우 경고 및 차단조치가 이루어질 수 있어요)"
         >
           <FormFieldBuilder name="roles">
-            {({ field: { value, onChange } }) => (
-              <div className="flex gap-3 flex-wrap">
-                {artistRoles?.map((role: { id: number; name: string }) => (
-                  <div
-                    key={role.id}
-                    className={classNames(
-                      'tag hover',
-                      (value ?? []).includes(role.id) && 'primary',
-                    )}
-                    onClick={() =>
-                      onChange(
-                        (value ?? []).includes(role.id)
-                          ? value.filter((item: number) => item !== role.id)
-                          : [...((value as unknown as number[]) ?? []), role.id],
-                      )
-                    }
-                  >
-                    {role.name}
-                  </div>
-                ))}
-              </div>
-            )}
+            {({ field: { value, onChange } }) =>
+              !artistRoles ? (
+                <div className="flex gap-2">
+                  <Skeleton className="h-7 w-16 rounded-full" />
+                  <Skeleton className="h-7 w-20 rounded-full" />
+                  <Skeleton className="h-7 w-24 rounded-full" />
+                </div>
+              ) : (
+                <div className="flex gap-3 flex-wrap">
+                  {artistRoles?.map((role: { id: number; name: string }) => (
+                    <div
+                      key={role.id}
+                      className={classNames(
+                        'tag hover',
+                        (value ?? []).includes(role.id) && 'primary',
+                      )}
+                      onClick={() =>
+                        onChange(
+                          (value ?? []).includes(role.id)
+                            ? value.filter((item: number) => item !== role.id)
+                            : [...((value as unknown as number[]) ?? []), role.id],
+                        )
+                      }
+                    >
+                      {role.name}
+                    </div>
+                  ))}
+                </div>
+              )
+            }
           </FormFieldBuilder>
         </FormBlock>
 

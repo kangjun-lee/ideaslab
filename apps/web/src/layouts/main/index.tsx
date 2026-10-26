@@ -1,11 +1,10 @@
 import React, { ComponentProps, ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import classNames from 'classnames'
 import toast, { Toaster } from 'react-hot-toast'
 
-import { Button, ButtonLink, PageBack } from '~/components/common'
+import { Button, ButtonLink, CustomImage, PageBack, Skeleton } from '~/components/common'
 import { useLoadUserData } from '~/hooks/useAuth'
 import { trpc } from '~/utils'
 import { parseJWT } from '~/utils'
@@ -103,7 +102,7 @@ export const MainLayout = ({
     if (authConfirm) {
       return (
         <CenterCard>
-          <Image
+          <CustomImage
             width={128}
             height={128}
             src={authConfirm.avatar}
@@ -124,6 +123,19 @@ export const MainLayout = ({
             {tokenExpired ? '만료된 로그인 링크에요' : '로그인'}
           </Button>
         </CenterCard>
+      )
+    }
+
+    if (isLoading && guard !== 'default' && guard !== 'guestOnly') {
+      return (
+        <div className="space-y-4 max-w-4xl mx-auto py-8">
+          <Skeleton className="h-10 w-48" />
+          <Skeleton className="h-6 w-96" />
+          <div className="space-y-3 mt-8">
+            <Skeleton className="h-32 w-full rounded-lg" />
+            <Skeleton className="h-32 w-full rounded-lg" />
+          </div>
+        </div>
       )
     }
 

@@ -1,10 +1,44 @@
-import Image from 'next/image'
 import Link from 'next/link'
 
 import type { OutputTypes } from '@ideaslab/server'
 
+import { CustomImage, Skeleton } from '~/components/common'
 import { Unarray } from '~/types/utils'
 import { relativeTimeFormat } from '~/utils'
+
+export const ProfileViewSkeleton = () => {
+  return (
+    <div className="bg-white dark:bg-gray-700/50 border-base-color rounded-lg relative flex flex-col px-4 py-4 border drop-shadow-xs h-60 justify-between">
+      <div className="flex flex-col">
+        <div className="flex gap-x-2 items-center">
+          <Skeleton className="w-10 h-10 rounded-full shrink-0" />
+          <div className="flex flex-col gap-y-1.5 flex-1">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-3 w-16" />
+          </div>
+        </div>
+        <div className="flex gap-2 mt-3">
+          <Skeleton className="h-5 w-14 rounded-full" />
+          <Skeleton className="h-5 w-16 rounded-full" />
+        </div>
+        <div className="mt-3 space-y-1.5">
+          <Skeleton className="h-3 w-full" />
+          <Skeleton className="h-3 w-3/4" />
+        </div>
+      </div>
+      <div className="flex justify-around w-full pt-3 border-t border-base-color">
+        <div className="flex flex-col items-center gap-1">
+          <Skeleton className="h-3.5 w-10" />
+          <Skeleton className="h-3 w-8" />
+        </div>
+        <div className="flex flex-col items-center gap-1">
+          <Skeleton className="h-3.5 w-10" />
+          <Skeleton className="h-3 w-12" />
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export const ProfileView = ({ data }: { data: Unarray<OutputTypes['info']['profiles']> }) => {
   return (
@@ -12,7 +46,7 @@ export const ProfileView = ({ data }: { data: Unarray<OutputTypes['info']['profi
       <div className="flex flex-col no-click h-full" onClick={() => {}}>
         <div className="flex flex-col h-full flex-grow">
           <Link href={`/@${data.handleDisplay}`} className="flex gap-x-2 items-center">
-            <Image
+            <CustomImage
               src={data.avatar}
               width={40}
               height={40}

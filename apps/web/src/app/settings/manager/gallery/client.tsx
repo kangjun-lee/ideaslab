@@ -11,7 +11,7 @@ import { toast } from 'react-hot-toast'
 import { adminGallerySettingValidator, z } from '@ideaslab/validator'
 
 import { ChannelSelector } from '~/components/channel-selector'
-import { Button, GripVerticalIcon } from '~/components/common'
+import { Button, GripVerticalIcon, Skeleton } from '~/components/common'
 import { Form, FormBlock, FormFieldBuilder, Input } from '~/components/form'
 import { useForm } from '~/hooks/useForm'
 import { SettingLayout } from '~/layouts'
@@ -23,7 +23,7 @@ const GallerySetting: NextPage = () => {
       toast.error(error.message)
     },
   })
-  const { data: settings } = trpc.admin.loadGallerySetting.useQuery()
+  const { data: settings, isLoading } = trpc.admin.loadGallerySetting.useQuery()
 
   const form = useForm(adminGallerySettingValidator, {
     onSubmit: async (data) => {
@@ -90,21 +90,29 @@ const GallerySetting: NextPage = () => {
 
   return (
     <SettingLayout title="갤러리 설정" guard="adminOnly">
-      <Form form={form} className="pt-4 md:pt-0 md:col-span-9 flex flex-col gap-y-4">
-        <FieldArray
-          control={control}
-          register={registerForm}
-          error={errors.categories?.message ?? ''}
-        />
-        <div className="flex justify-end gap-x-2">
-          <Button disabled={!isDirty} onClick={() => reset()}>
-            취소
-          </Button>
-          <Button variant="primary" type="submit" disabled={!isDirty} loading={isSubmitting}>
-            저장
-          </Button>
+      {isLoading || !settings ? (
+        <div className="pt-4 md:pt-0 md:col-span-9 flex flex-col gap-y-4">
+          <Skeleton className="h-20 w-full rounded-lg" />
+          <Skeleton className="h-20 w-full rounded-lg" />
+          <Skeleton className="h-20 w-full rounded-lg" />
         </div>
-      </Form>
+      ) : (
+        <Form form={form} className="pt-4 md:pt-0 md:col-span-9 flex flex-col gap-y-4">
+          <FieldArray
+            control={control}
+            register={registerForm}
+            error={errors.categories?.message ?? ''}
+          />
+          <div className="flex justify-end gap-x-2">
+            <Button disabled={!isDirty} onClick={() => reset()}>
+              취소
+            </Button>
+            <Button variant="primary" type="submit" disabled={!isDirty} loading={isSubmitting}>
+              저장
+            </Button>
+          </div>
+        </Form>
+      )}
     </SettingLayout>
   )
 }

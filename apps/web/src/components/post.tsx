@@ -1,5 +1,4 @@
 import { ReactNode, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
@@ -23,7 +22,7 @@ import { trpc } from '~/utils'
 import { relativeTimeFormat } from '~/utils'
 
 import { AudioPlayer } from './audio-player'
-import { Button, ButtonLink, Dialog, TimeDynamic } from './common'
+import { Button, ButtonLink, CustomImage, Dialog, Skeleton, TimeDynamic } from './common'
 
 type PostAttachment = {
   url: string
@@ -114,7 +113,7 @@ export const PostView2 = ({
         href={`/@${post.author.handle}`}
         className="flex gap-x-2 items-center mb-2 no-click w-fit"
       >
-        <Image
+        <CustomImage
           src={post.author.avatar}
           width={40}
           height={40}
@@ -134,7 +133,7 @@ export const PostView2 = ({
         )}
       >
         {image ? (
-          <Image src={image.url} alt="" className="rounded-lg object-cover" fill />
+          <CustomImage src={image.url} alt="" className="rounded-lg object-cover" fill />
         ) : (
           <>
             <div className="p-3 h-full break-words text-ellipsis line-clamp-[7]">
@@ -216,7 +215,7 @@ export const PostView = ({
     >
       {image && (
         <div className="mb-2 w-full flex items-center justify-center">
-          <Image
+          <CustomImage
             src={image.url}
             width={image.width}
             height={image.height}
@@ -231,7 +230,7 @@ export const PostView = ({
         href={`/@${post.author.handle}`}
         className="flex gap-x-2 items-center mb-2 no-click w-fit"
       >
-        <Image
+        <CustomImage
           src={post.author.avatar}
           width={40}
           height={40}
@@ -256,13 +255,13 @@ export const PostView = ({
 
 const PostLoadingInner = () => (
   <>
-    <div className="h-12 bg-pulse rounded mt-4 w-80"></div>
-    <div className="h-96 bg-pulse rounded w-full"></div>
-    <div className="mt-8 h-24 bg-pulse rounded-lg w-3/5 mx-auto"></div>
-    <div className="mt-4 h-24 bg-pulse rounded-lg w-3/5 mx-auto"></div>
-    <div className="mt-4 h-24 bg-pulse rounded-lg w-3/5 mx-auto"></div>
-    <div className="mt-4 h-24 bg-pulse rounded-lg w-3/5 mx-auto"></div>
-    <div className="mt-4 h-24 bg-pulse rounded-lg w-3/5 mx-auto"></div>
+    <Skeleton className="h-12 mt-4 w-80" />
+    <Skeleton className="h-96 w-full" />
+    <Skeleton className="mt-8 h-24 rounded-lg w-3/5 mx-auto" />
+    <Skeleton className="mt-4 h-24 rounded-lg w-3/5 mx-auto" />
+    <Skeleton className="mt-4 h-24 rounded-lg w-3/5 mx-auto" />
+    <Skeleton className="mt-4 h-24 rounded-lg w-3/5 mx-auto" />
+    <Skeleton className="mt-4 h-24 rounded-lg w-3/5 mx-auto" />
   </>
 )
 
@@ -273,7 +272,7 @@ export const PostLoading = () => (
     aria-label="데이터 불러오는중"
   >
     <div className="flex justify-between items-center">
-      <div className="h-12 bg-pulse rounded w-48"></div>
+      <Skeleton className="h-12 w-48" />
     </div>
     <PostLoadingInner />
   </div>
@@ -337,7 +336,13 @@ export const PostDetail = ({
         )}
       >
         <Link href={`/@${post.author.handle}`} className="flex gap-x-2 items-center">
-          <Image src={post.author.avatar} width={48} height={48} className="rounded-full" alt="" />
+          <CustomImage
+            src={post.author.avatar}
+            width={48}
+            height={48}
+            className="rounded-full"
+            alt=""
+          />
           <div className="flex flex-col justify-center">
             <div className="text-title-color">{post.author.name}</div>
             <TimeDynamic
@@ -379,7 +384,7 @@ export const PostDetail = ({
             >
               {attachments.image.map((image, index) => (
                 <SwiperSlide key={index}>
-                  <Image
+                  <CustomImage
                     className="rounded"
                     key={index}
                     src={image?.url ?? ''}

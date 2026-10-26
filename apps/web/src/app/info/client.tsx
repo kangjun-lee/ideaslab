@@ -2,11 +2,12 @@
 
 import ReactMarkdown from 'react-markdown'
 
+import { Skeleton } from '~/components/common'
 import { MainLayout } from '~/layouts'
 import { trpc } from '~/utils'
 
 const InfoPage = () => {
-  const { data: info } = trpc.info.serviceInfo.useQuery(undefined, {
+  const { data: info, isLoading } = trpc.info.serviceInfo.useQuery(undefined, {
     refetchOnMount: false,
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
@@ -19,9 +20,19 @@ const InfoPage = () => {
       showTitle
       tinyContainer
     >
-      <div className="markdown">
-        <ReactMarkdown>{info ?? ''}</ReactMarkdown>
-      </div>
+      {isLoading || !info ? (
+        <div className="space-y-4">
+          <Skeleton className="h-8 w-1/3" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-5/6" />
+          <Skeleton className="h-4 w-4/6" />
+          <Skeleton className="h-32 w-full mt-4" />
+        </div>
+      ) : (
+        <div className="markdown">
+          <ReactMarkdown>{info}</ReactMarkdown>
+        </div>
+      )}
     </MainLayout>
   )
 }

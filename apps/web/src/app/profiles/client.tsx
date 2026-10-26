@@ -9,8 +9,9 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 
 import type { OutputTypes } from '@ideaslab/server'
 
+import { Skeleton } from '~/components/common/skeleton'
 import { TagFilter } from '~/components/common/tag-filter'
-import { ProfileView } from '~/components/profile'
+import { ProfileView, ProfileViewSkeleton } from '~/components/profile'
 import { useUser } from '~/hooks'
 import { useQueryState } from '~/hooks/useQueryState'
 import { MainLayout } from '~/layouts'
@@ -82,31 +83,42 @@ const ProfilesPage = () => {
         selected={order}
         useShowAll={false}
       />
-      <TagFilter
-        className="mt-4"
-        data={roles?.map(({ name, id }: { name: string; id: number }) => ({
-          label: name,
-          value: id,
-        }))}
-        onSelect={(value) => setSelectedRole(value)}
-        selected={selectedRole}
-      />
+      {!roles ? (
+        <div className="flex gap-2 py-2 overflow-x-hidden mt-4">
+          <Skeleton className="h-8 w-16 rounded-full" />
+          <Skeleton className="h-8 w-24 rounded-full" />
+          <Skeleton className="h-8 w-20 rounded-full" />
+          <Skeleton className="h-8 w-16 rounded-full" />
+        </div>
+      ) : (
+        <TagFilter
+          className="mt-4"
+          data={roles?.map(({ name, id }: { name: string; id: number }) => ({
+            label: name,
+            value: id,
+          }))}
+          onSelect={(value) => setSelectedRole(value)}
+          selected={selectedRole}
+        />
+      )}
 
       <InfiniteScroll
         className="h-full w-11/12 mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-4"
         next={fetchNextPage}
         dataLength={profiles?.pages.reduce((prev, cur) => prev + cur.length, 0) ?? 0}
         hasMore={hasNextPage ?? false}
+        scrollThreshold={0.7}
         loader={
-          <div className="w-full text-subtitle-color text-lg font-bold">
-            데이터를 불러오고 있어요
-          </div>
+          <>
+            <ProfileViewSkeleton />
+            <ProfileViewSkeleton />
+            <ProfileViewSkeleton />
+            <ProfileViewSkeleton />
+          </>
         }
       >
         {isLoading ? (
-          new Array(40)
-            .fill({})
-            .map((_, index) => <div key={index} className={`h-48 bg-pulse rounded w-full`} />)
+          new Array(12).fill({}).map((_, index) => <ProfileViewSkeleton key={index} />)
         ) : (
           <>
             {profiles?.pages.map((page) =>

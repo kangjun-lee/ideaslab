@@ -4,6 +4,7 @@ import { XMarkIcon } from '@heroicons/react/24/outline'
 import classNames from 'classnames'
 
 import { Button } from './button'
+import { Skeleton } from './skeleton'
 import { TransitionChild } from './transition'
 
 interface DialogContext {
@@ -73,7 +74,7 @@ const DialogLoading = ({ children }: { children?: ReactNode }) => {
           aria-label="데이터 불러오는중"
         >
           <div className="flex justify-between items-center">
-            <div className="h-12 bg-pulse rounded w-48"></div>
+            <Skeleton className="h-12 w-48" />
             <Button variant="subtle" onClick={close} forIcon>
               <XMarkIcon width={24} height={24} />
             </Button>

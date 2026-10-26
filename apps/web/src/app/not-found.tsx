@@ -1,10 +1,9 @@
 'use client'
 
-import Image from 'next/image'
 import Link from 'next/link'
 
 import NotFoundImage from '~/assets/not-found.svg'
-import { ButtonLink } from '~/components/common'
+import { ButtonLink, CustomImage } from '~/components/common'
 import { MainLayout } from '~/layouts'
 
 const NotFoundPage = () => {
@@ -15,7 +14,7 @@ const NotFoundPage = () => {
     >
       <div className="text-center flex items-center justify-center flex-col h-full absolute left-0 right-0 top-0 px-4">
         <div className="w-48">
-          <Image alt="" src={NotFoundImage} />
+          <CustomImage alt="" src={NotFoundImage} />
         </div>
         <div className="font-bold text-title-color text-lg mt-4">페이지를 찾지 못하였어요</div>
         <div className="text-description-color">

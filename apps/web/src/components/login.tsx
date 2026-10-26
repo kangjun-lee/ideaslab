@@ -1,10 +1,9 @@
 import { useCallback } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { toast } from 'react-hot-toast'
 
 import ForbiddenImage from '~/assets/forbidden.svg'
-import { Button, Dialog, PinInput } from '~/components/common'
+import { Button, CustomImage, Dialog, PinInput } from '~/components/common'
 import { ButtonLink } from '~/components/common'
 import { useDisclosure } from '~/hooks'
 import { trpc } from '~/utils'
@@ -67,7 +66,7 @@ export const MemberOnlyContent = ({ name }: { name: string }) => {
       </Dialog>
       <div className="text-center flex items-center justify-center flex-col h-full absolute left-0 right-0 top-0 px-4">
         <div className="w-48">
-          <Image alt="" src={ForbiddenImage} />
+          <CustomImage alt="" src={ForbiddenImage} />
         </div>
         <div className="font-bold text-title-color text-lg mt-4">
           아이디어스랩 회원만 볼 수 있는 {name}이에요

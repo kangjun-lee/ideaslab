@@ -5,7 +5,7 @@ import type { NextPage } from 'next'
 import { InformationCircleIcon, LightBulbIcon } from '@heroicons/react/24/outline'
 import classNames from 'classnames'
 
-import { Calendar, Tab } from '~/components/common'
+import { Calendar, Skeleton, Tab } from '~/components/common'
 import { Select } from '~/components/form'
 import { SettingLayout } from '~/layouts'
 import { timeShortFormat, trpc } from '~/utils'
@@ -53,22 +53,30 @@ const ValueCard = ({
 )
 
 const GuildActivity = () => {
-  const { data } = trpc.statistics.basic.useQuery()
+  const { data, isLoading } = trpc.statistics.basic.useQuery()
 
   return (
     <div className="grid grid-flow-row grid-cols-2 gap-4">
       <ValueCard
         className="border-t-blue-500 dark:border-t-blue-600 border-t-4"
         name="아이디어스 랩 가입일"
-        value={data?.joinAt ? fullTimeFormat(data.joinAt) : '불러오는 중'}
+        value={
+          isLoading || !data?.joinAt ? (
+            <Skeleton className="h-6 w-36" />
+          ) : (
+            fullTimeFormat(data.joinAt)
+          )
+        }
       />
       <ValueCard
         className="border-t-primary-500 dark:border-t-primary-600 border-t-4"
         name="아이디어스 랩과 함께한지"
         value={
-          data?.joinAt
-            ? `${Math.floor((new Date().getTime() - data.joinAt.getTime()) / (1000 * 3600 * 24))}일`
-            : '불러오는 중'
+          isLoading || !data?.joinAt ? (
+            <Skeleton className="h-6 w-20" />
+          ) : (
+            `${Math.floor((new Date().getTime() - data.joinAt.getTime()) / (1000 * 3600 * 24))}일`
+          )
         }
       />
     </div>
@@ -114,17 +122,25 @@ const MessageLog = () => {
         <ValueCard
           name="총 전송한 메시지 수"
           value={
-            isLoading ? '불러오는 중' : data?.all ? `${data?.all}개` : '전송한 메시지가 없습니다.'
+            isLoading ? (
+              <Skeleton className="h-6 w-20" />
+            ) : data?.all ? (
+              `${data?.all}개`
+            ) : (
+              '전송한 메시지가 없습니다.'
+            )
           }
         />
         <ValueCard
           name="오늘 전송한 메시지 수"
           value={
-            isLoading
-              ? '불러오는 중'
-              : data?.today && data?.today !== 0
-              ? `${data.today}개`
-              : '전송한 메시지가 없습니다.'
+            isLoading ? (
+              <Skeleton className="h-6 w-20" />
+            ) : data?.today && data?.today !== 0 ? (
+              `${data.today}개`
+            ) : (
+              '전송한 메시지가 없습니다.'
+            )
           }
         />
       </div>
@@ -190,21 +206,25 @@ const VoiceChat = () => {
         <ValueCard
           name="총 통화방 사용시간"
           value={
-            isLoading
-              ? '불러오는 중'
-              : data?.all
-              ? formatMinutes(Math.floor(data.all / 60))
-              : '사용기록이 없습니다'
+            isLoading ? (
+              <Skeleton className="h-6 w-24" />
+            ) : data?.all ? (
+              formatMinutes(Math.floor(data.all / 60))
+            ) : (
+              '사용기록이 없습니다'
+            )
           }
         />
         <ValueCard
           name="오늘 통화방 사용시간"
           value={
-            isLoading
-              ? '불러오는 중'
-              : data?.today != null && data.today > 0
-              ? formatMinutes(Math.floor(data.today / 60))
-              : '사용기록이 없습니다'
+            isLoading ? (
+              <Skeleton className="h-6 w-24" />
+            ) : data?.today != null && data.today > 0 ? (
+              formatMinutes(Math.floor(data.today / 60))
+            ) : (
+              '사용기록이 없습니다'
+            )
           }
         />
       </div>
@@ -250,7 +270,10 @@ const VoiceChat = () => {
           </div>
           <div className="mt-2 text-description-color">
             {isLoadingFocusData || !focusData ? (
-              <div>불러오는 중</div>
+              <div className="space-y-2">
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+              </div>
             ) : focusData.length < 1 ? (
               '해당 날짜에 사용한 기록이 존재하지 않습니다'
             ) : (

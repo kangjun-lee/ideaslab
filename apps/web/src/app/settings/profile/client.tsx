@@ -10,7 +10,7 @@ import toast from 'react-hot-toast'
 
 import { authUpdateProfileValidator, z } from '@ideaslab/validator'
 
-import { Button, GripVerticalIcon } from '~/components/common'
+import { Button, GripVerticalIcon, Skeleton } from '~/components/common'
 import { Form, FormBlock, FormFieldBuilder, Input, Select, Textarea } from '~/components/form'
 import { useForm, UseFormRegister, useUser } from '~/hooks'
 import { SettingLayout } from '~/layouts'
@@ -62,107 +62,128 @@ const ProfileSetting: NextPage = () => {
 
   return (
     <SettingLayout title="프로필 설정" guard="authOnly">
-      <Form form={form} className="pt-4 md:pt-0 md:col-span-9 flex flex-col gap-y-4">
-        <Input
-          label="디스코드 유저 정보"
-          description="연결된 디스코드 계정의 정보에요."
-          disabled={true}
-          value={`${profile?.username}`}
-        />
-        <Input
-          label="닉네임"
-          description="아이디어스랩에서 사용하게 될 닉네임이에요. 알파벳, 한글, 숫자, 특수문자를 사용할 수 있어요"
-          {...registerForm('name')}
-        />
-        <Input
-          label="핸들"
-          description="프로필 URL에서 사용될 문자에요. 언제든 변경할 수 있어요. 알파벳, 숫자만 사용 가능합니다"
-          prefix="https://ideaslab.kr/@"
-          {...registerForm('handle')}
-        />
-        <Textarea
-          label="자기소개"
-          description="간단하게 소개 문구를 입력해주세요!"
-          placeholder="예시) 안녕하세요! 게임개발을 하고있는 ??라고 합니다."
-          {...registerForm('introduce')}
-        />
-        <Links control={control} register={registerForm} error={errors.links?.message ?? ''} />
-        <FormBlock
-          label="역할"
-          description="본인이 창작하는 분야를 선택해주세요. 여러개 선택할 수 있으며 선택하지 않아도 괜찮아요. (선택한 모든 분야의 창작활동을 하지 않는 한, 모든 역할을 선택하지 마세요. 장난이라 판단될 경우 경고 및 차단조치가 이루어질 수 있어요)"
-        >
-          <FormFieldBuilder name="roles">
-            {({ field: { value, onChange } }) => (
-              <div className="flex gap-3 flex-wrap">
-                {artistRoles?.map((role: { id: number; name: string }) => (
-                  <div
-                    key={role.id}
-                    className={classNames(
-                      'tag hover',
-                      (value ?? []).includes(role.id) && 'primary',
-                    )}
-                    onClick={() =>
-                      onChange(
-                        (value ?? []).includes(role.id)
-                          ? value.filter((item: number) => item !== role.id)
-                          : [...((value as unknown as number[]) ?? []), role.id],
-                      )
-                    }
-                  >
-                    {role.name}
+      {!profile ? (
+        <div className="pt-4 md:pt-0 md:col-span-9 flex flex-col gap-y-4">
+          <Skeleton className="h-16 w-full rounded-lg" />
+          <Skeleton className="h-16 w-full rounded-lg" />
+          <Skeleton className="h-16 w-full rounded-lg" />
+          <Skeleton className="h-28 w-full rounded-lg" />
+          <Skeleton className="h-32 w-full rounded-lg" />
+          <Skeleton className="h-20 w-full rounded-lg" />
+          <Skeleton className="h-16 w-full rounded-lg" />
+          <Skeleton className="h-16 w-full rounded-lg" />
+        </div>
+      ) : (
+        <Form form={form} className="pt-4 md:pt-0 md:col-span-9 flex flex-col gap-y-4">
+          <Input
+            label="디스코드 유저 정보"
+            description="연결된 디스코드 계정의 정보에요."
+            disabled={true}
+            value={`${profile?.username}`}
+          />
+          <Input
+            label="닉네임"
+            description="아이디어스랩에서 사용하게 될 닉네임이에요. 알파벳, 한글, 숫자, 특수문자를 사용할 수 있어요"
+            {...registerForm('name')}
+          />
+          <Input
+            label="핸들"
+            description="프로필 URL에서 사용될 문자에요. 언제든 변경할 수 있어요. 알파벳, 숫자만 사용 가능합니다"
+            prefix="https://ideaslab.kr/@"
+            {...registerForm('handle')}
+          />
+          <Textarea
+            label="자기소개"
+            description="간단하게 소개 문구를 입력해주세요!"
+            placeholder="예시) 안녕하세요! 게임개발을 하고있는 ??라고 합니다."
+            {...registerForm('introduce')}
+          />
+          <Links control={control} register={registerForm} error={errors.links?.message ?? ''} />
+          <FormBlock
+            label="역할"
+            description="본인이 창작하는 분야를 선택해주세요. 여러개 선택할 수 있으며 선택하지 않아도 괜찮아요. (선택한 모든 분야의 창작활동을 하지 않는 한, 모든 역할을 선택하지 마세요. 장난이라 판단될 경우 경고 및 차단조치가 이루어질 수 있어요)"
+          >
+            <FormFieldBuilder name="roles">
+              {({ field: { value, onChange } }) =>
+                !artistRoles ? (
+                  <div className="flex gap-2">
+                    <Skeleton className="h-7 w-16 rounded-full" />
+                    <Skeleton className="h-7 w-20 rounded-full" />
+                    <Skeleton className="h-7 w-24 rounded-full" />
                   </div>
-                ))}
-              </div>
+                ) : (
+                  <div className="flex gap-3 flex-wrap">
+                    {artistRoles?.map((role: { id: number; name: string }) => (
+                      <div
+                        key={role.id}
+                        className={classNames(
+                          'tag hover',
+                          (value ?? []).includes(role.id) && 'primary',
+                        )}
+                        onClick={() =>
+                          onChange(
+                            (value ?? []).includes(role.id)
+                              ? value.filter((item: number) => item !== role.id)
+                              : [...((value as unknown as number[]) ?? []), role.id],
+                          )
+                        }
+                      >
+                        {role.name}
+                      </div>
+                    ))}
+                  </div>
+                )
+              }
+            </FormFieldBuilder>
+          </FormBlock>
+          <FormFieldBuilder name="profileVisible">
+            {({ field: { name, onChange, value }, error }) => (
+              <Select
+                label="프로필 공개범위"
+                description="프로필을 공개할지/비공개로 할지 설정할 수 있어요."
+                options={[
+                  { label: '공개', value: 'Public' },
+                  {
+                    label: '맴버 전용 (오직 아이디어스랩 회원만 프로필을 확인할 수 있어요)',
+                    value: 'MemberOnly',
+                  },
+                ]}
+                value={value}
+                name={name}
+                onChange={onChange}
+                error={error}
+              />
             )}
           </FormFieldBuilder>
-        </FormBlock>
-        <FormFieldBuilder name="profileVisible">
-          {({ field: { name, onChange, value }, error }) => (
-            <Select
-              label="프로필 공개범위"
-              description="프로필을 공개할지/비공개로 할지 설정할 수 있어요."
-              options={[
-                { label: '공개', value: 'Public' },
-                {
-                  label: '맴버 전용 (오직 아이디어스랩 회원만 프로필을 확인할 수 있어요)',
-                  value: 'MemberOnly',
-                },
-              ]}
-              value={value}
-              name={name}
-              onChange={onChange}
-              error={error}
-            />
-          )}
-        </FormFieldBuilder>
-        <FormFieldBuilder name="defaultVisible">
-          {({ field: { name, onChange, value }, error }) => (
-            <Select
-              label="기본 갤러리 공개범위"
-              description="갤러리에 글을 올릴 때의 기본 공개범위를 설정해요. (글을 올린 후 언제든지 변경할 수 있어요)"
-              options={[
-                { label: '공개', value: 'Public' },
-                {
-                  label: '맴버 전용 (오직 아이디어스랩 회원만 글을 확인할 수 있어요)',
-                  value: 'MemberOnly',
-                },
-              ]}
-              value={value}
-              name={name}
-              onChange={onChange}
-              error={error}
-            />
-          )}
-        </FormFieldBuilder>
-        <div className="flex justify-end gap-x-2">
-          <Button disabled={!isDirty} onClick={() => reset()}>
-            취소
-          </Button>
-          <Button variant="primary" type="submit" disabled={!isDirty} loading={isSubmitting}>
-            저장
-          </Button>
-        </div>
-      </Form>
+          <FormFieldBuilder name="defaultVisible">
+            {({ field: { name, onChange, value }, error }) => (
+              <Select
+                label="기본 갤러리 공개범위"
+                description="갤러리에 글을 올릴 때의 기본 공개범위를 설정해요. (글을 올린 후 언제든지 변경할 수 있어요)"
+                options={[
+                  { label: '공개', value: 'Public' },
+                  {
+                    label: '맴버 전용 (오직 아이디어스랩 회원만 글을 확인할 수 있어요)',
+                    value: 'MemberOnly',
+                  },
+                ]}
+                value={value}
+                name={name}
+                onChange={onChange}
+                error={error}
+              />
+            )}
+          </FormFieldBuilder>
+          <div className="flex justify-end gap-x-2">
+            <Button disabled={!isDirty} onClick={() => reset()}>
+              취소
+            </Button>
+            <Button variant="primary" type="submit" disabled={!isDirty} loading={isSubmitting}>
+              저장
+            </Button>
+          </div>
+        </Form>
+      )}
     </SettingLayout>
   )
 }

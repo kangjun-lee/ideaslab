@@ -1,7 +1,6 @@
 'use client'
 
 import { useMemo } from 'react'
-import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import classNames from 'classnames'
 import InfiniteScroll from 'react-infinite-scroll-component'
@@ -9,6 +8,7 @@ import Masonry from 'react-masonry-css'
 
 import type { OutputTypes } from '@ideaslab/server'
 
+import { CustomImage, Skeleton } from '~/components/common'
 import { MemberOnlyContent } from '~/components/login'
 import { PostDetailModalWrapper, PostView } from '~/components/post'
 import { useRandomArray } from '~/hooks/useRandom'
@@ -84,10 +84,31 @@ const MemberDetailPage = ({ profileHandle }: Props) => {
       {status === 'forbidden' && <MemberOnlyContent name="프로필" />}
       <div className="flex flex-col gap-y-12 lg:flex-row gap-x-12">
         <div className="relative w-full lg:max-w-xs flex justify-center lg:block">
-          {status === 'loading' && <div className={`h-48 bg-pulse rounded w-full`}></div>}
+          {status === 'loading' && (
+            <div className="flex flex-col lg:card items-center justify-center px-4 py-6 w-full gap-y-3">
+              <Skeleton className="w-32 h-32 rounded-full" />
+              <Skeleton className="h-6 w-32 mt-2" />
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-4 w-44 mt-2" />
+              <div className="flex gap-2 mt-2">
+                <Skeleton className="h-5 w-16 rounded-full" />
+                <Skeleton className="h-5 w-16 rounded-full" />
+              </div>
+              <div className="flex justify-around w-full mt-4">
+                <div className="flex flex-col items-center gap-1">
+                  <Skeleton className="h-4 w-12" />
+                  <Skeleton className="h-4 w-8" />
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                  <Skeleton className="h-4 w-12" />
+                  <Skeleton className="h-4 w-16" />
+                </div>
+              </div>
+            </div>
+          )}
           {status === 'loaded' && profile && (
             <div className="flex flex-col lg:card items-center justify-center px-4 py-6 w-full">
-              <Image
+              <CustomImage
                 alt=""
                 src={profile?.avatar ?? ''}
                 width={128}
@@ -144,20 +165,23 @@ const MemberDetailPage = ({ profileHandle }: Props) => {
                 next={fetchNextPage}
                 dataLength={posts?.pages.reduce((prev, cur) => prev + cur.length, 0) ?? 0}
                 hasMore={hasNextPage ?? false}
+                scrollThreshold={0.7}
                 loader={
-                  <div className="w-full text-subtitle-color text-lg font-bold">
-                    데이터를 불러오고 있어요
+                  <div className="my-masonry-grid mt-4 flex gap-4 w-full">
+                    <Skeleton className="h-64 w-full rounded-lg" />
+                    <Skeleton className="h-48 w-full rounded-lg" />
+                    <Skeleton className="h-72 w-full rounded-lg" />
                   </div>
                 }
               >
                 <Masonry
-                  className={classNames('my-masonry-grid flex gap-4', isLoading && 'animate-pulse')}
+                  className="my-masonry-grid flex gap-4"
                   columnClassName="my-masonry-grid_column flex flex-col gap-y-3"
                   breakpointCols={breakpointColumns}
                 >
                   {status === 'loading'
                     ? loadingItemList.map((size, index) => (
-                        <div key={index} className={`${size} bg-pulse rounded w-full`}></div>
+                        <Skeleton key={index} className={classNames(size, 'w-full')} />
                       ))
                     : posts?.pages.map((page) =>
                         page.map((post) => (

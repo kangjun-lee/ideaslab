@@ -10,6 +10,8 @@ import { Unarray } from '~/types/utils'
 import { trpc } from '~/utils'
 import { ChannelType } from '~/utils/discord'
 
+import { Skeleton } from './common/skeleton'
+
 export type ChannelSelectorProps = {
   value?: string | null
   onChange?: (value: string) => void
@@ -45,7 +47,7 @@ export const ChannelSelector = ({
     ChannelType.GuildForum,
   ],
 }: ChannelSelectorProps) => {
-  const { data } = trpc.info.channels.useQuery()
+  const { data, isLoading } = trpc.info.channels.useQuery()
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState<Channel>()
 
@@ -80,6 +82,15 @@ export const ChannelSelector = ({
       ) ?? [],
     [category, data, filterType, query],
   )
+
+  if (isLoading) {
+    return (
+      <div className="w-full">
+        {label && <div className="text-sm mb-1">{label}</div>}
+        <Skeleton className="h-10 w-full rounded-lg" />
+      </div>
+    )
+  }
 
   return (
     <Combobox value={selected} onChange={onSelect}>

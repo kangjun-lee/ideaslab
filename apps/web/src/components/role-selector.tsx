@@ -9,6 +9,8 @@ import type { OutputTypes } from '@ideaslab/server'
 import { Unarray } from '~/types/utils'
 import { trpc } from '~/utils'
 
+import { Skeleton } from './common/skeleton'
+
 export type ChannelSelectorProps = {
   value?: string | null
   onChange?: (value: string) => void
@@ -29,7 +31,7 @@ export const RoleSelector = ({
   label,
   error,
 }: ChannelSelectorProps) => {
-  const { data } = trpc.info.roles.useQuery()
+  const { data, isLoading } = trpc.info.roles.useQuery()
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState<Role>()
 
@@ -56,6 +58,15 @@ export const RoleSelector = ({
         .sort((a, b) => b.position - a.position) ?? [],
     [data, query],
   )
+
+  if (isLoading) {
+    return (
+      <div className="w-full">
+        {label && <div className="text-sm mb-1">{label}</div>}
+        <Skeleton className="h-10 w-full rounded-lg" />
+      </div>
+    )
+  }
 
   return (
     <Combobox value={selected} onChange={onSelect}>

@@ -6,7 +6,7 @@ import { toast } from 'react-hot-toast'
 import ReactMarkdown from 'react-markdown'
 
 import { ChannelSelector } from '~/components/channel-selector'
-import { Button } from '~/components/common'
+import { Button, Skeleton } from '~/components/common'
 import { FormBlock } from '~/components/form/form-block'
 import { SettingLayout } from '~/layouts'
 import { trpc } from '~/utils'
@@ -60,7 +60,20 @@ const ComponentsV2SettingPage: NextPage = () => {
   return (
     <SettingLayout title="Components V2 메시지" guard="adminOnly">
       {isLoading ? (
-        <div className="text-description-color">불러오는 중...</div>
+        <div className="flex flex-col gap-4">
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-28" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-48 w-full" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-32 w-full" />
+          </div>
+        </div>
       ) : (
         <div className="flex flex-col gap-4">
           <FormBlock

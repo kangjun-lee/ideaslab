@@ -5,6 +5,7 @@ import classNames from 'classnames'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import Masonry from 'react-masonry-css'
 
+import { Skeleton } from '~/components/common/skeleton'
 import { TagFilter } from '~/components/common/tag-filter'
 import { PostDetailModalWrapper, PostView } from '~/components/post'
 import { useUser } from '~/hooks'
@@ -54,16 +55,25 @@ const GalleryPage = () => {
 
   return (
     <MainLayout title="갤러리" description="서로의 작품을 올리고 공유해요" guard="default">
-      <TagFilter
-        data={
-          categories?.map(({ id, name }: { id: number; name: string }) => ({
-            label: name,
-            value: id,
-          })) ?? []
-        }
-        onSelect={(value) => setSelectedCategory(value)}
-        selected={selectedCategory}
-      />
+      {!categories ? (
+        <div className="flex gap-2 py-2 overflow-x-hidden">
+          <Skeleton className="h-8 w-16 rounded-full" />
+          <Skeleton className="h-8 w-20 rounded-full" />
+          <Skeleton className="h-8 w-24 rounded-full" />
+          <Skeleton className="h-8 w-16 rounded-full" />
+        </div>
+      ) : (
+        <TagFilter
+          data={
+            categories?.map(({ id, name }: { id: number; name: string }) => ({
+              label: name,
+              value: id,
+            })) ?? []
+          }
+          onSelect={(value) => setSelectedCategory(value)}
+          selected={selectedCategory}
+        />
+      )}
       <PostDetailModalWrapper baseUrl="/gallery">
         {({ showDetail }) => (
           <InfiniteScroll
@@ -71,23 +81,23 @@ const GalleryPage = () => {
             next={fetchNextPage}
             dataLength={posts?.pages.reduce((prev, cur) => prev + cur.length, 0) ?? 0}
             hasMore={hasNextPage ?? false}
+            scrollThreshold={0.7}
             loader={
-              <div className="w-full text-subtitle-color text-lg font-bold">
-                데이터를 불러오고 있어요
+              <div className="my-masonry-grid mt-4 flex gap-4 w-full">
+                <Skeleton className="h-64 w-full rounded-lg" />
+                <Skeleton className="h-48 w-full rounded-lg" />
+                <Skeleton className="h-72 w-full rounded-lg" />
               </div>
             }
           >
             <Masonry
-              className={classNames(
-                'my-masonry-grid mt-4 flex gap-4',
-                isLoading && 'animate-pulse',
-              )}
+              className="my-masonry-grid mt-4 flex gap-4"
               columnClassName="my-masonry-grid_column flex flex-col gap-y-3"
               breakpointCols={breakpointColumns}
             >
               {isLoading
                 ? loadingItemList.map((size, index) => (
-                    <div key={index} className={`${size} bg-pulse rounded w-full`}></div>
+                    <Skeleton key={index} className={classNames(size, 'w-full')} />
                   ))
                 : posts?.pages.map((page) =>
                     page.map((post) => (
