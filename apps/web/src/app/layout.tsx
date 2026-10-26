@@ -14,7 +14,10 @@ import 'swiper/css/effect-fade'
 import 'swiper/css/free-mode'
 import 'swiper/css/thumbs'
 
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://ideaslab.kr'
+
 export const metadata: Metadata = {
+  metadataBase: new URL(baseUrl),
   title: { default: '아이디어스랩', template: '%s | 아이디어스랩' },
   description: '창작자들을 위한 디스코드 커뮤니티',
   manifest: '/manifest.json',
@@ -24,6 +27,14 @@ export const metadata: Metadata = {
   },
   appleWebApp: { capable: true },
   openGraph: { type: 'website', locale: 'ko_KR', siteName: '아이디어스랩' },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
 }
 
 export const viewport: Viewport = { themeColor: '#8AC896' }

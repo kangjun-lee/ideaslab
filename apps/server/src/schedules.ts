@@ -1,6 +1,7 @@
 import { scheduleJob } from 'node-schedule'
 
-import { client } from './bot/base/client.js'
+import { client } from '~/bot/base/client'
+
 import { alertToNotVerifiedUser } from './service/auth.js'
 import { runAvatarSyncSafely } from './service/avatar-sync.js'
 import { updateAllLinkedRoleConnections } from './service/linked-roles.js'
@@ -27,7 +28,7 @@ export const setupSchedule = () => {
   })
 
   // Also repair stale avatars once after the bot has connected.
-  client.once('clientReady', () => {
+  client?.once?.('clientReady', () => {
     void runAvatarSyncSafely()
   })
 

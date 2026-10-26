@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react'
 import Image from 'next/image'
+import { notFound } from 'next/navigation'
 import classNames from 'classnames'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import Masonry from 'react-masonry-css'
@@ -65,11 +66,18 @@ const MemberDetailPage = ({ profileHandle }: Props) => {
     if (profileError?.data?.code === 'FORBIDDEN') {
       return 'forbidden'
     }
+    if (!isProfileLoading && !profile) {
+      return 'not_found'
+    }
     if (isLoading || isProfileLoading || !profile || !posts) {
       return 'loading'
     }
     return 'loaded'
   }, [isLoading, isProfileLoading, posts, profile, profileError?.data?.code])
+
+  if (status === 'not_found') {
+    notFound()
+  }
 
   return (
     <MainLayout title={profile?.name ?? '프로필 상세보기'} className="pt-6">

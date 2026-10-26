@@ -30,6 +30,9 @@ const GalleryDetailPage = ({ id }: { id: number }) => {
       {isLoading && <PostLoading />}
       {data && <PostDetail post={data} />}
       {error?.data?.code === 'FORBIDDEN' && <MemberOnlyContent name="게시글" />}
+      {!isLoading && !data && error?.data?.code !== 'FORBIDDEN' && (
+        <div className="text-center py-16 text-subtitle-color">게시글을 찾을 수 없습니다.</div>
+      )}
     </MainLayout>
   )
 }

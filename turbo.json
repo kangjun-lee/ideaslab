@@ -4,7 +4,8 @@
 		".env"
 	],
 	"globalEnv": [
-		"BACKEND_URL"
+		"BACKEND_URL",
+		"NODE_ENV"
 	],
 	"tasks": {
 		"build": {
@@ -31,6 +32,8 @@
 				"^build"
 			],
 			"outputs": [
+				".next/**",
+				"!.next/cache/**",
 				"dist/**",
 				"build/**"
 			]

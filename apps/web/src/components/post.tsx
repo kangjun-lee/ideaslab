@@ -153,6 +153,36 @@ export const PostView2 = ({
   )
 }
 
+const shimmer = (w: number, h: number) => `
+<svg width="${w}" height="${h}" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <linearGradient id="g">
+      <stop stop-color="#1a2438" offset="20%" /> 
+      <stop stop-color="#45475a" offset="50%" /> 
+      <stop stop-color="#1a2438" offset="70%" />
+    </linearGradient>
+  </defs>
+  <rect width="${w}" height="${h}" fill="#1a2438" />
+  <rect id="r" width="${w}" height="${h}" fill="url(#g)" />
+  <animate xlink:href="#r" attributeName="x" from="-${w}" to="${w}" dur="1.2s" repeatCount="indefinite" />
+</svg>`
+
+const toBase64 = (str: string) => {
+  if (typeof window === 'undefined') {
+    return Buffer.from(str).toString('base64')
+  }
+
+  const bytes = new TextEncoder().encode(str)
+  let binary = ''
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i])
+  }
+  return window.btoa(binary)
+}
+
+const getBlurDataURL = (w: number, h: number) =>
+  `data:image/svg+xml;base64,${toBase64(shimmer(w, h))}`
+
 export const PostView = ({
   post,
   onClick,
@@ -190,6 +220,8 @@ export const PostView = ({
             src={image.url}
             width={image.width}
             height={image.height}
+            placeholder="blur"
+            blurDataURL={getBlurDataURL(image.width, image.height)}
             alt=""
             className="rounded-lg"
           />
@@ -212,7 +244,7 @@ export const PostView = ({
         </div>
       </Link>
       <div className="text-title-color">{post.title}</div>
-      <div className="text-description-color text-sm mb-2 break-words text-ellipsis">
+      <div className="text-description-color text-sm mb-2 wrap-break-word text-ellipsis">
         {post.content}
       </div>
       <div className="flex">
