@@ -58,7 +58,7 @@ const ComponentsV2SettingPage: NextPage = () => {
   }
 
   return (
-    <SettingLayout title="Components V2 메시지" guard="adminOnly">
+    <SettingLayout title="메세지 보내기" guard="adminOnly">
       {isLoading ? (
         <div className="flex flex-col gap-4">
           <div className="space-y-2">

@@ -73,8 +73,8 @@ const navList: NavType[] = [
       },
       {
         url: '/settings/manager/components-v2',
-        name: 'Components V2 메시지',
-        description: 'Markdown 메시지를 Discord Components V2로 전송합니다.',
+        name: '메세지 보내기',
+        description: 'Markdown 메시지를 봇을 통해 전송합니다.',
         icon: MegaphoneIcon,
       },
     ],
