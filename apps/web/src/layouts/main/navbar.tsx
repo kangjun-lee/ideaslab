@@ -1,5 +1,4 @@
 import React from 'react'
-import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Disclosure } from '@headlessui/react'
@@ -15,10 +14,7 @@ import {
 } from '~/components/common'
 import { useLoadUserData } from '~/hooks/useAuth'
 
-const ThemeChanger = dynamic(
-  import('./theme').then((d) => d.ThemeChanger),
-  { ssr: false },
-)
+import { ThemeChanger } from './theme'
 
 const NavItem = ({
   name,

@@ -2,11 +2,10 @@ import React, { useCallback } from 'react'
 import { MoonIcon, SunIcon } from '@heroicons/react/24/outline'
 
 import { Button } from '~/components/common'
-import { useCurrentTheme, useTheme } from '~/hooks/useTheme'
+import { useTheme } from '~/hooks/useTheme'
 
 export const ThemeChanger = () => {
   const [theme, setTheme] = useTheme()
-  const currentTheme = useCurrentTheme()
 
   const toggleTheme = useCallback(() => {
     if (theme !== 'system') {
@@ -27,13 +26,10 @@ export const ThemeChanger = () => {
       forIcon
       onClick={toggleTheme}
       aria-label="테마 변경"
-      className="bg-opacity-0 backdrop-blur-md"
+      className="bg-white/0 backdrop-blur-md"
     >
-      {currentTheme === 'dark' ? (
-        <SunIcon width={18} height={18} />
-      ) : (
-        <MoonIcon width={18} height={18} />
-      )}
+      <SunIcon className="hidden dark:block" width={18} height={18} />
+      <MoonIcon className="block dark:hidden" width={18} height={18} />
     </Button>
   )
 }
