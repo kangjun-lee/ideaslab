@@ -7,6 +7,7 @@ import http from 'http'
 import { exit } from 'process'
 
 import { createContext } from '~/api/base/context'
+import { corsOrigin } from '~/api/base/cors'
 import { client, initClient } from '~/bot/base/client'
 import {
   handleLinkedRolesCallback,
@@ -95,8 +96,9 @@ if (process.argv.includes('--register-metadata')) {
       // enable CORS
       res.setHeader(
         'Access-Control-Allow-Origin',
-        process.env.NODE_ENV === 'development' ? '*' : config.webURL,
+        corsOrigin(req.headers.origin, config.webURL, process.env.NODE_ENV === 'development'),
       )
+      res.setHeader('Vary', 'Origin')
       res.setHeader('Access-Control-Request-Method', '*')
       res.setHeader('Access-Control-Allow-Methods', '*')
       res.setHeader('Access-Control-Max-Age', '86400')
@@ -110,7 +112,10 @@ if (process.argv.includes('--register-metadata')) {
       // accepts OPTIONS
       if (req.method === 'OPTIONS') {
         res.setHeader('Cache-Control', 'public, max-age=86400')
-        res.setHeader('Vary', 'Access-Control-Request-Headers, Access-Control-Request-Method')
+        res.setHeader(
+          'Vary',
+          'Origin, Access-Control-Request-Headers, Access-Control-Request-Method',
+        )
         res.writeHead(200)
         return res.end()
       }
