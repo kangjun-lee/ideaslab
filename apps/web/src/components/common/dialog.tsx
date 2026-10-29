@@ -41,7 +41,12 @@ const DialogContent = ({
   size?: 'full' | 'auto'
 }) => {
   return (
-    <div className="fixed inset-0 flex items-center justify-center overflow-y-hidden sm:p-5">
+    <div
+      className={classNames(
+        'fixed inset-0 flex items-center justify-center overflow-y-hidden',
+        size === 'full' ? 'px-4 py-[10dvh] sm:px-6' : 'sm:p-5',
+      )}
+    >
       <div
         className={classNames(
           'flex items-center justify-center text-center h-full min-h-full w-full',
@@ -51,12 +56,19 @@ const DialogContent = ({
         <TransitionChild type="modal">
           <HDialog.Panel
             className={classNames(
-              'bg-base text-base-color max-w-full lg:max-w-4xl transform text-left align-middle shadow-xl backdrop-blur-md transition-all flex flex-col',
-              size === 'full' && 'w-full h-full sm:rounded-xl',
+              'bg-base text-base-color max-w-full lg:max-w-4xl transform text-left align-middle shadow-xl transition-transform motion-reduce:transition-none flex flex-col',
+              size === 'full' && 'w-full h-full rounded-xl',
               size === 'auto' && 'rounded-xl',
             )}
           >
-            <div className="px-8 py-8 h-full overflow-y-hidden">{children}</div>
+            <div
+              className={classNames(
+                'px-8 py-8 overflow-y-hidden',
+                size === 'full' && 'flex h-full min-h-0 flex-col',
+              )}
+            >
+              {children}
+            </div>
           </HDialog.Panel>
         </TransitionChild>
       </div>
@@ -94,17 +106,24 @@ export const Dialog = ({
   isOpen,
   close,
   children,
+  blurBackdrop = false,
 }: {
   isOpen: boolean
   close: () => void
   children: ReactNode
+  blurBackdrop?: boolean
 }) => {
   return (
     <dialogContext.Provider value={{ isOpen, close }}>
       <Transition appear show={isOpen} as={Fragment}>
         <HDialog as="div" className="relative z-10" onClose={close}>
           <TransitionChild type="overlay">
-            <div className="fixed inset-0 bg-black bg-opacity-50" />
+            <div
+              className={classNames(
+                'fixed inset-0',
+                blurBackdrop ? 'bg-black/30 backdrop-blur-md' : 'bg-black/50',
+              )}
+            />
           </TransitionChild>
           {children}
         </HDialog>
