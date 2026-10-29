@@ -13,7 +13,7 @@ const Input = forwardRef<HTMLInputElement, React.PropsWithoutRef<JSX.IntrinsicEl
       <input
         ref={ref}
         type="number"
-        className="block default-ring border border-base-color w-10 h-10 rounded-lg dark:bg-gray-800 dark:text-gray-200 font-bold text-lg text-center no-spin"
+        className="block default-ring border border-(color:--color-muted) w-10 h-10 rounded-lg dark:bg-gray-800 dark:text-gray-200 font-bold text-lg text-center no-spin"
         {...props}
       />
     )
@@ -30,6 +30,18 @@ export const PinInput = ({ name, onEnterAll }: Props) => {
         <Input
           key={i}
           id={`${name}-${i}`}
+          onPaste={(evt) => {
+            evt.preventDefault()
+            const pin = evt.clipboardData.getData('text').trim()
+            if (!/^\d{6}$/.test(pin)) return
+
+            for (let index = 0; index < length; index++) {
+              const input = document.getElementById(`${name}-${index}`) as HTMLInputElement
+              input.value = pin[index]
+            }
+            evt.currentTarget.blur()
+            onEnterAll(pin)
+          }}
           onKeyDown={(evt) => {
             evt.preventDefault()
 
