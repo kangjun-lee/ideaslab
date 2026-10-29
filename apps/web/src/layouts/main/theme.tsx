@@ -22,12 +22,7 @@ export const ThemeChanger = () => {
     setTheme('dark')
   }, [setTheme, theme])
   return (
-    <Button
-      forIcon
-      onClick={toggleTheme}
-      aria-label="테마 변경"
-      className="bg-white/0 backdrop-blur-md"
-    >
+    <Button forIcon onClick={toggleTheme} aria-label="테마 변경" className="bg-transparent">
       <SunIcon className="hidden dark:block" width={18} height={18} />
       <MoonIcon className="block dark:hidden" width={18} height={18} />
     </Button>

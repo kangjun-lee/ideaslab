@@ -31,7 +31,9 @@ const GalleryDetailPage = ({ id }: { id: number }) => {
       {data && <PostDetail post={data} />}
       {error?.data?.code === 'FORBIDDEN' && <MemberOnlyContent name="게시글" />}
       {!isLoading && !data && error?.data?.code !== 'FORBIDDEN' && (
-        <div className="text-center py-16 text-subtitle-color">게시글을 찾을 수 없습니다.</div>
+        <div className="border-t border-(color:--color-rule) py-16 text-subtitle-color text-lg">
+          게시글을 찾을 수 없습니다.
+        </div>
       )}
     </MainLayout>
   )

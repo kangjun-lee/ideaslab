@@ -1,5 +1,4 @@
 import React, { ComponentProps, ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
-import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import classNames from 'classnames'
 import toast, { Toaster } from 'react-hot-toast'
@@ -94,9 +93,10 @@ export const MainLayout = ({
       <>
         {pageBack && <PageBack label={pageBack.label} to={pageBack.to} />}
         <h1 className={classNames('text-title-color font-bold text-4xl mt-2 mb-4')}>{title}</h1>
+        {description && <p className="text-description-color mb-6">{description}</p>}
       </>
     )
-  }, [pageBack, showTitle, title])
+  }, [description, pageBack, showTitle, title])
 
   const content = useMemo(() => {
     if (authConfirm) {
@@ -139,9 +139,16 @@ export const MainLayout = ({
       )
     }
 
-    if (isLoading) {
-      return <></>
+    if (isLoading && (guard === 'guestOnly' || guard === 'default')) {
+      return (
+        <>
+          {titleComponent}
+          {children}
+        </>
+      )
     }
+
+    if (isLoading) return <></>
 
     if ((guard === 'authOnly' || guard === 'unverifyOnly') && !profile.data) {
       return (
@@ -151,11 +158,9 @@ export const MainLayout = ({
             <div className="font-bold text-lg mt-2">
               현재 페이지는 로그인된 사용자만 이용할 수 있어요
             </div>
-            <Link href="/login">
-              <ButtonLink variant="light" className="mt-4">
-                로그인하기
-              </ButtonLink>
-            </Link>
+            <ButtonLink href="/login" variant="light" className="mt-4">
+              로그인하기
+            </ButtonLink>
           </CenterCard>
         </>
       )
@@ -180,11 +185,9 @@ export const MainLayout = ({
             <div className="font-bold text-lg mt-2">
               아이디어스랩을 이용하시려면 회원가입을 먼저 완료해주세요
             </div>
-            <Link href="/signup">
-              <ButtonLink variant="light" className="mt-4">
-                회원가입하기
-              </ButtonLink>
-            </Link>
+            <ButtonLink href="/signup" variant="light" className="mt-4">
+              회원가입하기
+            </ButtonLink>
           </CenterCard>
         </>
       )
@@ -204,11 +207,7 @@ export const MainLayout = ({
       <Navbar />
       <div
         id="main"
-        className={classNames(
-          'container mx-auto pb-4 px-4',
-          tinyContainer && 'max-w-4xl',
-          className,
-        )}
+        className={classNames('container mx-auto pb-12', tinyContainer && 'max-w-4xl', className)}
         style={{ paddingTop: 'calc(var(--nav-height) + 1rem)' }}
       >
         {content}

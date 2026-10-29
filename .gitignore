@@ -12,3 +12,4 @@ data/
 .claude/*.local.json
 .env
 .agents
+.hallmark/

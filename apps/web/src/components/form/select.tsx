@@ -35,7 +35,7 @@ const SelectContent = <T extends number | string>(
               <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                 <ChevronDownIcon
                   className={classNames(
-                    'h-5 w-5 text-gray-400 transition-all duration-300',
+                    'h-5 w-5 text-gray-400 transition-transform duration-300 motion-reduce:transition-none',
                     open && 'rotate-180',
                   )}
                   aria-hidden="true"

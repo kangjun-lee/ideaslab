@@ -91,20 +91,20 @@ const GallerySetting: NextPage = () => {
   return (
     <SettingLayout title="갤러리 설정" guard="adminOnly">
       {isLoading || !settings ? (
-        <div className="pt-4 md:pt-0 md:col-span-9 flex flex-col gap-y-4">
+        <div className="flex flex-col gap-y-5">
           <Skeleton className="h-20 w-full rounded-lg" />
           <Skeleton className="h-20 w-full rounded-lg" />
           <Skeleton className="h-20 w-full rounded-lg" />
         </div>
       ) : (
-        <Form form={form} className="pt-4 md:pt-0 md:col-span-9 flex flex-col gap-y-4">
+        <Form form={form} className="flex max-w-3xl flex-col gap-y-6">
           <FieldArray
             control={control}
             register={registerForm}
             error={errors.categories?.message ?? ''}
           />
-          <div className="flex justify-end gap-x-2">
-            <Button disabled={!isDirty} onClick={() => reset()}>
+          <div className="flex justify-end gap-x-2 border-t border-(color:--color-rule) pt-5">
+            <Button type="button" disabled={!isDirty} onClick={() => reset()}>
               취소
             </Button>
             <Button variant="primary" type="submit" disabled={!isDirty} loading={isSubmitting}>
@@ -135,9 +135,12 @@ const FieldArray = ({
     <Draggable key={item.id} index={index} draggableId={item.id}>
       {(provided, snapshot) => (
         <div
-          className={classNames('flex items-center card px-2 py-2 mb-2', {
-            'shadow-lg': snapshot.isDragging,
-          })}
+          className={classNames(
+            'mb-2 flex items-center rounded-[var(--radius-control)] bg-[var(--color-paper-2)] px-2 py-3',
+            {
+              'ring-2 ring-[var(--color-accent)]': snapshot.isDragging,
+            },
+          )}
           ref={provided.innerRef}
           {...provided.draggableProps}
         >
@@ -159,7 +162,13 @@ const FieldArray = ({
               )}
             </FormFieldBuilder>
           </div>
-          <Button variant="subtle" className="mr-2" forIcon onClick={() => remove(index)}>
+          <Button
+            type="button"
+            variant="subtle"
+            className="mr-2"
+            forIcon
+            onClick={() => remove(index)}
+          >
             <TrashIcon width={18} height={18} />
           </Button>
         </div>
@@ -173,6 +182,7 @@ const FieldArray = ({
       description="갤러리 카테고리를 설정하세요."
       right={
         <Button
+          type="button"
           variant="primary"
           onClick={() => append({ name: '', discordChannel: '', defaultOrder: 0 })}
         >
@@ -188,7 +198,7 @@ const FieldArray = ({
           {(provided) => (
             <div {...provided.droppableProps} ref={provided.innerRef}>
               {items}
-              {provided.placeholder?.toString()}
+              {provided.placeholder}
             </div>
           )}
         </Droppable>

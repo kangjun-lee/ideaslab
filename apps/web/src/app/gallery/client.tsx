@@ -17,9 +17,8 @@ import { trpc } from '~/utils'
 const LIMIT = 50
 
 const breakpointColumns = {
-  default: 5,
-  1500: 4,
-  1300: 3,
+  default: 4,
+  1300: 4,
   1100: 2,
   700: 2,
   500: 1,
@@ -55,6 +54,10 @@ const GalleryPage = () => {
 
   return (
     <MainLayout title="갤러리" description="서로의 작품을 올리고 공유해요" guard="default">
+      <header className="border-b border-(color:--color-rule) pb-8 mb-8 pt-8 md:pt-12">
+        <h1 className="text-5xl md:text-7xl leading-tight text-(color:--color-ink)">갤러리</h1>
+        <p className="text-lg text-(color:--color-muted) mt-3">서로의 작품을 올리고 공유해요</p>
+      </header>
       {!categories ? (
         <div className="flex gap-2 py-2 overflow-x-hidden">
           <Skeleton className="h-8 w-16 rounded-full" />
@@ -64,6 +67,7 @@ const GalleryPage = () => {
         </div>
       ) : (
         <TagFilter
+          className="!justify-start !mx-0 !max-w-none mb-8"
           data={
             categories?.map(({ id, name }: { id: number; name: string }) => ({
               label: name,
@@ -77,7 +81,7 @@ const GalleryPage = () => {
       <PostDetailModalWrapper baseUrl="/gallery">
         {({ showDetail }) => (
           <InfiniteScroll
-            className="h-full w-11/12 mx-auto"
+            className="h-full w-full"
             next={fetchNextPage}
             dataLength={posts?.pages.reduce((prev, cur) => prev + cur.length, 0) ?? 0}
             hasMore={hasNextPage ?? false}
@@ -91,8 +95,8 @@ const GalleryPage = () => {
             }
           >
             <Masonry
-              className="my-masonry-grid mt-4 flex gap-4"
-              columnClassName="my-masonry-grid_column flex flex-col gap-y-3"
+              className="my-masonry-grid mt-4 flex gap-6"
+              columnClassName="my-masonry-grid_column flex flex-col gap-y-6 min-w-0"
               breakpointCols={breakpointColumns}
             >
               {isLoading

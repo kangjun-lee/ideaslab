@@ -24,7 +24,7 @@ export const Tab = ({ list, children }: TabProps) => {
                 'focus:outline-none',
                 selected
                   ? 'bg-white dark:bg-white/[0.12] brightness-150 shadow dark:text-white font-bold'
-                  : 'text-gray-400 hover:text-gray-800 dark:hover:text-white',
+                  : 'text-description-color hover:text-title-color',
               )
             }
           >

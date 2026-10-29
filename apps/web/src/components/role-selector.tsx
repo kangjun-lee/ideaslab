@@ -91,7 +91,7 @@ export const RoleSelector = ({
                 width={20}
                 height={20}
                 className={classNames(
-                  'h-5 w-5 text-gray-400 transition-all duration-300',
+                  'h-5 w-5 text-gray-400 transition-transform duration-300 motion-reduce:transition-none',
                   open && 'rotate-180',
                 )}
                 aria-hidden="true"

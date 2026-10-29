@@ -12,7 +12,7 @@ import {
 } from '@heroicons/react/24/outline'
 import classNames from 'classnames'
 
-import { ButtonLink, CustomImage, Skeleton } from '~/components/common'
+import { CustomImage, Skeleton } from '~/components/common'
 import { useUser } from '~/hooks/useAuth'
 import { MainLayout } from '~/layouts'
 
@@ -92,12 +92,12 @@ export const SettingLayout = ({ children, ...mainLayoutProps }: Props) => {
   }, [pathname])
 
   return (
-    <MainLayout showTitle tinyContainer {...mainLayoutProps}>
-      <div className="mb-4 flex items-center">
+    <MainLayout showTitle {...mainLayoutProps}>
+      <div className="mb-8 flex flex-wrap items-center gap-4 border-b border-(color:--color-rule) pb-7">
         {profile?.avatar ? (
           <CustomImage
             src={profile.avatar}
-            className="rounded-full"
+            className="rounded-full ring-2 ring-[var(--color-rule)]"
             alt=""
             width={64}
             height={64}
@@ -105,7 +105,7 @@ export const SettingLayout = ({ children, ...mainLayoutProps }: Props) => {
         ) : (
           <Skeleton className="w-16 h-16 rounded-full shrink-0" />
         )}
-        <div className="ml-4 flex flex-row justify-between w-full items-center">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-4">
           <div className="flex flex-col">
             {!profile ? (
               <div className="flex flex-col gap-1.5">
@@ -114,60 +114,58 @@ export const SettingLayout = ({ children, ...mainLayoutProps }: Props) => {
               </div>
             ) : (
               <>
-                <div
-                  className="flex flex-col sm:flex-row sm:items-center gap-x-3 text-lg font-bold text-title-color"
-                  role="presentation"
-                >
-                  <div className="">{`${profile?.isAdmin ? ' [관리자]' : ''} ${
-                    profile?.name
-                  }`}</div>
-                  <div className="flex gap-x-3 sm:items-center">
-                    <div className="mb-1 font-normal text-gray-400">/</div>
-                    <div>{curPage?.name}</div>
-                  </div>
+                <div className="text-base font-semibold text-(color:--color-ink)">
+                  {`${profile?.isAdmin ? ' [관리자]' : ''} ${profile?.name}`}
                 </div>
-                <div className="text-description-color text-sm">{curPage?.description}</div>
+                <div className="text-sm text-(color:--color-muted)">{curPage?.description}</div>
               </>
             )}
           </div>
           {profile?.handleDisplay && (
-            <Link href={`/@${profile?.handleDisplay}`}>
-              <ButtonLink>
-                <div className="sr-only sm:not-sr-only">프로필 보기</div>
-                <UserIcon className="block sm:hidden" width={20} height={20} />
-              </ButtonLink>
+            <Link
+              href={`/@${profile?.handleDisplay}`}
+              className="inline-flex min-h-10 items-center gap-2 rounded-[var(--radius-control)] border border-(color:--color-rule) px-4 text-sm font-semibold text-(color:--color-ink) hover:bg-[var(--color-paper-2)]"
+            >
+              <UserIcon width={18} height={18} aria-hidden="true" />
+              프로필 보기
             </Link>
           )}
         </div>
       </div>
-      <div className="flex flex-col divide-y md:divide-y-0 md:flex-row gap-x-12">
-        <div className="md:w-[28%] w-full flex flex-col gap-x-1 gap-y-2 tracking-wide pb-4 md:pb-0">
+      <div className="grid gap-8 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-12">
+        <nav
+          aria-label="설정 메뉴"
+          className="flex gap-6 overflow-x-auto border-b border-(color:--color-rule) pb-4 lg:sticky lg:top-28 lg:block lg:self-start lg:overflow-visible lg:border-0 lg:pb-0"
+        >
           {navList
             .filter(({ adminOnly }) => !adminOnly || profile?.isAdmin)
             .map(({ title, fields }) => (
-              <div key={title}>
-                <div className="text-lg font-bold text-subtitle-color">{title}</div>
-                {fields.map(({ icon: Icon, name, url }) => (
-                  <Link
-                    href={url}
-                    key={url}
-                    className={classNames(
-                      pathname === url &&
-                        'bg-primary-300/50 dark:bg-primary-700/50 border-transparent',
-                      'hover:bg-primary-300/50 text-primary-600 hover:dark:bg-primary-700/50 dark:text-primary-300 border-transparent',
-                      'transition text-black rounded flex-none text-center border flex gap-x-3 items-center justify-start px-2 py-2 w-full',
-                    )}
-                  >
-                    <div className="text-xl">
-                      <Icon width={20} height={20} />
-                    </div>
-                    <div>{name}</div>
-                  </Link>
-                ))}
+              <div key={title} className="shrink-0 lg:mb-8">
+                <div className="mb-2 hidden text-sm font-semibold text-(color:--color-muted) lg:block">
+                  {title}
+                </div>
+                <div className="flex gap-1 lg:flex-col">
+                  {fields.map(({ icon: Icon, name, url }) => (
+                    <Link
+                      href={url}
+                      key={url}
+                      aria-current={pathname === url ? 'page' : undefined}
+                      className={classNames(
+                        'flex min-h-10 shrink-0 items-center gap-3 whitespace-nowrap rounded-[var(--radius-control)] px-3 py-2 text-sm font-semibold transition-colors',
+                        pathname === url
+                          ? 'settings-nav-current'
+                          : 'text-(color:--color-ink-2) hover:bg-[var(--color-paper-2)]',
+                      )}
+                    >
+                      <Icon width={18} height={18} aria-hidden="true" />
+                      {name}
+                    </Link>
+                  ))}
+                </div>
               </div>
             ))}
-        </div>
-        <div className="pt-4 md:pt-0 md:w-full flex flex-col gap-y-4">{children}</div>
+        </nav>
+        <div className="flex min-w-0 flex-col gap-y-5 pb-16">{children}</div>
       </div>
     </MainLayout>
   )

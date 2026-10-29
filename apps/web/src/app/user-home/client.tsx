@@ -69,15 +69,29 @@ const Block = ({
   }, [swiper])
 
   return (
-    <div className={classNames(mt ? 'mt-8' : '', 'relative')}>
-      <Link href={href} className="text-subtitle-color text-xl flex items-center">
-        {title}
-        <ChevronRightIcon width={24} height={24} />
-      </Link>
-      <div className="text-description-color mb-2 text-sm">{description}</div>
+    <section className={classNames(mt ? 'mt-16' : '', 'relative')}>
+      <div className="flex flex-wrap items-end justify-between gap-3 mb-7 border-b border-(color:--color-rule) pb-5">
+        <div>
+          <h2 className="text-3xl md:text-4xl text-(color:--color-ink)">
+            <Link
+              href={href}
+              className="rounded-lg focus-visible:outline-3 focus-visible:outline-[var(--color-focus)]"
+            >
+              {title}
+            </Link>
+          </h2>
+          <p className="text-(color:--color-muted) mt-2">{description}</p>
+        </div>
+        <ChevronRightIcon
+          width={24}
+          height={24}
+          aria-hidden="true"
+          className="text-(color:--color-accent)"
+        />
+      </div>
       <Swiper
         slidesPerView={1}
-        spaceBetween={15}
+        spaceBetween={24}
         pagination={{
           clickable: true,
         }}
@@ -90,10 +104,10 @@ const Block = ({
       <button
         onClick={() => swiper?.slidePrev()}
         className={classNames(
-          'hidden sm:flex absolute -left-14 top-1/2 transform',
-          'text-black dark:text-white bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg shadow-xs',
-          'rounded-full border border-base-color',
-          'items-center justify-center w-12 h-12',
+          'hidden sm:flex absolute -left-5 top-1/2 z-10',
+          'text-(color:--color-ink) bg-[var(--color-card)]',
+          'rounded-full border border-(color:--color-rule)',
+          'items-center justify-center w-10 h-10 focus-visible:outline-3 focus-visible:outline-[var(--color-focus)] active:translate-y-px',
           'disabled:opacity-50',
         )}
         disabled={status === 'disablePrev'}
@@ -104,10 +118,10 @@ const Block = ({
       <button
         onClick={() => swiper?.slideNext()}
         className={classNames(
-          'hidden sm:flex absolute -right-14 top-1/2 transform',
-          'text-black dark:text-white bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg shadow-xs',
-          'rounded-full border border-base-color',
-          'items-center justify-center w-12 h-12',
+          'hidden sm:flex absolute -right-5 top-1/2 z-10',
+          'text-(color:--color-ink) bg-[var(--color-card)]',
+          'rounded-full border border-(color:--color-rule)',
+          'items-center justify-center w-10 h-10 focus-visible:outline-3 focus-visible:outline-[var(--color-focus)] active:translate-y-px',
           'disabled:opacity-50',
         )}
         disabled={status === 'disableNext'}
@@ -115,7 +129,7 @@ const Block = ({
         <ChevronRightIcon className="w-8 h-8" />
         <p className="sr-only">next</p>
       </button>
-    </div>
+    </section>
   )
 }
 
@@ -131,8 +145,8 @@ const UserHome: NextPage = () => {
   return (
     <MainLayout title="창작자들을 위한 디스코드 커뮤니티" guard="authOnly">
       <div className="container max-w-6xl mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold mb-6 break-keep">
-          <span className="title-highlight">{user?.name}님,</span> <br />
+        <h1 className="text-4xl md:text-6xl font-bold mb-12 break-keep leading-tight text-(color:--color-ink) max-w-4xl">
+          {user?.name}님, <br />
           아이디어스 랩에 오신것을 환영해요.
         </h1>
 
@@ -161,6 +175,13 @@ const UserHome: NextPage = () => {
                   <PostView2 post={item} onClick={() => showDetail(item.id)} />
                 </SwiperSlide>
               ))}
+              {posts?.length === 0 && (
+                <SwiperSlide>
+                  <p className="rounded-[var(--radius-card)] bg-[var(--color-paper-2)] p-8 text-description-color">
+                    최근 업로드된 게시글이 없어요.
+                  </p>
+                </SwiperSlide>
+              )}
             </Block>
           )}
         </PostDetailModalWrapper>
@@ -188,6 +209,13 @@ const UserHome: NextPage = () => {
               <ProfileView key={profile.discordId} data={profile} />
             </SwiperSlide>
           ))}
+          {profiles?.length === 0 && (
+            <SwiperSlide>
+              <p className="rounded-[var(--radius-card)] bg-[var(--color-paper-2)] p-8 text-description-color">
+                최근 가입한 유저가 없어요.
+              </p>
+            </SwiperSlide>
+          )}
         </Block>
       </div>
     </MainLayout>
