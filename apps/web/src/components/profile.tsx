@@ -8,10 +8,10 @@ import { relativeTimeFormat } from '~/utils'
 
 export const ProfileViewSkeleton = () => {
   return (
-    <div className="bg-white dark:bg-gray-700/50 border-base-color rounded-lg relative flex flex-col px-4 py-4 border drop-shadow-xs h-60 justify-between">
+    <div className="bg-[var(--color-card)] rounded-[var(--radius-card)] relative flex flex-col p-6 min-h-72 justify-between">
       <div className="flex flex-col">
         <div className="flex gap-x-2 items-center">
-          <Skeleton className="w-10 h-10 rounded-full shrink-0" />
+          <Skeleton className="w-16 h-16 rounded-full shrink-0" />
           <div className="flex flex-col gap-y-1.5 flex-1">
             <Skeleton className="h-4 w-24" />
             <Skeleton className="h-3 w-16" />
@@ -42,23 +42,26 @@ export const ProfileViewSkeleton = () => {
 
 export const ProfileView = ({ data }: { data: Unarray<OutputTypes['info']['profiles']> }) => {
   return (
-    <div className="bg-white dark:bg-gray-700/50 border-base-color rounded-lg relative flex flex-col px-4 py-4 border drop-shadow-xs h-60">
+    <article className="bg-[var(--color-card)] text-(color:--color-card-ink) rounded-[var(--radius-card)] relative flex flex-col p-6 min-h-72">
       <div className="flex flex-col no-click h-full" onClick={() => {}}>
         <div className="flex flex-col h-full flex-grow">
-          <Link href={`/@${data.handleDisplay}`} className="flex gap-x-2 items-center">
+          <Link
+            href={`/@${data.handleDisplay}`}
+            className="flex gap-x-4 items-center rounded-lg focus-visible:outline-3 focus-visible:outline-[var(--color-focus)] active:opacity-75"
+          >
             <CustomImage
               src={data.avatar}
-              width={40}
-              height={40}
+              width={64}
+              height={64}
               className="rounded-full"
               alt={`${data.name}의 프로필 사진`}
             />
             <div className="flex flex-col">
-              <div className="text-title-color">{data.name}</div>
+              <div className="text-title-color text-xl font-bold break-words">{data.name}</div>
               <div className="text-description-color text-sm">{`@${data.handleDisplay}`}</div>
             </div>
           </Link>
-          <div className="flex gap-2 mt-2 flex-wrap">
+          <div className="flex gap-2 mt-5 flex-wrap">
             {data.roles?.slice(0, 2).map((item: { name: string }, index: number) => (
               <div key={index} className="tag small">
                 {item.name}
@@ -69,12 +72,16 @@ export const ProfileView = ({ data }: { data: Unarray<OutputTypes['info']['profi
               <div className="tag small">{`+${data.roles.length - 2}개`}</div>
             )}
           </div>
-          <div className="text-description-color mt-3 text-sm line-clamp-2">{data.introduce}</div>
+          <div className="text-description-color mt-5 text-sm line-clamp-3">{data.introduce}</div>
 
           {data.links.length > 0 && (
             <div className="mt-2 flex gap-2 flex-wrap">
               {data.links.map((link: any, index: number) => (
-                <a key={index} href={link?.url ?? ''} className="title-highlight">
+                <a
+                  key={index}
+                  href={link?.url ?? ''}
+                  className="title-highlight rounded focus-visible:outline-3 focus-visible:outline-[var(--color-focus)] active:opacity-75"
+                >
                   {link?.name}
                 </a>
               ))}
@@ -82,19 +89,19 @@ export const ProfileView = ({ data }: { data: Unarray<OutputTypes['info']['profi
           )}
         </div>
 
-        <div className="flex justify-around w-full mt-2.5 flex-grow-0">
-          <div className="flex gap-2 text-center items-center">
+        <div className="flex justify-between gap-4 w-full mt-6 pt-4 border-t border-(color:--color-rule) flex-grow-0 text-sm">
+          <div className="flex gap-2 items-center">
             <div className="font-semibold text-title-color">작성글</div>
             <div className="text-subtitle-color text-sm">
               {data._count.posts > 0 ? `${data._count.posts}개` : '없음'}
             </div>
           </div>
-          <div className="flex gap-2 text-center items-center">
+          <div className="flex gap-2 items-center">
             <div className="font-semibold text-title-color">가입일</div>
             <div className="text-subtitle-color text-sm">{relativeTimeFormat(data.createdAt)}</div>
           </div>
         </div>
       </div>
-    </div>
+    </article>
   )
 }

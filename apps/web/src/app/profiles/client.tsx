@@ -58,7 +58,14 @@ const ProfilesPage = () => {
       description="아이디어스랩 회원들의 프로필을 확인해요."
       guard="default"
     >
+      <header className="border-b border-(color:--color-rule) pb-8 mb-8 pt-8 md:pt-12">
+        <h1 className="text-5xl md:text-7xl leading-tight text-(color:--color-ink)">프로필</h1>
+        <p className="text-lg text-(color:--color-muted) mt-3">
+          아이디어스랩 회원들의 프로필을 확인해요.
+        </p>
+      </header>
       <TagFilter
+        className="!justify-start !mx-0 !max-w-none"
         data={[
           {
             label: (
@@ -73,7 +80,7 @@ const ProfilesPage = () => {
             label: (
               <>
                 <Square2StackIcon width={24} height={24} />
-                최근 활동순
+                최근 가입순
               </>
             ),
             value: 'recentJoin',
@@ -92,7 +99,7 @@ const ProfilesPage = () => {
         </div>
       ) : (
         <TagFilter
-          className="mt-4"
+          className="mt-4 !justify-start !mx-0 !max-w-none"
           data={roles?.map(({ name, id }: { name: string; id: number }) => ({
             label: name,
             value: id,
@@ -103,7 +110,7 @@ const ProfilesPage = () => {
       )}
 
       <InfiniteScroll
-        className="h-full w-11/12 mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-4"
+        className="h-full w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-10"
         next={fetchNextPage}
         dataLength={profiles?.pages.reduce((prev, cur) => prev + cur.length, 0) ?? 0}
         hasMore={hasNextPage ?? false}

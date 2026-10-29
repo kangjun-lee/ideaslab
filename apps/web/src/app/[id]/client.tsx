@@ -82,10 +82,10 @@ const MemberDetailPage = ({ profileHandle }: Props) => {
   return (
     <MainLayout title={profile?.name ?? '프로필 상세보기'} className="pt-6">
       {status === 'forbidden' && <MemberOnlyContent name="프로필" />}
-      <div className="flex flex-col gap-y-12 lg:flex-row gap-x-12">
-        <div className="relative w-full lg:max-w-xs flex justify-center lg:block">
+      <div className="flex flex-col gap-y-12 lg:flex-row gap-x-12 lg:items-start mt-8 mb-16">
+        <div className="relative w-full lg:w-[28%] lg:shrink-0 flex justify-center lg:block">
           {status === 'loading' && (
-            <div className="flex flex-col lg:card items-center justify-center px-4 py-6 w-full gap-y-3">
+            <div className="flex flex-col items-start justify-center py-6 w-full gap-y-3">
               <Skeleton className="w-32 h-32 rounded-full" />
               <Skeleton className="h-6 w-32 mt-2" />
               <Skeleton className="h-4 w-24" />
@@ -107,20 +107,22 @@ const MemberDetailPage = ({ profileHandle }: Props) => {
             </div>
           )}
           {status === 'loaded' && profile && (
-            <div className="flex flex-col lg:card items-center justify-center px-4 py-6 w-full">
+            <div className="flex flex-col items-start justify-center py-6 w-full lg:sticky lg:top-28">
               <CustomImage
                 alt=""
                 src={profile?.avatar ?? ''}
                 width={128}
                 height={128}
-                className="rounded-full"
+                className="rounded-[var(--radius-card)]"
               />
-              <div className="text-title-color text-lg font-bold tracking-wide mt-2">
+              <div className="text-title-color text-3xl font-bold mt-6 leading-tight break-keep">
                 {profile?.name}
               </div>
-              <div className="text-subtitle-color">{`@${profile?.handle}`}</div>
-              <div className="text-description-color mt-2 text-sm">{profile?.introduce}</div>
-              <div className="flex gap-2 mt-2 flex-wrap">
+              <div className="text-subtitle-color mt-1">{`@${profile?.handle}`}</div>
+              <div className="text-description-color mt-5 leading-relaxed break-keep">
+                {profile?.introduce}
+              </div>
+              <div className="flex gap-2 mt-5 flex-wrap">
                 {profile?.roles?.map(
                   (
                     item: NonNullable<OutputTypes['gallery']['profile']>['roles'][number],
@@ -134,7 +136,7 @@ const MemberDetailPage = ({ profileHandle }: Props) => {
               </div>
 
               {profile?.links.length > 0 && (
-                <div className="mt-2 flex gap-2 flex-wrap">
+                <div className="mt-6 flex gap-3 flex-wrap">
                   {profile?.links.map((link: any, index: number) => (
                     <a key={index} href={link?.url ?? ''} className="title-highlight">
                       {link?.name}
@@ -142,14 +144,16 @@ const MemberDetailPage = ({ profileHandle }: Props) => {
                   ))}
                 </div>
               )}
-              <div className="flex justify-around w-full mt-4">
-                <div className="flex-col text-center">
-                  <div className="text-lg font-semibold text-title-color">작성글</div>
-                  <div className="text-md text-subtitle-color">{profile?._count.posts}</div>
+              <div className="grid grid-cols-2 gap-6 w-full mt-8 pt-5 border-t border-(color:--color-rule)">
+                <div>
+                  <div className="text-sm text-subtitle-color">작성글</div>
+                  <div className="text-2xl font-bold text-title-color tabular-nums">
+                    {profile?._count.posts}
+                  </div>
                 </div>
-                <div className="flex-col text-center">
-                  <div className="text-lg font-semibold text-title-color">가입일</div>
-                  <div className="text-md text-subtitle-color">
+                <div>
+                  <div className="text-sm text-subtitle-color">가입일</div>
+                  <div className="text-lg font-bold text-title-color">
                     {dateShortFormat(profile?.createdAt)}
                   </div>
                 </div>
@@ -157,7 +161,7 @@ const MemberDetailPage = ({ profileHandle }: Props) => {
             </div>
           )}
         </div>
-        <div className="w-full overflow-x-hidden">
+        <div className="w-full min-w-0 border-t-2 border-(color:--color-ink) pt-6">
           <PostDetailModalWrapper baseUrl={`/@${profileHandle}`}>
             {({ showDetail }) => (
               <InfiniteScroll
@@ -192,7 +196,7 @@ const MemberDetailPage = ({ profileHandle }: Props) => {
                       )}
                 </Masonry>
                 {status === 'loaded' && posts?.pages[0].length === 0 && (
-                  <div className="w-full bg-gray-100 dark:bg-gray-800 rounded text-subtitle-color text-center py-8">
+                  <div className="w-full bg-[var(--color-paper-2)] rounded-[var(--radius-control)] text-subtitle-color text-center py-8">
                     업로드된 게시글이 존재하지 않습니다
                   </div>
                 )}

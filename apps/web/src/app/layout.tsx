@@ -41,8 +41,8 @@ export const viewport: Viewport = { themeColor: '#8AC896' }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ko" suppressHydrationWarning>
-      <body>
+    <html lang="ko" className="overflow-x-clip" suppressHydrationWarning>
+      <body className="overflow-x-clip">
         <Script src="/darkmode.js" strategy="beforeInteractive" />
         <Providers>{children}</Providers>
       </body>

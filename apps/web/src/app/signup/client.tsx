@@ -29,7 +29,7 @@ const Signup: NextPage = () => {
     <MainLayout title="회원가입 하기" showTitle tinyContainer guard="unverifyOnly">
       <StepWrapper>
         <StepContent>{StepList}</StepContent>
-        <div className="card px-4 py-4 mt-8 flex flex-col justify-between sm:min-h-[700px]">
+        <div className="bg-[var(--color-card)] text-(color:--color-card-ink) rounded-[var(--radius-card)] px-5 py-6 sm:px-10 sm:py-10 mt-8 flex flex-col justify-between sm:min-h-[700px]">
           <StepContent displayOn={1}>{Intro}</StepContent>
           <StepContent displayOn={2}>{Policy}</StepContent>
           <StepContent displayOn={3}>{Rule}</StepContent>
@@ -61,16 +61,16 @@ const Intro = ({ next }: StepContentProps) => {
   const userData = useUser()
   return (
     <>
-      <div className="mx-auto px-4 text-center md:px-10 lg:px-32 xl:max-w-3xl h-full flex-1 flex items-center justify-center">
-        <div className="flex flex-col items-center">
+      <div className="mx-auto px-4 text-left md:px-10 xl:max-w-3xl h-full flex-1 flex items-center justify-center">
+        <div className="flex flex-col items-start">
           <h1 className="text-4xl font-bold sm:text-5xl">
             <div>{userData?.name}님,</div>
             <div className="my-1.5">
-              <span className="title-highlight">아이디어스랩</span>에
+              <span>아이디어스랩</span>에
             </div>
             오신것을 환영합니다!
           </h1>
-          <p className="px-8 mt-8 mb-12 text-lg">
+          <p className="mt-8 mb-12 text-lg text-(color:--color-muted)">
             오래 걸리지 않아요! 간단하게 질문에 대답해주세요.
           </p>
         </div>
@@ -98,7 +98,7 @@ const Policy = ({ prev, next }: StepContentProps) => {
         <div className="flex justify-between mt-2 items-center">
           <div className="text-3xl font-bold mt-4 mb-2">개인정보 처리방침</div>
         </div>
-        <div className="markdown w-full px-1.5 py-1 bg-gray-100 dark:bg-gray-800 border-base-color border-2 rounded-lg mx-1 min-h-40">
+        <div className="markdown w-full p-5 bg-[var(--color-paper-2)] rounded-[var(--radius-control)] min-h-40 max-h-80 overflow-auto">
           {!privacyPolicy ? (
             <div className="space-y-3 p-3">
               <Skeleton className="h-4 w-full" />
@@ -136,7 +136,7 @@ const Rule = ({ prev, next }: StepContentProps) => {
         <div className="flex justify-between mt-2 items-center">
           <div className="text-3xl font-bold mt-4 mb-2">서버 규칙</div>
         </div>
-        <div className="w-full px-1.5 py-1 bg-gray-100 dark:bg-gray-800 border-base-color border-2 rounded-lg mx-1 min-h-40">
+        <div className="w-full p-5 bg-[var(--color-paper-2)] rounded-[var(--radius-control)] min-h-40 max-h-80 overflow-auto">
           {!serverRule ? (
             <div className="space-y-3 p-3">
               <Skeleton className="h-4 w-full" />
@@ -181,11 +181,11 @@ const Rule = ({ prev, next }: StepContentProps) => {
 }
 
 const Complete = ({ next: _ }: StepContentProps) => (
-  <div className="mx-auto px-4 sm:px-4 py-8 text-center md:px-10 lg:px-32 xl:max-w-3xl h-full flex-1 flex items-center justify-center">
-    <div className="flex flex-col items-center">
+  <div className="mx-auto px-4 py-8 text-left md:px-10 xl:max-w-3xl h-full flex-1 flex items-center justify-center">
+    <div className="flex flex-col items-start">
       <h1 className="text-2xl sm:text-4xl font-bold md:text-5xl">
         <div className="mb-1.5">
-          <span className="title-highlight">아이디어스랩</span>에
+          <span>아이디어스랩</span>에
         </div>
         가입하신것을 환영합니다!
       </h1>
@@ -247,7 +247,9 @@ const SignupForm = ({ prev, next }: StepContentProps) => {
   return (
     <Form form={form} className="flex-1 flex flex-col justify-between">
       <div className="h-full flex-1 flex flex-col gap-y-4 w-full">
-        <div>자기소개를 남겨주세요!</div>
+        <div className="text-2xl font-bold border-b border-(color:--color-rule) pb-4">
+          자기소개를 남겨주세요!
+        </div>
         <Input
           label="닉네임"
           description="아이디어스랩에서 사용하게 될 닉네임이에요. 알파벳, 한글, 숫자, 특수문자를 사용할 수 있어요"
@@ -302,7 +304,8 @@ const SignupForm = ({ prev, next }: StepContentProps) => {
               ) : (
                 <div className="flex gap-3 flex-wrap">
                   {artistRoles?.map((role: { id: number; name: string }) => (
-                    <div
+                    <button
+                      type="button"
                       key={role.id}
                       className={classNames(
                         'tag hover',
@@ -317,7 +320,7 @@ const SignupForm = ({ prev, next }: StepContentProps) => {
                       }
                     >
                       {role.name}
-                    </div>
+                    </button>
                   ))}
                 </div>
               )
@@ -394,7 +397,7 @@ const SignupForm = ({ prev, next }: StepContentProps) => {
         </FormBlock>
       </div>
       <div className="flex justify-between w-full mt-4">
-        <Button variant="default" onClick={prev}>
+        <Button variant="default" type="button" onClick={prev}>
           뒤로가기
         </Button>
         <Button variant="primary" type="submit" loading={isSubmitting}>
@@ -423,9 +426,12 @@ const FieldArray = ({
     <Draggable key={item.id} index={index} draggableId={item.id}>
       {(provided, snapshot) => (
         <div
-          className={classNames('flex items-center card px-2 py-2 mb-2', {
-            'shadow-lg': snapshot.isDragging,
-          })}
+          className={classNames(
+            'flex items-center border-b border-(color:--color-rule) px-2 py-3 mb-2',
+            {
+              'shadow-lg': snapshot.isDragging,
+            },
+          )}
           ref={provided.innerRef}
           {...provided.draggableProps}
         >
@@ -449,7 +455,13 @@ const FieldArray = ({
               {...register(`links.${index}.url`)}
             />
           </div>
-          <Button variant="subtle" className="mr-2" forIcon onClick={() => remove(index)}>
+          <Button
+            variant="subtle"
+            type="button"
+            className="mr-2"
+            forIcon
+            onClick={() => remove(index)}
+          >
             <TrashIcon width={18} height={18} />
           </Button>
         </div>
@@ -462,7 +474,7 @@ const FieldArray = ({
       label="링크"
       description="작업링크 / SNS 들을 연결할 수 있어요. 6개까지 입력 가능해요."
       right={
-        <Button variant="primary" onClick={() => append({ name: '', url: '' })}>
+        <Button variant="primary" type="button" onClick={() => append({ name: '', url: '' })}>
           추가
         </Button>
       }

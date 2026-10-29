@@ -16,9 +16,9 @@ export const Step = ({ currentStep, list, className }: Props) => {
           <span
             key={index}
             className={classNames('w-12 h-2 rounded-xs ', {
-              'bg-green-600 dark:bg-green-400': index + 1 < currentStep,
-              'bg-gray-800 dark:bg-gray-100': index + 1 === currentStep,
-              'bg-gray-400 dark:bg-gray-600': index + 1 > currentStep,
+              'bg-primary-600 dark:bg-primary-400': index + 1 < currentStep,
+              'bg-primary-900 dark:bg-gray-100': index + 1 === currentStep,
+              'bg-gray-300 dark:bg-gray-600': index + 1 > currentStep,
             })}
           />
         ))}

@@ -63,7 +63,7 @@ const ProfileSetting: NextPage = () => {
   return (
     <SettingLayout title="프로필 설정" guard="authOnly">
       {!profile ? (
-        <div className="pt-4 md:pt-0 md:col-span-9 flex flex-col gap-y-4">
+        <div className="flex flex-col gap-y-5">
           <Skeleton className="h-16 w-full rounded-lg" />
           <Skeleton className="h-16 w-full rounded-lg" />
           <Skeleton className="h-16 w-full rounded-lg" />
@@ -74,7 +74,7 @@ const ProfileSetting: NextPage = () => {
           <Skeleton className="h-16 w-full rounded-lg" />
         </div>
       ) : (
-        <Form form={form} className="pt-4 md:pt-0 md:col-span-9 flex flex-col gap-y-4">
+        <Form form={form} className="flex max-w-3xl flex-col gap-y-6">
           <Input
             label="디스코드 유저 정보"
             description="연결된 디스코드 계정의 정보에요."
@@ -112,14 +112,16 @@ const ProfileSetting: NextPage = () => {
                     <Skeleton className="h-7 w-24 rounded-full" />
                   </div>
                 ) : (
-                  <div className="flex gap-3 flex-wrap">
+                  <div className="flex flex-wrap gap-2">
                     {artistRoles?.map((role: { id: number; name: string }) => (
-                      <div
+                      <button
                         key={role.id}
+                        type="button"
                         className={classNames(
                           'tag hover',
                           (value ?? []).includes(role.id) && 'primary',
                         )}
+                        aria-pressed={(value ?? []).includes(role.id)}
                         onClick={() =>
                           onChange(
                             (value ?? []).includes(role.id)
@@ -129,7 +131,7 @@ const ProfileSetting: NextPage = () => {
                         }
                       >
                         {role.name}
-                      </div>
+                      </button>
                     ))}
                   </div>
                 )
@@ -174,8 +176,8 @@ const ProfileSetting: NextPage = () => {
               />
             )}
           </FormFieldBuilder>
-          <div className="flex justify-end gap-x-2">
-            <Button disabled={!isDirty} onClick={() => reset()}>
+          <div className="flex justify-end gap-x-2 border-t border-(color:--color-rule) pt-5">
+            <Button type="button" disabled={!isDirty} onClick={() => reset()}>
               취소
             </Button>
             <Button variant="primary" type="submit" disabled={!isDirty} loading={isSubmitting}>
@@ -206,9 +208,12 @@ const Links = ({
     <Draggable key={item.id} index={index} draggableId={item.id}>
       {(provided, snapshot) => (
         <div
-          className={classNames('flex items-center card px-2 py-2 mb-2', {
-            'shadow-lg': snapshot.isDragging,
-          })}
+          className={classNames(
+            'mb-2 flex items-center rounded-[var(--radius-control)] bg-[var(--color-paper-2)] px-2 py-3',
+            {
+              'ring-2 ring-[var(--color-accent)]': snapshot.isDragging,
+            },
+          )}
           ref={provided.innerRef}
           {...provided.draggableProps}
         >
@@ -218,7 +223,7 @@ const Links = ({
           >
             <GripVerticalIcon width={18} height={18} />
           </div>
-          <div className="flex w-full justify-between gap-x-2 pr-2">
+          <div className="flex w-full min-w-0 flex-col justify-between gap-2 pr-2 sm:flex-row">
             <Input
               labelClassName="w-full"
               className="w-full"
@@ -232,7 +237,13 @@ const Links = ({
               {...register(`links.${index}.url`)}
             />
           </div>
-          <Button variant="subtle" className="mr-2" forIcon onClick={() => remove(index)}>
+          <Button
+            type="button"
+            variant="subtle"
+            className="mr-2"
+            forIcon
+            onClick={() => remove(index)}
+          >
             <TrashIcon width={18} height={18} />
           </Button>
         </div>
@@ -245,7 +256,7 @@ const Links = ({
       label="링크"
       description="작업링크 / SNS 들을 연결할 수 있어요. 6개까지 입력 가능해요."
       right={
-        <Button variant="primary" onClick={() => append({ name: '', url: '' })}>
+        <Button type="button" variant="primary" onClick={() => append({ name: '', url: '' })}>
           추가
         </Button>
       }
@@ -258,7 +269,7 @@ const Links = ({
           {(provided) => (
             <div {...provided.droppableProps} ref={provided.innerRef}>
               {items}
-              {provided.placeholder?.toString()}
+              {provided.placeholder}
             </div>
           )}
         </Droppable>

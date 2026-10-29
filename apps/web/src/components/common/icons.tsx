@@ -5,6 +5,7 @@ type Props = React.PropsWithoutRef<React.JSX.IntrinsicElements['svg']>
 // https://tabler-icons.io/
 export const GripVerticalIcon = (props: Props) => (
   <svg
+    aria-hidden="true"
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
     strokeWidth="2"
@@ -27,6 +28,7 @@ export const GripVerticalIcon = (props: Props) => (
 // Refference: Tailwind CSS: https://tailwindcss.com/docs/animation
 export const LoadingIcon = (props: Props) => (
   <svg
+    aria-hidden="true"
     className="animate-spin h-5 w-5 text-white"
     xmlns="http://www.w3.org/2000/svg"
     fill="none"

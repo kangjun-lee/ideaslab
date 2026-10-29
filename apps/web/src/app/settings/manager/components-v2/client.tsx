@@ -60,7 +60,7 @@ const ComponentsV2SettingPage: NextPage = () => {
   return (
     <SettingLayout title="메세지 보내기" guard="adminOnly">
       {isLoading ? (
-        <div className="flex flex-col gap-4">
+        <div className="flex max-w-3xl flex-col gap-6">
           <div className="space-y-2">
             <Skeleton className="h-4 w-28" />
             <Skeleton className="h-10 w-full" />
@@ -75,7 +75,7 @@ const ComponentsV2SettingPage: NextPage = () => {
           </div>
         </div>
       ) : (
-        <div className="flex flex-col gap-4">
+        <div className="flex max-w-3xl flex-col gap-6">
           <FormBlock
             label="전송 채널"
             description="봇이 Components V2 메시지를 전송할 텍스트 채널을 선택하세요."
@@ -97,7 +97,7 @@ const ComponentsV2SettingPage: NextPage = () => {
               onChange={(event) => setMarkdown(event.target.value)}
               maxLength={4000}
               rows={14}
-              className="block w-full px-4 py-2 rounded-lg border default-ring border-base-color dark:bg-gray-800/60 dark:text-white font-mono"
+              className="block w-full rounded-[var(--radius-control)] border border-(color:--color-rule) bg-[var(--color-card)] px-4 py-3 font-mono text-(color:--color-ink)"
               placeholder={
                 '# 제목\n\n**굵은 글씨**와 [링크](https://example.com)를 사용할 수 있습니다.'
               }
@@ -108,7 +108,7 @@ const ComponentsV2SettingPage: NextPage = () => {
             label="프리뷰"
             description="웹 프리뷰와 Discord의 실제 렌더링에는 일부 차이가 있을 수 있습니다."
           >
-            <div className="min-h-40 rounded-lg border border-base-color bg-white dark:bg-gray-800 p-4">
+            <div className="min-h-40 rounded-[var(--radius-control)] bg-[var(--color-paper-2)] p-5">
               <div className="markdown break-all">
                 <ReactMarkdown>
                   {markdown || '*내용을 입력하면 프리뷰가 표시됩니다.*'}
@@ -117,11 +117,11 @@ const ComponentsV2SettingPage: NextPage = () => {
             </div>
           </FormBlock>
 
-          <div className="flex justify-end gap-2">
-            <Button variant="default" onClick={sendTest} loading={testSend.isPending}>
+          <div className="flex justify-end gap-2 border-t border-(color:--color-rule) pt-5">
+            <Button type="button" variant="default" onClick={sendTest} loading={testSend.isPending}>
               테스트로 보내기
             </Button>
-            <Button variant="primary" onClick={saveSetting} loading={save.isPending}>
+            <Button type="button" variant="primary" onClick={saveSetting} loading={save.isPending}>
               저장
             </Button>
           </div>

@@ -29,7 +29,7 @@ const InfoPage = () => {
           <Skeleton className="h-32 w-full mt-4" />
         </div>
       ) : (
-        <div className="markdown">
+        <div className="markdown border-t-2 border-(color:--color-rule) pt-8 pb-16 leading-relaxed">
           <ReactMarkdown>{info}</ReactMarkdown>
         </div>
       )}

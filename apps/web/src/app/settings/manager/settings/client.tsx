@@ -58,22 +58,23 @@ const SettingsPage: NextPage = () => {
   return (
     <SettingLayout title="서비스 설정" guard="adminOnly">
       {isLoading || !settings ? (
-        <div className="pt-4 md:pt-0 md:col-span-9 flex flex-col gap-y-4">
+        <div className="flex flex-col gap-y-5">
           <Skeleton className="h-20 w-full rounded-lg" />
           <Skeleton className="h-20 w-full rounded-lg" />
           <Skeleton className="h-20 w-full rounded-lg" />
           <Skeleton className="h-20 w-full rounded-lg" />
         </div>
       ) : (
-        <Form form={form} className="pt-4 md:pt-0 md:col-span-9 flex flex-col gap-y-4">
+        <Form form={form} className="flex max-w-3xl flex-col gap-y-6">
           <FieldArray
             settings={settings ?? []}
             control={control}
             register={registerForm}
             error={errors.settings?.message ?? ''}
           />
-          <div className="flex justify-end gap-x-2">
+          <div className="flex justify-end gap-x-2 border-t border-(color:--color-rule) pt-5">
             <Button
+              type="button"
               disabled={!isDirty}
               onClick={() => {
                 reset()
@@ -177,7 +178,7 @@ const FieldArray = ({
   }
 
   return (
-    <div className="mb-2 space-y-2">
+    <div className="mb-2 space-y-6">
       {fields.map((field, index) => (
         <FormBlock
           key={field.id}
