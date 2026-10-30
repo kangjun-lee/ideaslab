@@ -172,7 +172,7 @@ export const buildFormMessage = async (
     // 역할
     .addTextDisplayComponents(
       new TextDisplayBuilder().setContent(
-        `## 역할\n-# 본인이 창작하는 분야를 선택해주세요. 여러개 선택할 수 있어요.`,
+        '## 역할\n-# 본인이 창작하는 분야를 선택해주세요. 여러 개 선택할 수 있어요. 목록에 없다면 관심 있는 분야를 선택해주세요. (1개 이상 필수)',
       ),
     )
     .addActionRowComponents((row) =>
@@ -180,7 +180,7 @@ export const buildFormMessage = async (
         new StringSelectMenuBuilder()
           .setCustomId('menu.register-role')
           .setPlaceholder('역할을 선택해주세요')
-          .setMinValues(0)
+          .setMinValues(1)
           .setMaxValues(roles.length || 1)
           .setDisabled(roles.length === 0)
           .addOptions(roleOptions),
@@ -248,8 +248,8 @@ export const buildFormMessage = async (
           .setStyle(ButtonStyle.Secondary),
         new ButtonBuilder()
           .setCustomId('register-submit')
-          .setLabel('가입 완료')
-          .setStyle(ButtonStyle.Success),
+          .setLabel('다음')
+          .setStyle(ButtonStyle.Primary),
       ),
     )
 
@@ -258,6 +258,34 @@ export const buildFormMessage = async (
     flags: MessageFlags.IsComponentsV2,
   }
 }
+
+export const buildRegisterRuleMessage = (serverRule: string): InteractionEditReplyOptions => ({
+  components: [
+    new ContainerBuilder()
+      .addTextDisplayComponents(new TextDisplayBuilder().setContent('## 서버 규칙'))
+      .addTextDisplayComponents(
+        ...(serverRule.match(/[\s\S]{1,1800}/g) ?? []).map((part) =>
+          new TextDisplayBuilder().setContent(part),
+        ),
+      )
+      .addTextDisplayComponents(
+        new TextDisplayBuilder().setContent('서버 규칙을 이해하고 동의하시나요?'),
+      )
+      .addActionRowComponents((row) =>
+        row.addComponents(
+          new ButtonBuilder()
+            .setCustomId('register-decline')
+            .setLabel('동의 안함')
+            .setStyle(ButtonStyle.Secondary),
+          new ButtonBuilder()
+            .setCustomId('register-agree')
+            .setLabel('동의함')
+            .setStyle(ButtonStyle.Success),
+        ),
+      ),
+  ],
+  flags: MessageFlags.IsComponentsV2,
+})
 
 export const executeRegistration = async (userId: string, state: RegisterState) => {
   const member = await currentGuildMember(userId)
