@@ -19,6 +19,8 @@ const SettingList = {
   archiveCategory: SettingValueType.Category,
   voiceRoomCategory: SettingValueType.Category,
   userRole: SettingValueType.Role,
+  researcherRole: SettingValueType.Role,
+  newcomerRole: SettingValueType.Role,
   notVerifiedChannel: SettingValueType.Channel,
   notVerifiedRole: SettingValueType.Role,
   privacyPolicy: SettingValueType.LongText,
@@ -87,6 +89,14 @@ export const settingDetails: {
   },
   userRole: {
     description: '유저역할을 설정합니다.',
+    cache: true,
+  },
+  researcherRole: {
+    description: '신입 역할 지급을 시작할 때 감지할 신연구원 역할입니다.',
+    cache: true,
+  },
+  newcomerRole: {
+    description: '신연구원 역할을 받은 뒤 하루 동안 지급할 역할입니다.',
     cache: true,
   },
   privacyPolicy: {

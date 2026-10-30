@@ -5,6 +5,7 @@ import { client } from '~/bot/base/client'
 import { alertToNotVerifiedUser } from './service/auth.js'
 import { runAvatarSyncSafely } from './service/avatar-sync.js'
 import { updateAllLinkedRoleConnections } from './service/linked-roles.js'
+import { removeExpiredNewcomerRoles } from './service/newcomer-role.js'
 import { saveMessageCounts } from './service/message-log.js'
 
 /*
@@ -40,6 +41,10 @@ export const setupSchedule = () => {
   // Every 10 minutes
   scheduleJob('*/10 * * * *', async () => {
     await alertToNotVerifiedUser()
+  })
+
+  scheduleJob('*/1 * * * *', async () => {
+    await removeExpiredNewcomerRoles()
   })
 
   // Every 5 minutes
