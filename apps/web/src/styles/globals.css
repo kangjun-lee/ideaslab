@@ -423,9 +423,9 @@ hr {
 }
 
 .home-hero h1 {
-  font-size: clamp(3.25rem, 5.2vw, 5.75rem);
+  font-size: clamp(1.5rem, 2vw, 2.25rem);
   line-height: 1.12;
-  max-width: 11ch;
+  white-space: nowrap;
 }
 
 .home-hero p {

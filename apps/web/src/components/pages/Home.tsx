@@ -19,7 +19,7 @@ export const HomePage = () => (
     <section className="home-hero">
       <div className="container home-hero-inner">
         <div>
-          <h1>당신의 아이디어가 현실로 이루어지길</h1>
+          <h1>당신의 아이디어가 <br/>현실로 이루어지길</h1>
           <p className="mt-6">
             아이디어스랩은 창작자의 아이디어가 현실로 이루어지도록 도와주는 디스코드 서버입니다.
           </p>
@@ -50,7 +50,7 @@ export const HomePage = () => (
 
     <section className="home-section container grid lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-12">
       <div>
-        <h2>아이디어스 랩 컨텐츠</h2>
+        <h2>아이디어스 랩 <br/>컨텐츠</h2>
         <p className="mt-5 text-lg text-description-color">
           아이디어스랩 디스코드 서버에는 많은 컨텐츠가 준비되어 있습니다.
         </p>
@@ -81,7 +81,7 @@ export const HomePage = () => (
 
     <section className="home-section home-reasons">
       <div className="container grid lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-12">
-        <h2>여러분이 아이디어스 랩에서 활동해야 하는 이유!</h2>
+        <h2>아이디어스 랩에서 활동해야 하는 이유!</h2>
         <div className="grid sm:grid-cols-2 gap-6">
           {reasons.map((reason, index) => (
             <p className="home-reason text-lg" key={reason}>
