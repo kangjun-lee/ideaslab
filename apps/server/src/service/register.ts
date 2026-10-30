@@ -294,9 +294,7 @@ export const executeRegistration = async (userId: string, state: RegisterState) 
     await ignoreError(member.setNickname(state.nickname))
   }
 
-  const userRole = await getSetting('userRole')
   const notVerifiedRole = await getSetting('notVerifiedRole')
-  if (userRole) await member.roles.add(userRole)
   if (notVerifiedRole && member.roles.cache.get(notVerifiedRole))
     await member.roles.remove(notVerifiedRole)
 
@@ -317,6 +315,13 @@ export const executeRegistration = async (userId: string, state: RegisterState) 
         state.profileVisible === 'Public' ? DefaultVisible.Public : DefaultVisible.MemberOnly,
     },
   })
+
+  const allRoles = await dbClient.role.findMany({ select: { discordRole: true, id: true } })
+  for (const role of allRoles) {
+    if (state.roles.includes(role.id)) {
+      await member.roles.add(role.discordRole)
+    }
+  }
 
   // 환영 메시지
   const welcomeChannelId = await getSetting('welcomeChannel')
