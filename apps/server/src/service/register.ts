@@ -318,13 +318,6 @@ export const executeRegistration = async (userId: string, state: RegisterState) 
     },
   })
 
-  const allRoles = await dbClient.role.findMany({ select: { discordRole: true, id: true } })
-  for (const role of allRoles) {
-    if (state.roles.includes(role.id)) {
-      await member.roles.add(role.discordRole)
-    }
-  }
-
   // 환영 메시지
   const welcomeChannelId = await getSetting('welcomeChannel')
   const welcomeChannel = welcomeChannelId ? client.channels.cache.get(welcomeChannelId) : null

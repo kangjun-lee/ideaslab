@@ -182,15 +182,6 @@ export const authRouter = router({
       },
       config.debugThreads.register,
     )
-    const allRoles = await dbClient.role.findMany({ select: { discordRole: true, id: true } })
-
-    for (const role of allRoles) {
-      const needRole = input.roles.find((id) => id === role.id)
-      if (needRole) {
-        await member.roles.add(role.discordRole)
-      }
-    }
-
     const welcomeChannelId = await getSetting('welcomeChannel')
     const welcomeChannel = welcomeChannelId ? client.channels.cache.get(welcomeChannelId) : null
     const welcomeMessage =
@@ -283,18 +274,6 @@ export const authRouter = router({
             input.profileVisible === 'Public' ? DefaultVisible.Public : DefaultVisible.MemberOnly,
         },
       })
-
-      const allRoles = await dbClient.role.findMany({ select: { discordRole: true, id: true } })
-
-      for (const role of allRoles) {
-        const memberRole = member.roles.cache.get(role.discordRole)
-        const needRole = input.roles.find((id) => id === role.id)
-        if (needRole && !memberRole) {
-          await member.roles.add(role.discordRole)
-        } else if (!needRole && memberRole) {
-          await member.roles.remove(role.discordRole)
-        }
-      }
 
       return {
         success: true,
