@@ -313,13 +313,38 @@ describe('Statistics Canvas & Tree Graph Service', () => {
 
       const typeOpt = options.find((opt: any) => opt.name === '종류') as any
       assert.ok(typeOpt.choices)
-      assert.strictEqual(typeOpt.choices.length, 2)
+      assert.strictEqual(typeOpt.choices.length, 3)
       assert.strictEqual(typeOpt.choices[0].value, 'message')
       assert.strictEqual(typeOpt.choices[1].value, 'voice')
+      assert.strictEqual(typeOpt.choices[2].value, 'attendance')
     })
   })
 
   describe('Full Payload Builder (buildStatisticsPayload)', () => {
+    it('builds attendance statistics from certified attendance days', async (t) => {
+      const originalFindMany = dbClient.voiceAttendance.findMany
+      t.after(() => {
+        dbClient.voiceAttendance.findMany = originalFindMany
+      })
+      dbClient.voiceAttendance.findMany = (async () => [
+        { date: new Date('2026-01-02') },
+        { date: new Date('2026-01-03') },
+      ]) as any
+
+      const { container } = await buildStatisticsPayload({
+        targetUser: { id: 'mock-user-12345', displayName: '출석왕' },
+        type: 'attendance',
+        year: 2026,
+      })
+      const json = container.toJSON() as any
+      const text = json.components
+        .filter((component: any) => component.type === 10)
+        .map((component: any) => component.content)
+        .join('\n')
+      assert.ok(text.includes('통화방 출석 통계'))
+      assert.ok(text.includes('2일'))
+    })
+
     it('keeps button IDs unique when peak or adjacent dates are today', async (t) => {
       const today = new Date().toISOString().slice(0, 10)
       const { prevDateStr, nextDateStr } = getAdjacentDays(today)

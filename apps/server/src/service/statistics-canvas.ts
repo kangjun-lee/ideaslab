@@ -18,6 +18,7 @@ import { fileURLToPath } from 'node:url'
 import { EmbedColor } from '~/bot/types'
 import config from '~/config'
 import { allMessageLogByYear } from '~/service/message-log'
+import { getVoiceAttendanceByYear } from '~/service/voice-attendance'
 import {
   allVoiceLogByDate,
   formatSeconds,
@@ -75,7 +76,7 @@ export interface ContributionDay {
 
 export interface ContributionGraphOptions {
   year: number
-  type: 'message' | 'voice'
+  type: 'message' | 'voice' | 'attendance'
   days: ContributionDay[]
   total: number
   activeDays: number
@@ -85,7 +86,7 @@ export interface ContributionGraphOptions {
 }
 
 export interface WittyPhraseParams {
-  type: 'message' | 'voice'
+  type: 'message' | 'voice' | 'attendance'
   total: number
   activeDays: number
   peakDate?: string | null
@@ -97,7 +98,7 @@ export interface WittyPhraseParams {
 export interface BuildStatisticsOptions {
   client?: any
   targetUser: { id: string; displayName?: string; username?: string }
-  type: 'message' | 'voice'
+  type: 'message' | 'voice' | 'attendance'
   year: number
   selectedDate?: string | null
   executorId?: string
@@ -295,7 +296,7 @@ export const generateContributionGraph = (options: ContributionGraphOptions): Bu
     const y = 62 + row * 14
 
     const val = dataMap.get(dateStr) ?? 0
-    const fillColor = type === 'message' ? getMessageColor(val) : getVoiceColor(val)
+    const fillColor = type === 'voice' ? getVoiceColor(val) : getMessageColor(val)
 
     ctx.fillStyle = fillColor
     ctx.beginPath()
@@ -321,9 +322,9 @@ export const generateContributionGraph = (options: ContributionGraphOptions): Bu
   ctx.textAlign = 'left'
 
   const legendColors =
-    type === 'message'
-      ? ['#2b2d31', '#0e4429', '#006d32', '#26a641', '#39d353']
-      : ['#2b2d31', '#2a325a', '#3c45a5', '#5865f2', '#7983f5']
+    type === 'voice'
+      ? ['#2b2d31', '#2a325a', '#3c45a5', '#5865f2', '#7983f5']
+      : ['#2b2d31', '#0e4429', '#006d32', '#26a641', '#39d353']
   legendColors.forEach((color, i) => {
     ctx.fillStyle = color
     ctx.beginPath()
@@ -338,6 +339,17 @@ export const generateContributionGraph = (options: ContributionGraphOptions): Bu
 
 export const generateWittyPhrase = (params: WittyPhraseParams): string => {
   const { type, total, activeDays, peakDate, peakValue, selectedDate, selectedDateValue } = params
+
+  if (type === 'attendance') {
+    if (selectedDate) {
+      return selectedDateValue
+        ? `-# **${selectedDate}**: 통화방 출석을 인증한 날이에요!`
+        : `-# **${selectedDate}**: 통화방 출석 기록이 없어요.`
+    }
+    return total
+      ? `-# 올해 통화방에 ${total.toLocaleString()}일 출석했어요. 꾸준함이 멋져요!`
+      : '-# 아직 통화방 출석 기록이 없어요. 10분 동안 함께하면 출석이 인증돼요!'
+  }
 
   if (selectedDate) {
     if (selectedDateValue && selectedDateValue > 0) {
@@ -470,7 +482,7 @@ export const buildStatisticsPayload = async (options: BuildStatisticsOptions) =>
       const found = days.find((d) => d.date === selectedDate)
       selectedDateValue = found ? found.value : 0
     }
-  } else {
+  } else if (type === 'voice') {
     const rawLogs = await allVoiceLogByDate(userId, {
       startYear: year,
       startMonth: 1,
@@ -502,6 +514,12 @@ export const buildStatisticsPayload = async (options: BuildStatisticsOptions) =>
       const found = days.find((d) => d.date === selectedDate)
       selectedDateValue = found ? found.value : detailList.reduce((acc, cur) => acc + cur.value, 0)
     }
+  } else {
+    const records = await getVoiceAttendanceByYear(userId, year).catch(() => [])
+    days = records.map((record) => ({ date: formatDateKey(record.date), value: 1 }))
+    total = days.length
+    activeDays = days.length
+    if (selectedDate) selectedDateValue = days.some((day) => day.date === selectedDate) ? 1 : 0
   }
 
   // Generate Image
@@ -519,20 +537,29 @@ export const buildStatisticsPayload = async (options: BuildStatisticsOptions) =>
 
   // Build Container
   const container = new ContainerBuilder()
-  container.setAccentColor(hexToRgb(type === 'message' ? EmbedColor.Success : EmbedColor.Info))
+  container.setAccentColor(hexToRgb(type === 'voice' ? EmbedColor.Info : EmbedColor.Success))
 
-  const typeName = type === 'message' ? '메시지' : '음성 통화'
-  const totalFormatted = type === 'message' ? `${total.toLocaleString()}개` : formatSeconds(total)
+  const typeName = type === 'message' ? '메시지' : type === 'voice' ? '음성 통화' : '통화방 출석'
+  const totalFormatted =
+    type === 'message'
+      ? `${total.toLocaleString()}개`
+      : type === 'voice'
+      ? formatSeconds(total)
+      : `${total.toLocaleString()}일`
   const peakFormatted =
     peakValue > 0
       ? type === 'message'
         ? `${peakValue.toLocaleString()}개 (${peakDate})`
-        : `${formatSeconds(peakValue)} (${peakDate})`
+        : type === 'voice'
+        ? `${formatSeconds(peakValue)} (${peakDate})`
+        : `${peakDate}`
       : '기록 없음'
 
   let overviewText =
     `### 📊 ${userName} 님의 ${year}년 ${typeName} 통계\n` +
-    `총 ${typeName}: **\`${totalFormatted}\`** | 활동일수: **\`${activeDays}일\`** | 최고 활동: **\`${peakFormatted}\`**`
+    `총 ${typeName}: **\`${totalFormatted}\`** | 활동일수: **\`${activeDays}일\`**${
+      type === 'attendance' ? '' : ` | 최고 활동: **\`${peakFormatted}\`**`
+    }`
 
   if (currentVoiceTime) {
     overviewText += `\n🎙️ 현재 통화방 사용 중: **\`${formatSeconds(currentVoiceTime)}\`**`
@@ -541,7 +568,7 @@ export const buildStatisticsPayload = async (options: BuildStatisticsOptions) =>
   if (selectedDate) {
     if (type === 'message') {
       overviewText += `\n\n📅 **${selectedDate} 상세 정보**: 전송 메시지 **\`${selectedDateValue.toLocaleString()}개\`**`
-    } else {
+    } else if (type === 'voice') {
       overviewText += `\n\n📅 **${selectedDate} 상세 정보**: 총 통화 시간 **\`${formatSeconds(
         selectedDateValue,
       )}\`**`
@@ -559,6 +586,10 @@ export const buildStatisticsPayload = async (options: BuildStatisticsOptions) =>
           .join('\n')
         overviewText += `\n${channelLines}`
       }
+    } else {
+      overviewText += `\n\n📅 **${selectedDate}**: ${
+        selectedDateValue ? '출석 인증됨' : '출석 기록 없음'
+      }`
     }
   }
 
@@ -588,6 +619,13 @@ export const buildStatisticsPayload = async (options: BuildStatisticsOptions) =>
   // Navigation Buttons
   const todayStr = new Date().toISOString().slice(0, 10)
   const exec = executorId ?? userId
+  const nextType = type === 'message' ? 'voice' : type === 'voice' ? 'attendance' : 'message'
+  const nextTypeLabel =
+    nextType === 'message'
+      ? '메시지 통계 보기'
+      : nextType === 'voice'
+      ? '통화방 통계 보기'
+      : '출석 통계 보기'
 
   const row1 = new ActionRowBuilder<ButtonBuilder>().addComponents(
     new ButtonBuilder()
@@ -601,10 +639,8 @@ export const buildStatisticsPayload = async (options: BuildStatisticsOptions) =>
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(year >= currentYear),
     new ButtonBuilder()
-      .setCustomId(
-        `stat:type:${userId}:${type === 'message' ? 'voice' : 'message'}:${year}:${exec}`,
-      )
-      .setLabel(type === 'message' ? '통화방 통계 보기' : '메시지 통계 보기')
+      .setCustomId(`stat:type:${userId}:${nextType}:${year}:${exec}`)
+      .setLabel(nextTypeLabel)
       .setStyle(ButtonStyle.Primary),
     new ButtonBuilder()
       .setCustomId(`stat:modal-open:${userId}:${type}:${year}:${exec}`)

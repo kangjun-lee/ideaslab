@@ -61,8 +61,8 @@ describe('Discord Linked Roles', () => {
       assert.strictEqual(valid.errors.length, 0)
     })
 
-    it('should have exactly 4 metadata definitions with required types and keys', () => {
-      assert.strictEqual(ROLE_CONNECTION_METADATA_DEFINITIONS.length, 4)
+    it('should have exactly 5 metadata definitions with required types and keys', () => {
+      assert.strictEqual(ROLE_CONNECTION_METADATA_DEFINITIONS.length, 5)
 
       const isMember = ROLE_CONNECTION_METADATA_DEFINITIONS.find((d) => d.key === 'is_member')
       assert.ok(isMember)
@@ -87,6 +87,13 @@ describe('Discord Linked Roles', () => {
       assert.ok(voiceMinutes)
       assert.strictEqual(voiceMinutes.type, 2) // Integer Greater Than Or Equal
       assert.strictEqual(voiceMinutes.name, '음성 채널 활동(시간)')
+
+      const attendanceDays = ROLE_CONNECTION_METADATA_DEFINITIONS.find(
+        (d) => d.key === 'voice_attendance_days',
+      )
+      assert.ok(attendanceDays)
+      assert.strictEqual(attendanceDays.type, 2)
+      assert.strictEqual(attendanceDays.name, '통화방 출석일수')
     })
 
     it('should call Discord REST API to register metadata', async () => {
@@ -229,6 +236,7 @@ describe('Discord Linked Roles', () => {
       const origPointAggregate = dbClient.point.aggregate
       const origMessageAggregate = dbClient.messageLog.aggregate
       const origVoiceAggregate = dbClient.voiceLog.aggregate
+      const origAttendanceCount = dbClient.voiceAttendance.count
 
       dbClient.user.findUnique = (async () => ({
         discordId: 'user-456',
@@ -248,6 +256,7 @@ describe('Discord Linked Roles', () => {
       dbClient.voiceLog.aggregate = (async () => ({
         _sum: { value: 1800 },
       })) as any
+      dbClient.voiceAttendance.count = (async () => 12) as any
 
       try {
         const stats = await getUserStats('user-456')
@@ -255,12 +264,14 @@ describe('Discord Linked Roles', () => {
         assert.strictEqual(stats.points, 250) // Math.floor
         assert.strictEqual(stats.messageCount, 142)
         assert.strictEqual(stats.voiceMinutes, 0.5) // 1800 / 3600
+        assert.strictEqual(stats.voiceAttendanceDays, 12)
         assert.strictEqual(stats.userName, 'testuser')
       } finally {
         dbClient.user.findUnique = origUserFindUnique
         dbClient.point.aggregate = origPointAggregate
         dbClient.messageLog.aggregate = origMessageAggregate
         dbClient.voiceLog.aggregate = origVoiceAggregate
+        dbClient.voiceAttendance.count = origAttendanceCount
       }
     })
 
@@ -269,11 +280,13 @@ describe('Discord Linked Roles', () => {
       const origPointAggregate = dbClient.point.aggregate
       const origMessageAggregate = dbClient.messageLog.aggregate
       const origVoiceAggregate = dbClient.voiceLog.aggregate
+      const origAttendanceCount = dbClient.voiceAttendance.count
 
       dbClient.user.findUnique = (async () => null) as any
       dbClient.point.aggregate = (async () => ({ _sum: { value: null } })) as any
       dbClient.messageLog.aggregate = (async () => ({ _sum: { count: null } })) as any
       dbClient.voiceLog.aggregate = (async () => ({ _sum: { value: null } })) as any
+      dbClient.voiceAttendance.count = (async () => 0) as any
 
       try {
         const stats = await getUserStats('nonexistent-user')
@@ -281,12 +294,14 @@ describe('Discord Linked Roles', () => {
         assert.strictEqual(stats.points, 0)
         assert.strictEqual(stats.messageCount, 0)
         assert.strictEqual(stats.voiceMinutes, 0)
+        assert.strictEqual(stats.voiceAttendanceDays, 0)
         assert.strictEqual(stats.userName, undefined)
       } finally {
         dbClient.user.findUnique = origUserFindUnique
         dbClient.point.aggregate = origPointAggregate
         dbClient.messageLog.aggregate = origMessageAggregate
         dbClient.voiceLog.aggregate = origVoiceAggregate
+        dbClient.voiceAttendance.count = origAttendanceCount
       }
     })
 
@@ -317,6 +332,7 @@ describe('Discord Linked Roles', () => {
           points: 1500,
           messageCount: 320,
           voiceMinutes: 45,
+          voiceAttendanceDays: 24,
           userName: 'testcreator',
         }
 
@@ -338,6 +354,7 @@ describe('Discord Linked Roles', () => {
         assert.strictEqual(calledPayload.metadata.points, '1500')
         assert.strictEqual(calledPayload.metadata.message_count, '320')
         assert.strictEqual(calledPayload.metadata.voice_minutes, '45')
+        assert.strictEqual(calledPayload.metadata.voice_attendance_days, '24')
       } finally {
         globalThis.fetch = originalFetch
       }
@@ -364,6 +381,7 @@ describe('Discord Linked Roles', () => {
           points: 10,
           messageCount: 5,
           voiceMinutes: 1,
+          voiceAttendanceDays: 2,
           userName: veryLongUsername,
         })
 
@@ -438,6 +456,7 @@ describe('Discord Linked Roles', () => {
           points: 10,
           messageCount: 5,
           voiceMinutes: 1,
+          voiceAttendanceDays: 2,
         })
         assert.deepStrictEqual(result, {})
       } finally {
@@ -456,6 +475,7 @@ describe('Discord Linked Roles', () => {
               points: 0,
               messageCount: 0,
               voiceMinutes: 0,
+              voiceAttendanceDays: 0,
             }),
           /BOT_ID .* is required to push role connection/,
         )
@@ -469,6 +489,7 @@ describe('Discord Linked Roles', () => {
       const origPointAggregate = dbClient.point.aggregate
       const origMessageAggregate = dbClient.messageLog.aggregate
       const origVoiceAggregate = dbClient.voiceLog.aggregate
+      const origAttendanceCount = dbClient.voiceAttendance.count
 
       dbClient.user.findUnique = (async () => ({
         discordId: 'u-weird',
@@ -477,6 +498,7 @@ describe('Discord Linked Roles', () => {
       dbClient.point.aggregate = (async () => ({ _sum: { value: -50 } })) as any
       dbClient.messageLog.aggregate = (async () => ({ _sum: { count: NaN } })) as any
       dbClient.voiceLog.aggregate = (async () => ({ _sum: { value: -120 } })) as any
+      dbClient.voiceAttendance.count = (async () => 0) as any
 
       try {
         const stats = await getUserStats('u-weird')
@@ -489,6 +511,7 @@ describe('Discord Linked Roles', () => {
         dbClient.point.aggregate = origPointAggregate
         dbClient.messageLog.aggregate = origMessageAggregate
         dbClient.voiceLog.aggregate = origVoiceAggregate
+        dbClient.voiceAttendance.count = origAttendanceCount
       }
     })
 
@@ -541,6 +564,7 @@ describe('Discord Linked Roles', () => {
           points: NaN,
           messageCount: 'not-a-number' as any,
           voiceMinutes: undefined as any,
+          voiceAttendanceDays: undefined as any,
           userName: '   spaced_user   ',
         })
 
@@ -1508,6 +1532,7 @@ describe('Discord Linked Roles', () => {
           points: 100,
           messageCount: 50,
           voiceMinutes: 10,
+          voiceAttendanceDays: 20,
         },
       })
       assert.ok(successHtml.includes('<!DOCTYPE html>'))

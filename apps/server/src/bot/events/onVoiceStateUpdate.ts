@@ -10,6 +10,11 @@ import {
 
 import { Event } from '~/bot/base/event'
 import { archiveVoiceChannel, findChatroomRule, voiceChannelState } from '~/service/voice-channel'
+import {
+  getVoiceAttendanceCount,
+  startVoiceAttendance,
+  stopVoiceAttendance,
+} from '~/service/voice-attendance'
 import { eventMemberJoin, eventMemberLeave } from '~/service/voice-log'
 import { hexToRgb } from '~/utils'
 import { DebugReporter } from '~/utils/debug'
@@ -33,6 +38,8 @@ const sendAlert = async (
     type === 'join'
       ? `### ${member?.toString()}이(가) 음성채팅방에 들어왔어요.`
       : `### ${member?.toString()}이(가) 음성채팅방에서 나갔어요.`
+  const attendance =
+    type === 'join' && member ? await getVoiceAttendanceCount(member.id).catch(() => 0) : null
 
   const container = new ContainerBuilder()
     .addSectionComponents((section) =>
@@ -40,7 +47,11 @@ const sendAlert = async (
         .setThumbnailAccessory((acc) =>
           acc.setURL(getAvatarURL(member)).setDescription(`${member?.user.username}님의 프로필`),
         )
-        .addTextDisplayComponents((text) => text.setContent(title)),
+        .addTextDisplayComponents((text) =>
+          text.setContent(
+            `${title}${attendance === null ? '' : `\n-# 누적 통화방 출석 ${attendance}일`}`,
+          ),
+        ),
     )
     .setAccentColor(hexToRgb(type === 'join' ? EmbedColor.Info : EmbedColor.Error))
 
@@ -96,6 +107,7 @@ export default new Event('voiceStateUpdate', async (_client, before, after) => {
       ],
     })
     eventMemberJoin(after.member.id)
+    startVoiceAttendance(after.member)
 
     await sendAlert(after.channel as TextBasedChannel, 'join', after.member)
     return
@@ -181,6 +193,7 @@ export default new Event('voiceStateUpdate', async (_client, before, after) => {
         .then((c) => (c?.isVoiceBased() && c.isSendable() ? c : null))
 
     eventMemberLeave(before.member.id, channel?.name ?? '')
+    stopVoiceAttendance(before.member.id)
     await sendAlert(channel as TextBasedChannel, 'leave', before.member)
 
     const state = await voiceChannelState(channel as VoiceChannel)
