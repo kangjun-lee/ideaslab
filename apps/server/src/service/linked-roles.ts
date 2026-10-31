@@ -4,6 +4,7 @@ import type { IncomingMessage, ServerResponse } from 'http'
 
 import { dbClient } from '@ideaslab/db'
 
+import { currentGuild } from '~/bot/base/client'
 import config from '~/config'
 import {
   consumeLinkedRolesState,
@@ -14,6 +15,7 @@ import {
   storeLinkedRolesState,
   storeLinkedRolesTokens,
 } from '~/lib/redis'
+import { getSetting } from '~/service/setting'
 import { DebugReporter } from '~/utils/debug'
 import { Logger } from '~/utils/logger'
 
@@ -538,6 +540,7 @@ export async function updateUserRoleConnection(userId: string): Promise<boolean>
 
     try {
       await pushRoleConnection(accessToken, stats)
+      await removeNotVerifiedRoleIfLinkedRoleAssigned(userId)
       return true
     } catch (pushErr) {
       const errMsg = pushErr instanceof Error ? pushErr.message : String(pushErr)
@@ -548,6 +551,7 @@ export async function updateUserRoleConnection(userId: string): Promise<boolean>
         accessToken = await getValidAccessToken(userId, true)
         if (accessToken) {
           await pushRoleConnection(accessToken, stats)
+          await removeNotVerifiedRoleIfLinkedRoleAssigned(userId)
           return true
         }
       }
@@ -556,6 +560,24 @@ export async function updateUserRoleConnection(userId: string): Promise<boolean>
   } catch (err) {
     logger.error(`Error updating role connection for user ${userId}:`, err)
     return false
+  }
+}
+
+async function removeNotVerifiedRoleIfLinkedRoleAssigned(userId: string): Promise<void> {
+  try {
+    const [researcherRole, notVerifiedRole] = await Promise.all([
+      getSetting('researcherRole'),
+      getSetting('notVerifiedRole'),
+    ])
+    if (!researcherRole || !notVerifiedRole) return
+
+    const guild = await currentGuild()
+    const member = await guild.members.fetch(userId)
+    if (member.roles.cache.has(researcherRole) && member.roles.cache.has(notVerifiedRole)) {
+      await member.roles.remove(notVerifiedRole)
+    }
+  } catch (err) {
+    logger.error(`Failed to remove not-verified role after Linked Roles update for ${userId}:`, err)
   }
 }
 
@@ -979,6 +1001,7 @@ export async function handleLinkedRolesCallback(
 
     // 10. Push role connection to Discord
     await pushRoleConnection(tokens.access_token, stats, discordUser.username)
+    await removeNotVerifiedRoleIfLinkedRoleAssigned(userId)
 
     logger.info(
       `Successfully linked role and pushed metadata for user ${userId} (${discordUser.username})`,
