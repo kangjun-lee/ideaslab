@@ -9,12 +9,12 @@ import {
 } from 'discord.js'
 
 import { Event } from '~/bot/base/event'
-import { archiveVoiceChannel, findChatroomRule, voiceChannelState } from '~/service/voice-channel'
 import {
   getVoiceAttendanceCount,
   startVoiceAttendance,
   stopVoiceAttendance,
 } from '~/service/voice-attendance'
+import { archiveVoiceChannel, findChatroomRule, voiceChannelState } from '~/service/voice-channel'
 import { eventMemberJoin, eventMemberLeave } from '~/service/voice-log'
 import { hexToRgb } from '~/utils'
 import { DebugReporter } from '~/utils/debug'
