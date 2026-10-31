@@ -7,14 +7,20 @@ export default new Event('guildMemberUpdate', async (_client, oldMember, newMemb
   if (newMember.guild.id !== config.guildId) return
 
   const researchRole = await getSetting('researcherRole')
-  const newcomerRole = await getSetting('newcomerRole')
   if (
     !researchRole ||
-    !newcomerRole ||
     oldMember.roles.cache.has(researchRole) ||
     !newMember.roles.cache.has(researchRole)
   )
     return
 
-  await grantTemporaryNewcomerRole(newMember.id, newcomerRole)
+  const [newcomerRole, notVerifiedRole] = await Promise.all([
+    getSetting('newcomerRole'),
+    getSetting('notVerifiedRole'),
+  ])
+
+  if (notVerifiedRole && newMember.roles.cache.has(notVerifiedRole)) {
+    await newMember.roles.remove(notVerifiedRole)
+  }
+  if (newcomerRole) await grantTemporaryNewcomerRole(newMember.id, newcomerRole)
 })
