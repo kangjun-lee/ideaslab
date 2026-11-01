@@ -123,21 +123,28 @@ export const notVerifiedUsers = async () => {
 export const notVerifiedAlertUsers = async () => {
   const userRole = await getSetting('userRole')
   const notVerifiedRole = await getSetting('notVerifiedRole')
-  const now = new Date()
+  const researcherRole = await getSetting('researcherRole')
+  const now =  Date.now()
 
-  if (!userRole || !notVerifiedRole) return []
+  if (!userRole || !notVerifiedRole || !researcherRole) return []
 
   const guild = await currentGuild()
 
-  const filtered = guild.members.cache.filter((user) => {
-    return (
-      !user.user.bot &&
-      !user.roles.cache.has(userRole) &&
-      !user.roles.cache.has(notVerifiedRole) &&
-      user.joinedTimestamp &&
-      user.joinedTimestamp - now.getUTCMilliseconds() > timeoutMillisecond
-    )
+
+  const filtered = guild.members.cache.filter((member) => {
+    if (member.user.bot || !member.joinedTimestamp) return false;
+
+    const hasNeitherRole =
+      !member.roles.cache.has(userRole) &&
+      !member.roles.cache.has(researcherRole);
+
+    const isNotUnverified = !member.roles.cache.has(notVerifiedRole);
+
+    const isTimedOut = now - member.joinedTimestamp > timeoutMillisecond;
+
+    return hasNeitherRole && isNotUnverified && isTimedOut;
   })
+
   return [...filtered.values()]
 }
 
