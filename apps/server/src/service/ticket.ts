@@ -239,8 +239,8 @@ export const ticketService = {
 
     const { userId }: TicketRedisValueByChannelId = JSON.parse(ticketData)
 
-    const user = await currentGuildMember(userId)
-    if (!user || !user.dmChannel) return
+    const user = await client.users.fetch(userId)
+    const dmChannel = await user.createDM()
 
     // message starts with !, then send as anon
     let content = message.content
@@ -251,7 +251,7 @@ export const ticketService = {
       author = '관리진'
     }
 
-    await user.dmChannel.send({
+    await dmChannel.send({
       content: `> ${author}: ${content}
       ${message.attachments.map((attachment) => attachment.url).join('\n') ?? ''}
       `,
