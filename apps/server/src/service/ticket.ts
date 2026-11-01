@@ -227,7 +227,7 @@ export const ticketService = {
     if (!message.channel.isThread()) return
     const ticketChannelId = await getSetting('ticketChannel')
 
-    if (message.channel.parent?.id !== ticketChannelId) return
+    if (message.channel.parentId !== ticketChannelId) return
 
     const ticketData: string | null = await redis.get(
       redisTicketKey('channelId', message.channelId),

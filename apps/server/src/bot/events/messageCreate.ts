@@ -2,6 +2,7 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, MessageType 
 
 import { dbClient, DefaultVisible, Prisma } from '@ideaslab/db'
 
+import { currentGuildChannel } from '~/bot/base/client'
 import { Event } from '~/bot/base/event'
 import config from '~/config'
 import { getGalleryCategory } from '~/service/gallery'
@@ -24,19 +25,19 @@ export default new Event('messageCreate', async (client, message) => {
   {
     if (message.channel.type !== ChannelType.PublicThread) return
     if (!message.channel.parentId) return
+    const parent = message.channel.parent ?? (await currentGuildChannel(message.channel.parentId))
 
     // Ticket Message from manager
-    if (message.channel.parent?.type === ChannelType.GuildText) {
+    if (parent?.type === ChannelType.GuildText) {
       await ticketService.ticketEventFromThread(message)
       return
     }
 
     // Create post / comment
-    if (message.channel.parent?.type !== ChannelType.GuildForum) return
+    if (parent?.type !== ChannelType.GuildForum) return
     const threadChannel = message.channel
 
     if (!threadChannel.parentId || !threadChannel.ownerId) return
-    if (!threadChannel.parent || threadChannel.parent.type !== ChannelType.GuildForum) return
 
     // if(!threadChannel) {
     //   const channel = await client.channels.fetch(message.channelId, { cache: true, force: true })
@@ -102,7 +103,7 @@ export default new Event('messageCreate', async (client, message) => {
       }
     })
 
-    const tags = threadChannel.parent.availableTags
+    const tags = parent.availableTags
 
     const postTags: string[] = []
     threadChannel.appliedTags.forEach((tagId) => {
